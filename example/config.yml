@@ -1,0 +1,10 @@
+data_rootdir        : C:/Users/Hamidreza.Zoraghein/Google Drive/Population_Downscaling_1KM
+datadir_histdata    : ROOTDIR/Template/main_inputs/
+datadir_future      : ROOTDIR/Template/ssp_projections/
+point_indices       : Point_Indices.txt
+ssp_code            : SSP2
+region_code         : Template
+compute_params      : true
+compute_proj        : true
+
+datadir_output      : ROOTDIR/Template/outputs/
