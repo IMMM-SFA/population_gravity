@@ -29,22 +29,23 @@ def raster_to_array(raster):
     
 
 def array_to_raster(input_raster, input_array, within_indices, output_raster):
-    #Import the required modules
-    import rasterio
-    
-    sub_name = "<array_to_raster> "
-    print sub_name + "enter"
-    
-    #Read the template raster to be filled by output array values later
-    print sub_name + "open file: " + input_raster   
+    """Save NumPy array to a raster
+
+    :param input_raster:            ?
+    :param input_array:             ?
+    :param within_indices:          ?
+    :param output_raster:           ?
+
+    """
+    # read the template raster to be filled by output array values later
     with rasterio.open(input_raster) as src_raster:
-        band        = src_raster.read(1)
+        band = src_raster.read(1)
         src_profile = src_raster.profile
-        row_count   = band.shape[0]
-        col_count   = band.shape[1]
-        flat_array  = band.flatten()
+        row_count = band.shape[0]
+        col_count = band.shape[1]
+        flat_array = band.flatten()
     
-    #Replace initial array values with those from the input array 
+    # replace initial array values with those from the input array
     flat_array[within_indices] = input_array
     
     array = flat_array.reshape(row_count, col_count)
