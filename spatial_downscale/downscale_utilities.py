@@ -1,12 +1,12 @@
 """
 Helper functions for population downscaling.
 
-# HISTORY:
-# SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
-# SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
-
 @author: Hamidreza Zoraghein
 @date: Created on Mon Dec 11 11:24:13 2017
+
+@history:
+SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
+SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
 
 """
 from collections import deque
