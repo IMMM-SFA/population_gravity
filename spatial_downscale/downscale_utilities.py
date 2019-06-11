@@ -1,15 +1,14 @@
-#=========================================================================================
+"""
+Helper functions for population downscaling.
+
+# HISTORY:
 # SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
 # SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
-#======================================================================================
-"""
-Created on Mon Dec 11 11:24:13 2017
-A package that contains necessary functions for population downscaling.
 
 @author: Hamidreza Zoraghein
-"""
-#======================================================================================
+@date: Created on Mon Dec 11 11:24:13 2017
 
+"""
 from collections import deque
 
 import rasterio
@@ -62,11 +61,14 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
     
 
-def all_index_retriever(raster, columns):
+def all_index_retriever(raster, columns, row_col='row', column_col='column', all_index_col='all_index'):
     """?
 
     :param raster:                  ?
     :param columns:                 ?
+    :param row_col:                 ?
+    :param column_col:              ?
+    :param all_index_col:           ?
 
     :return:                        DataFrame of ?
 
@@ -78,10 +80,10 @@ def all_index_retriever(raster, columns):
     # put the row, column and linear indices of all elements in a dataframe
     shape = array.shape
     index = pd.MultiIndex.from_product([range(s)for s in shape], names=columns)
-    df = pd.DataFrame({'all_index': array.flatten()}, index=index).reset_index()
-    df["all_index"] = df.index
+    df = pd.DataFrame({all_index_col: array.flatten()}, index=index).reset_index()
+    df[all_index_col] = df.index
     
-    df = df.astype({"row": np.int32, "column": np.int32, "all_index": np.int32})
+    df = df.astype({row_col: np.int32, column_col: np.int32, all_index_col: np.int32})
 
     return df
 
@@ -112,7 +114,9 @@ def suitability_estimator(pop_dist_params):
     return estimate
     
 
-def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_file):
+def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_file, row_col='row',
+                           column_col='column', all_index_col='all_index', dis_col='dis', ind_diff_col='ind_diff',
+                           row_diff_col='row_diff', col_diff_col='col_diff'):
     """?
 
 
@@ -120,6 +124,13 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     :param cut_off_meters:          ?
     :param all_indices:             ?
     :param coors_csv_file:          ?
+    :param row_col:                 ?
+    :param column_col:              ?
+    :param all_index_col:           ?
+    :param dis_col:                 ?
+    :param ind_diff_col:            ?
+    :param row_diff_col:            ?
+    :param col_diff_col:            ?
 
     :return:                        ?
 
@@ -132,36 +143,38 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     cut_off_metres = cut_off_meters + 1
     tree_1 = cKDTree(points[first_index:first_index + 1, [0, 1]])
     tree_2 = cKDTree(points[:, [0, 1]])         
-    tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type  = 'dict', p = 2)
+    tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type='dict', p=2)
     
     # put distances and indices of neighboring in a dataframe
-    dist_df = pd.DataFrame(columns = ["near_id", "dis"])                 
+    dist_df = pd.DataFrame(columns = ["near_id", dis_col])
     dist_df["near_id"] = points[zip(*tree_dist)[1], 2].astype(np.int32)
-    dist_df["dis"]  = tree_dist.values()
-    dist_df = dist_df.loc[dist_df.loc[:, "dis"] != 0, :] # Remove the distance to itself
+    dist_df[dis_col] = tree_dist.values()
+    dist_df = dist_df.loc[dist_df.loc[:, dis_col] != 0, :] # Remove the distance to itself
     
     # bring row and column indices of neighboring points by a join
     dist_df = dist_df.join(all_indices, on = "near_id")
     
     # add to columns holding the relative difference in rows and colums beween focal point and its neighbors
-    foc_indices = all_indices.loc[first_index, ["row", "column"]].values  
-    dist_df["ind_diff"] = dist_df["near_id"] - first_index
-    dist_df["row_diff"] = dist_df["row"] - foc_indices[0]
-    dist_df["col_diff"] = dist_df["column"] - foc_indices[1]
+    foc_indices = all_indices.loc[first_index, [row_col, column_col]].values
+    dist_df[ind_diff_col] = dist_df["near_id"] - first_index
+    dist_df[row_diff_col] = dist_df[row_col] - foc_indices[0]
+    dist_df[col_diff_col] = dist_df[column_col] - foc_indices[1]
     
     # drop unwanted columns
-    dist_df = dist_df.drop(["row", "column", "near_id", "all_index"], axis = 1)
+    dist_df = dist_df.drop([row_col, column_col, "near_id", all_index_col], axis = 1)
         
-    dist_df = dist_df.astype({"ind_diff": np.int32, "row_diff": np.int32, "col_diff": np.int32})
+    dist_df = dist_df.astype({ind_diff_col: np.int32, row_diff_col: np.int32, col_diff_col: np.int32})
         
     return dist_df
 
 
-def pop_min_function(z, *params):
+def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
     """?
 
     :param z:                       ?
     :param params:                  ?
+    :param ind_diff_col:            ?
+    :param dis:                     ?
 
     :return:                        ?
 
@@ -197,11 +210,11 @@ def pop_min_function(z, *params):
         negative_mod = 0
     
     # differences in index between focal and nearby points as a template
-    ind_diffs = dist_matrix["ind_diff"].values
+    ind_diffs = dist_matrix[ind_diff_col].values
     
     # distances between current point and its close points
-    ini_dist = dist_matrix["dis"].values/1000.0
-    dist     = -b * ini_dist
+    ini_dist = dist_matrix[dis_col].values/1000.0
+    dist = -b * ini_dist
     
     exp_xx_inv_beta_dist = np.exp(dist)
     
@@ -210,7 +223,7 @@ def pop_min_function(z, *params):
     
     # provide the inputs for the parallelized function
     parallel_elements = deque([(i, ind_diffs, total_population_1st, a, exp_xx_inv_beta_dist)
-                                for i in within_indices])
+                            for i in within_indices])
     
     # derive suitability estimates
     suitability_estimates = pool.map(suitability_estimator, parallel_elements)
@@ -255,10 +268,10 @@ def pop_min_function(z, *params):
     
     if negative_mod:
         while any(pop < 0 for pop in pop_estimates): # To ensure there is no negative population
-             
+
             # TODO:  find out if these are need for any reason
-            new_tot_suitability = 0 # Total suitability calculated over points with positive population
-            extra_pop_mod = 0 # For adjusting negative population values
+            new_tot_suitability = 0  # Total suitability calculated over points with positive population
+            extra_pop_mod = 0  # For adjusting negative population values
             
             # treating negative population values
             extra_pop_mod = abs(pop_estimates[pop_estimates < 0].sum())
