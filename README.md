@@ -20,6 +20,6 @@ Fill in once we get the package built
 ## Contact
 For questions please contact:
 
-Hamidreza Zoraghein <Hamidreza.Zoraghein@du.edu>
+Hamidreza Zoraghein @ <Hamidreza.Zoraghein@du.edu>
 
-Brian O'Neill <Brian.ONeill@du.edu>
+Brian O'Neill @ <Brian.ONeill@du.edu>
