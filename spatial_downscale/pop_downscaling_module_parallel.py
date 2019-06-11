@@ -254,8 +254,6 @@ def pop_min_function(z, *params):
     
     if negative_mod:
         while any(pop < 0 for pop in pop_estimates): # To ensure there is no negative population
-            new_tot_suitability = 0 # Total suitability calculated over points with positive population
-            extra_pop_mod = 0 # For adjusting negative population values
             
             # treating negative population values
             extra_pop_mod = abs(pop_estimates[pop_estimates < 0].sum())
