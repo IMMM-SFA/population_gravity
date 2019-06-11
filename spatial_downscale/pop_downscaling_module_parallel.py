@@ -9,20 +9,23 @@ A package that contains necessary functions for population downscaling.
 @author: Hamidreza Zoraghein
 """
 #======================================================================================
+import rasterio
+
 
 def raster_to_array(raster):
-    #Import the required modules
-    import rasterio
-    
-    sub_name = "<raster_to_array> "
-    print sub_name + "enter"
-    
-    #Read the input raster before conveting it to an array
+    """Convert a raster to a NumPy array.
+
+    :param raster:                  Full path to file with name and extension to the input raster
+
+    :return:                        NumPy array
+
+    """
+    # read the input raster before converting it to an array
     with rasterio.open(raster) as src_raster:
-        band        = src_raster.read(1)
+        band = src_raster.read(1)
         final_array = band.flatten()
     
-    return(final_array)
+    return final_array
     
 
 def array_to_raster(input_raster, input_array, within_indices, output_raster):
