@@ -124,32 +124,32 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     :return:                        ?
 
     """
-    #Read all points with their coordinates
+    # read all points with their coordinates
     points = np.genfromtxt(coors_csv_file, delimiter = ',', skip_header = 1, usecols = (0, 1, 2),
                            dtype = float)
     
-    #Calculate distances between the first point and all other points within a 100km neighborhood
+    # calculate distances between the first point and all other points within a 100km neighborhood
     cut_off_metres = cut_off_meters + 1
     tree_1 = cKDTree(points[first_index:first_index + 1, [0, 1]])
     tree_2 = cKDTree(points[:, [0, 1]])         
     tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type  = 'dict', p = 2)
     
-    #Put distances and indices of neighboring in a dataframe 
+    # put distances and indices of neighboring in a dataframe
     dist_df = pd.DataFrame(columns = ["near_id", "dis"])                 
     dist_df["near_id"] = points[zip(*tree_dist)[1], 2].astype(np.int32)
     dist_df["dis"]  = tree_dist.values()
     dist_df = dist_df.loc[dist_df.loc[:, "dis"] != 0, :] # Remove the distance to itself
     
-    #Bring row and column indices of neighboring points by a join
+    # bring row and column indices of neighboring points by a join
     dist_df = dist_df.join(all_indices, on = "near_id")
     
-    #Add to columns holding the relative difference in rows and colums beween focal point and its neighbors
+    # add to columns holding the relative difference in rows and colums beween focal point and its neighbors
     foc_indices = all_indices.loc[first_index, ["row", "column"]].values  
     dist_df["ind_diff"] = dist_df["near_id"] - first_index
     dist_df["row_diff"] = dist_df["row"] - foc_indices[0]
     dist_df["col_diff"] = dist_df["column"] - foc_indices[1]
     
-    #Drop unwanted columns
+    # drop unwanted columns
     dist_df = dist_df.drop(["row", "column", "near_id", "all_index"], axis = 1)
         
     dist_df = dist_df.astype({"ind_diff": np.int32, "row_diff": np.int32, "col_diff": np.int32})
@@ -181,6 +181,7 @@ def pop_min_function(z, *params):
     within_indices = params[6] # Indices of points within the state boundary (subset of the above)
     
     # outputs of the optimization at each step
+    # TODO:  find out if these are need for any reason
     suitability_estimates = deque() # Suitability estimates in the second year
     pop_estimates = np.zeros(len(within_indices)) # Population estimates in the second year
     
@@ -254,6 +255,8 @@ def pop_min_function(z, *params):
     
     if negative_mod:
         while any(pop < 0 for pop in pop_estimates): # To ensure there is no negative population
+             
+            # TODO:  find out if these are need for any reason
             new_tot_suitability = 0 # Total suitability calculated over points with positive population
             extra_pop_mod = 0 # For adjusting negative population values
             
