@@ -11,4 +11,8 @@ datadir_output      : outputs
 # run settings
 compute_params      : true
 compute_proj        : true
+start_year          : 2000
+end_year            : 2050
+time_step           : 10
+
 
