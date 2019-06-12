@@ -13,7 +13,7 @@ class ReadConfig:
         self.data_rootdir = cfg['data_rootdir']
 
         # directory of main inputs
-        self.datadir_histdata = cfg['datadir_histdata']
+        self.datadir_histdata = os.path.join(cfg['data_rootdir'], cfg['region_code'], cfg['datadir_histdata'])
 
         # directory of projections
         self.datadir_future = cfg['datadir_future']

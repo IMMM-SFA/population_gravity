@@ -146,8 +146,10 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type='dict', p=2)
     
     # put distances and indices of neighboring in a dataframe
-    dist_df = pd.DataFrame(columns = ["near_id", dis_col])
-    dist_df["near_id"] = points[zip(*tree_dist)[1], 2].astype(np.int32)
+    dist_df = pd.DataFrame(columns=["near_id", dis_col])
+
+    # add list for zip to accomodate Python 3
+    dist_df["near_id"] = points[list(zip(*tree_dist))[1], 2].astype(np.int32)
     dist_df[dis_col] = tree_dist.values()
     dist_df = dist_df.loc[dist_df.loc[:, dis_col] != 0, :] # Remove the distance to itself
     
@@ -179,10 +181,8 @@ def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
     :return:                        ?
 
     """
-
-    # initialize the parameters
-    a = z
-    b = z
+    # unpack z tuple
+    a, b = z
     
     # inputs to the optimization
     setting = params[0]
@@ -285,8 +285,6 @@ def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
 
     # produce the total error compared to observed values
     tot_error = abs(population_2nd[setting][within_indices] - pop_estimates).sum()
-    
-    print("Initial run status:  Complete")
     
     return tot_error
         

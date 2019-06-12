@@ -88,6 +88,7 @@ def calibration(cfg):
 
     # Calculate a distance matrix that serves as a template
     cut_off_meters = 100000
+
     dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, all_indices, point_coors)
 
     # Parameter calculation for rural and urban

@@ -1,7 +1,7 @@
 
 # project level settings
-data_rootdir        : C:/Users/Hamidreza.Zoraghein/Google Drive/Population_Downscaling_1KM
-datadir_histdata    : main_inputs
+data_rootdir        : /Users/d3y010/projects/population
+datadir_histdata    : Main_Inputs
 datadir_future      : ssp_projections
 point_indices       : Point_Indices.txt
 ssp_code            : SSP2
@@ -10,7 +10,7 @@ datadir_output      : outputs
 
 # run settings
 compute_params      : true
-compute_proj        : true
+compute_proj        : false
 start_year          : 2000
 end_year            : 2050
 time_step           : 10

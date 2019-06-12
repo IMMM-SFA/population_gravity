@@ -171,10 +171,13 @@ class Downscale:
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('config_file', type=str, help='Full path with file name to YAML configuration file.')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('config_file', type=str, help='Full path with file name to YAML configuration file.')
+    # args = parser.parse_args()
 
-    run = Downscale(args.config_file)
+    # run = Downscale(args.config_file)
+
+    config_file = '/Users/d3y010/repos/github/spatial_population_downscaling_model/example/config.yml'
+    run = Downscale(config_file)
     run.execute()
     del run
