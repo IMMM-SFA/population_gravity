@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 import multiprocessing
@@ -8,13 +10,12 @@ import simplejson
 import spatial_downscale.downscale_utilities as pdm
 
 
-def pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn,
-                   params_file, region_code, ssp_code, point_coors, datadir_output,
-                   point_indices, urb_pop_snd_year):
+def pop_projection(cfg, urban_raster, rural_raster):
     """ ?
 
-    :param urb_pop_init_year:               ?
-    :param rur_pop_init_year:               ?
+    :param cfg:                             Configuration object
+    :param urban_raster:                    ?
+    :param rural_raster:                    ?
     :param mask_raster:                     ?
     :param ssp_dataFn:                      ?
     :param params_file:                     ?
@@ -28,7 +29,18 @@ def pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn
     :return:
 
     """
-    print("Projection:  Begin")
+
+    mask_raster = cfg.mask_raster
+    ssp_dataFn = cfg.ssp_dataFn
+    params_file = cfg.params_file
+    region_code = cfg.region_code
+    ssp_code = cfg.ssp_code
+    point_coors = cfg.point_coors
+    datadir_output = cfg.datadir_output
+    point_indices = cfg.point_indices
+    urb_pop_snd_year = cfg.urb_pop_snd_year
+    urb_pop_init_year = urban_raster
+    rur_pop_init_year = rural_raster
 
     # Define local variables
     current_timestep = [int(s) for s in urb_pop_init_year.split("/")[-1][:-4].split("_") if s.isdigit()][0] + 10
@@ -155,7 +167,7 @@ def pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn
         # total suitability for the whole area, which is the summation of all individual suitability values
         tot_suitability = suitability_estimates.sum()
 
-        # tinal population estimates if nagative mode is off
+        # tinal population estimates if negative mode is off
         pop_estimates = suitability_estimates / tot_suitability * pop_change + pop_first_year
 
         # adjust the projection so that no cell can have less than 0 individuals.
@@ -183,12 +195,14 @@ def pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn
         final_arrays[setting] = pop_estimates
 
         # save the final urban, rural raster
-        print("Saving urban and rural raster to:  {}".format(output))
+        logging.info("Saving urban and rural raster to:  {}".format(output))
+
         pdm.array_to_raster(mask_raster, pop_estimates, within_indices, output)
 
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
 
     # save the final total raster
-    print("Saving total population raster to:  {}".format(final_raster))
+    logging.info("Saving total population raster to:  {}".format(final_raster))
+
     pdm.array_to_raster(mask_raster, total_array, within_indices, final_raster)
