@@ -1,0 +1,7 @@
+numpy>=1.14
+scipy>=1.0
+pandas>=0.19
+pathos>=0.2
+rasterio>=1.0
+simplejson>=3.16
+setuptools>=24.2.0
