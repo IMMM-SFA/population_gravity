@@ -36,11 +36,20 @@ class ReadConfig:
         # output directory
         self.datadir_output = cfg['datadir_output']
 
+        # start year
+        self.start_year = cfg['start_year']
+
+        # end year
+        self.end_year = cfg['end_year']
+
+        # interval
+        self.time_step = cfg['time_step']
+
         # calibration inputs -- derived from user inputs
-        self.urb_pop_fst_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, cfg['first_yr']))
-        self.urb_pop_snd_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, cfg['second_yr']))
-        self.rur_pop_fst_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, cfg['first_yr']))
-        self.rur_pop_snd_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, cfg['second_yr']))
+        self.urb_pop_fst_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, self.start_year))
+        self.urb_pop_snd_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
+        self.rur_pop_fst_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, self.start_year))
+        self.rur_pop_snd_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
 
         self.mask_raster = os.path.join(self.datadir_histdata, "{}_Mask_short_term.tif".format(self.region_code))
 
@@ -49,8 +58,8 @@ class ReadConfig:
         self.point_coors = os.path.join(self.datadir_histdata, "{}_Coors.csv".format(self.region_code))
 
         # downscaling inputs -- derived from user inputs
-        self.urb_pop_init_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, cfg['first_yr']))
-        self.rur_pop_init_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, cfg['first_yr']))
+        self.urb_pop_init_year = os.path.join(self.datadir_histdata, "{}_Urban_{}_1km.tif".format(self.region_code, self.start_year))
+        self.rur_pop_init_year = os.path.join(self.datadir_histdata, "{}_Rural_{}_1km.tif".format(self.region_code, self.start_year))
 
         self.ssp_dataFn = os.path.join(self.datadir_future, "{}_{}_popproj.csv".format(self.region_code, self.ssp_code))
 
