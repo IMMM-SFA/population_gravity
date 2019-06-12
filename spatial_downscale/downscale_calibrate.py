@@ -66,7 +66,7 @@ def calibration(cfg):
     # populate the array containing mask values
     points_mask = pdm.raster_to_array(mask_raster)
 
-    # read historical urban and rural population grids into arrrays
+    # read historical urban and rural population grids into arrays
     for setting in all_rasters:
 
         # create the dictionary containing population of each point in year 1
