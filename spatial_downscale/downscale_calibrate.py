@@ -1,5 +1,6 @@
 import csv
 import logging
+import os
 import pickle
 
 import simplejson
@@ -15,7 +16,6 @@ def calibration(cfg):
     Calibration for population ?
 
     :param cfg:                         Configuration object containing all settings
-
     :param urb_pop_fst_year:            ?
     :param urb_pop_snd_year:            ?
     :param rur_pop_fst_year:            ?
@@ -117,13 +117,15 @@ def calibration(cfg):
                                    )
 
         # run brute force to calculate optimization per grid point
+        # TODO:  we should be able to vectorize this
         i = 0
         for a in a_list:
             for b in b_list:
                 fst_results.loc[(fst_results["a"] == a) & (fst_results["b"] == b),
                                 "estimate"] = pdm.pop_min_function((a, b), *params)
-                print
-                "{}th iteratin done".format(i)
+
+                logging.info("\t{}th iteration done".format(i))
+
                 i += 1
 
         # pickle the current optimization file
@@ -138,17 +140,13 @@ def calibration(cfg):
         parameters = scipy.optimize.minimize(pdm.pop_min_function, x0=(a0, b0), args=params, method="SLSQP",
                                              tol=0.001, options={"disp": True}, bounds=rranges)
 
-        print
-        sub_name + "Optimization Outcomes for " + setting
-        print
-        parameters["x"]
-        print
-        parameters["fun"]
+        logging.info("\tOptimization Outcomes for {}: {}, {}".format(setting, parameters["x"], parameters["fun"]))
+
         parameters_dict[setting] = parameters["x"]
 
     # write the parameters to the designated csv file
-    print
-    sub_name + "writing to file: " + out_cal
+    logging.info("\tWriting parameterization file:  {}".format(out_cal))
+
     with open(out_cal, 'wb') as out_csv:
         writer = csv.writer(out_csv)
         writer.writerow(["Region", "SSP", "Alpha_Rural", "Beta_Rural", "Alpha_Urban", "Beta_Urban", "Comments"])
