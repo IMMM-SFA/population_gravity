@@ -1,5 +1,6 @@
-import pickle
 import csv
+import logging
+import pickle
 
 import simplejson
 import numpy as np
@@ -9,10 +10,11 @@ import scipy.optimize
 import spatial_downscale.downscale_utilities as pdm
 
 
-def calibration(urb_pop_fst_year, urb_pop_snd_year, rur_pop_fst_year, rur_pop_snd_year, mask_raster,
-                region_code, ssp_code, point_indices, point_coors, datadir_output):
+def calibration(cfg):
     """
     Calibration for population ?
+
+    :param cfg:                         Configuration object containing all settings
 
     :param urb_pop_fst_year:            ?
     :param urb_pop_snd_year:            ?
@@ -28,7 +30,18 @@ def calibration(urb_pop_fst_year, urb_pop_snd_year, rur_pop_fst_year, rur_pop_sn
     :return:
 
     """
-    print("Calibration:  Begin")
+
+    # set variables
+    urb_pop_fst_year = cfg.urb_pop_fst_year
+    urb_pop_snd_year = cfg.urb_pop_snd_year
+    rur_pop_fst_year = cfg.rur_pop_fst_year
+    rur_pop_snd_year = cfg.rur_pop_snd_year
+    mask_raster = cfg.mask_raster
+    region_code = cfg.region_code
+    ssp_code = cfg.ssp_code
+    point_indices = cfg.point_indices
+    point_coors = cfg.point_coors
+    datadir_output = cfg.datadir_output
 
     # define local variables
     all_rasters = {}  # Dictionary storing initial urban and rural population grids
