@@ -27,8 +27,6 @@ def calibration(cfg):
     :param point_coors:                 ?
     :param datadir_output:              ?
 
-    :return:
-
     """
 
     # set variables
