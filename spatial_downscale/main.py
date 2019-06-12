@@ -1,7 +1,7 @@
 """
 Model interface for the Spatial Population Downscaling Model.
 
-@author   Chris R. Vernon (of this file)
+@author   Hamidreza Zoraghein (for model), Chris R. Vernon (of this file)
 @email:   chris.vernon@pnnl.gov
 
 License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
