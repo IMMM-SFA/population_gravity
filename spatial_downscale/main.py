@@ -6,6 +6,7 @@ os.chdir(r"C:\Users\Hamidreza.Zoraghein\Google Drive\Population_Downscaling_1KM\
 #import pop_downscaling_module_190201 as pdm
 import spatial_downscale.downscale_utilities as pdm
 import spatial_downscale.downscale_calibrate as calib
+import spatial_downscale.downscale_projection as prj
 
 #User inputs -- from stdin "namelist" file 
 ssp_code            = "unset"
@@ -82,10 +83,6 @@ ssp_dataFn        = datadir_future   + region_code + "_" + ssp_code + "_popproj.
 if compute_params == "true" : # compute params & put them in this file
     params_file   = datadir_output   + region_code + "_" + ssp_code + "_Params.csv"
     
-
-
-
-    
 #=========================================================================================
 sub_name = "<main> "
 
@@ -135,7 +132,7 @@ print sub_name + format(time.strftime("%Y-%m-%d %H:%M:%S")) + " call pop_project
     
 if compute_proj == "true" :
    print sub_name + "compute downscaled future projections"
-   pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn, 
+   prj.pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn,
                   params_file, region_code, ssp_code, point_coors, datadir_output)
 
    year = 2010
@@ -143,7 +140,7 @@ if compute_proj == "true" :
       print sub_name + "Projecting starting from year = " + str(year)
       urb_pop_init_year = datadir_output + region_code + "_1km_" + ssp_code + "_Urban_" + str(year) + ".tif"
       rur_pop_init_year = datadir_output + region_code + "_1km_" + ssp_code + "_Rural_" + str(year) + ".tif"
-      pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn, 
+      prj.pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn,
                      params_file, region_code, ssp_code, point_coors, datadir_output)
       year = year + 10
 else:
