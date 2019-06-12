@@ -1,114 +1,180 @@
-import os
-import time
-import string
+"""
+Model interface for the Spatial Population Downscaling Model.
 
-import spatial_downscale.downscale_utilities as pdm
+@author   Chris R. Vernon (of this file)
+@email:   chris.vernon@pnnl.gov
+
+License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
+
+"""
+
+import argparse
+import logging
+import os
+import sys
+import time
+
 import spatial_downscale.downscale_calibrate as calib
 import spatial_downscale.downscale_projection as prj
 
 from spatial_downscale.read_config import ReadConfig
 
-def main(config_file):
+
+class Downscale:
     """Run the spatial population downscaling model.
 
     :param config_file:             Full path with file name and extension to the config.yml file
 
     """
-    # read the YAML configuration file
-    cfg = ReadConfig(config_file)
 
-    # target SSP
-    ssp_code = cfg.ssp_code
+    def __init__(self, config_file):
 
-    # target state name
-    region_code = cfg.region_code
+        # read the YAML configuration file
+        self.cfg = ReadConfig(config_file)
 
-    point_indices = cfg.point_indices
-    data_rootdir = cfg.data_rootdir
-    datadir_histdata = cfg.datadir_histdata
-    datadir_future = cfg.datadir_future
-    datadir_output = cfg.datadir_output
-    compute_params = cfg.compute_params
-    compute_proj = cfg.compute_proj
-    
-    # calibration inputs -- derived from user inputs
-    urb_pop_fst_year = cfg.urb_pop_fst_year
-    urb_pop_snd_year = cfg.urb_pop_snd_year
-    rur_pop_fst_year = cfg.rur_pop_fst_year
-    rur_pop_snd_year = cfg.rur_pop_snd_year
+        # logfile path
+        self.logfile = os.path.join(self.cfg.datadir_output, 'logfile_{}_{}.log'.format(self.cfg.ssp_code, self.cfg.region_code))
 
-    # downscaling inputs -- derived from user inputs
-    urb_pop_init_year = cfg.urb_pop_init_year
-    rur_pop_init_year = cfg.rur_pop_init_year
-    mask_raster = cfg.mask_raster
-    point_indices = cfg.point_indices
-    point_coors = cfg.point_coors
-    ssp_dataFn = cfg.ssp_dataFn
-    params_file = cfg.params_file
-    
-    #=========================================================================================
-    sub_name = "<main> "
+    @staticmethod
+    def make_dir(pth):
+        """Create dir if not exists."""
 
-    print sub_name + format(time.strftime("%Y-%m-%d %H:%M:%S"))
+        if not os.path.exists(pth):
+            os.makedirs(pth)
 
-    print sub_name + "Calibration inputs:"
-    print sub_name + "   compute_params   = " + compute_params
-    print sub_name + "   urb_pop_fst_year = " + urb_pop_fst_year
-    print sub_name + "   urb_pop_snd_year = " + urb_pop_snd_year
-    print sub_name + "   rur_pop_fst_year = " + rur_pop_fst_year
-    print sub_name + "   rur_pop_snd_year = " + rur_pop_snd_year
-    print sub_name + "   mask_raster      = " + mask_raster
-    print sub_name + "   region_code      = " + region_code
-    print sub_name + "   ssp_code         = " + ssp_code
-    print sub_name + "   point_indices    = " + point_indices
-    print sub_name + "   point_coors      = " + point_coors
-    print sub_name + "   datadir_output   = " + datadir_output
-    print sub_name
-    print sub_name + "Downscaling inputs:"
-    print sub_name + "   compute_proj      = " + compute_proj
-    print sub_name + "   urb_pop_init_year = " + urb_pop_init_year
-    print sub_name + "   rur_pop_init_year = " + rur_pop_init_year
-    print sub_name + "   mask_raster       = " + mask_raster
-    print sub_name + "   ssp_dataFn        = " + ssp_dataFn
-    print sub_name + "   params_file       = " + params_file
-    print sub_name + "   region_code       = " + region_code
-    print sub_name + "   ssp_code          = " + ssp_code
-    print sub_name + "   point_coors       = " + point_coors
-    print sub_name + "   datadir_output    = " + datadir_output
+    def init_log(self):
+        """Initialize project-wide logger. The logger outputs to both stdout and a file."""
 
-    print sub_name
+        log_format = logging.Formatter('%(levelname)s: %(message)s')
+        log_level = logging.DEBUG
+
+        logger = logging.getLogger()
+        logger.setLevel(log_level)
+
+        # logger console handler
+        c_handler = logging.StreamHandler(sys.stdout)
+        c_handler.setLevel(log_level)
+        c_handler.setFormatter(log_format)
+        logger.addHandler(c_handler)
+
+        # logger file handler
+        f_handler = logging.FileHandler(self.logfile)
+        c_handler.setLevel(log_level)
+        c_handler.setFormatter(log_format)
+        logger.addHandler(f_handler)
+
+    def stage(self):
+        """Set up run."""
+
+        # build output directory first to store logfile and other outputs
+        self.make_dir(self.cfg.datadir_output)
+
+        # initialize logger
+        self.init_log()
+
+        logging.info("Start time:  {}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
+
+        # log run parameters
+        if self.cfg.compute_params:
+            logging.info("Calibration inputs:")
+            logging.info("\tcompute_params = {}".format(self.cfg.compute_params))
+            logging.info("\turb_pop_fst_year = {}".format(self.cfg.urb_pop_fst_year))
+            logging.info("\turb_pop_snd_year = {}".format(self.cfg.urb_pop_snd_year))
+            logging.info("\trur_pop_fst_year = {}".format(self.cfg.rur_pop_fst_year))
+            logging.info("\trur_pop_snd_year = {}".format(self.cfg.rur_pop_snd_year))
+            logging.info("\tmask_raster = {}".format(self.cfg.mask_raster))
+            logging.info("\tregion_code = {}".format(self.cfg.region_code))
+            logging.info("\tssp_code = {}".format(self.cfg.ssp_code))
+            logging.info("\tpoint_indices = {}".format(self.cfg.point_indices))
+            logging.info("\tpoint_coors = {}".format(self.cfg.point_coors))
+            logging.info("\tdatadir_output = {}".format(self.cfg.datadir_output))
+
+        else:
+            logging.info("\tCalibration not selected in config file to execute.")
+
+        if self.cfg.compute_proj:
+            logging.info("Downscaling inputs:")
+            logging.info("\tcompute_proj = {}".format(self.cfg.compute_proj))
+            logging.info("\turb_pop_init_year = {}".format(self.cfg.urb_pop_init_year))
+            logging.info("\trur_pop_init_year = {}".format(self.cfg.rur_pop_init_year))
+            logging.info("\tmask_raster = {}".format(self.cfg.mask_raster))
+            logging.info("\tregion_code = {}".format(self.cfg.region_code))
+            logging.info("\tssp_dataFn = {}".format(self.cfg.ssp_dataFn))
+
+            # TODO: check for params_file?
+            logging.info("\tparams_file = {}".format(self.cfg.params_file))
+            logging.info("\tssp_code = {}".format(self.cfg.ssp_code))
+            logging.info("\tpoint_coors = {}".format(self.cfg.point_coors))
+            logging.info("\tdatadir_output = {}".format(self.cfg.datadir_output))
+
+        else:
+            logging.info("\tDownscaling not selecting in config file to execute.")
+
+    def execute(self):
+        """Run the model."""
+
+        self.stage()
+
+        if self.cfg.compute_params:
+
+            # start time
+            tc = time.time()
+
+            logging.info("Starting calibration.")
+
+            # run calibration
+            calib.calibration(self.cfg)
+
+            # run time for calibration
+            logging.info("Calibration completed in {} minutes.".format((time.time() - tc) / 60))
+
+        else:
+            logging.info("Downscaling will use existing parameter file instead of newly calibrated parameters.")
+
+        if self.cfg.compute_proj:
+
+            # start time
+            td = time.time()
+
+            logging.info("Starting downscaling.")
+
+            # iterate through all years
+            for yr in range(self.cfg.start_year, self.cfg.end_year + self.cfg.time_step, self.cfg.time_step):
+
+                logging.info("\tDownscaling year:  {}".format(yr))
+
+                if yr == self.cfg.start_year:
+                    urban_raster = self.cfg.urb_pop_init_year
+                    rural_raster = self.cfg.rur_pop_init_year
+
+                else:
+                    urban_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
+                    rural_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
+
+                # run downscaling
+                prj.pop_projection(self.cfg, urban_raster, rural_raster)
+
+            logging.info("Downscaling completed in {} minutes.".format((time.time() - td) / 60))
+
+        logging.info("End time:  {}".format(time.strftime("%Y-%m-%d %H:%M:%S")))
+
+    @staticmethod
+    def cleanup():
+        """Close log files."""
+
+        # Remove logging handlers
+        logger = logging.getLogger()
+
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
 
 
-    print sub_name + format(time.strftime("%Y-%m-%d %H:%M:%S")) + " call calibration -------"
+if __name__ == '__main__':
 
-    if compute_params == "true" :
-       print sub_name + "compute historical parameters"
-       calib.calibration(urb_pop_fst_year, urb_pop_snd_year, rur_pop_fst_year, rur_pop_snd_year, mask_raster,
-                   region_code, ssp_code, point_indices, point_coors, datadir_output)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config_file', type=str, help='Full path with file name to YAML configuration file.')
+    args = parser.parse_args()
 
-    else:
-       print sub_name + "Note: input downscaling parameters from a file "
-       print sub_name + "    : input file = " + params_file
-       print sub_name + "    : used to downscale to region code = " + region_code
-
-    print sub_name + format(time.strftime("%Y-%m-%d %H:%M:%S")) + " call pop_projection -------"
-
-    if compute_proj == "true" :
-       print sub_name + "compute downscaled future projections"
-       prj.pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn,
-                      params_file, region_code, ssp_code, point_coors, datadir_output)
-
-       year = 2010
-       while year <= 2050:
-          print sub_name + "Projecting starting from year = " + str(year)
-          urb_pop_init_year = datadir_output + region_code + "_1km_" + ssp_code + "_Urban_" + str(year) + ".tif"
-          rur_pop_init_year = datadir_output + region_code + "_1km_" + ssp_code + "_Rural_" + str(year) + ".tif"
-          prj.pop_projection(urb_pop_init_year, rur_pop_init_year, mask_raster, ssp_dataFn,
-                         params_file, region_code, ssp_code, point_coors, datadir_output)
-          year = year + 10
-    else:
-       print sub_name + "do not compute downscaled future projections"
-
-    print sub_name + format(time.strftime("%Y-%m-%d %H:%M:%S")) + " finished ------------------"
-
-    
+    run = Downscale(args.config_file)
+    run.execute()
+    del run
