@@ -1,4 +1,3 @@
-import csv
 import logging
 import os
 import pickle
@@ -77,7 +76,7 @@ def calibration(cfg):
     total_population_1st = population_1st["Rural"] + population_1st["Urban"]
 
     # A csv file to write the parameters into
-    out_cal = datadir_output + region_code + "_" + ssp_code + "_Params.csv"
+    out_cal = os.path.join(datadir_output, '{}_{}_Parmas.csv'.format(region_code, ssp_code))
 
     # All indices
     all_indices = pdm.all_index_retriever(urb_pop_snd_year, ["row", "column"])
@@ -146,8 +145,8 @@ def calibration(cfg):
     # write the parameters to the designated csv file
     logging.info("\tWriting parameterization file:  {}".format(out_cal))
 
-    with open(out_cal, 'wb') as out_csv:
-        writer = csv.writer(out_csv)
-        writer.writerow(["Region", "SSP", "Alpha_Rural", "Beta_Rural", "Alpha_Urban", "Beta_Urban", "Comments"])
-        writer.writerow([region_code, ssp_code, parameters_dict["Rural"][0], parameters_dict["Rural"][1],
-                         parameters_dict["Urban"][0], parameters_dict["Urban"][1], ""])
+    with open(out_cal, 'w') as out_csv:
+        out_csv.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban,Comments\n")
+        out_csv.write('{},{},{},{},{},{},{}\n'.format(region_code, ssp_code, parameters_dict["Rural"][0],
+                                                      parameters_dict["Rural"][1], parameters_dict["Urban"][0],
+                                                      parameters_dict["Urban"][1], ""))
