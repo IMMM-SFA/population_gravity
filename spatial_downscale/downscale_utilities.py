@@ -9,6 +9,7 @@ SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
 SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
 
 """
+
 from collections import deque
 
 import rasterio
@@ -29,10 +30,7 @@ def raster_to_array(raster):
     """
     # read the input raster before converting it to an array
     with rasterio.open(raster) as src_raster:
-        band = src_raster.read(1)
-        final_array = band.flatten()
-    
-    return final_array
+        return src_raster.read(1)
     
 
 def array_to_raster(input_raster, input_array, within_indices, output_raster):
@@ -61,21 +59,21 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
     
 
-def all_index_retriever(raster, columns, row_col='row', column_col='column', all_index_col='all_index'):
+def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
     """?
 
-    :param raster:                  ?
-    :param columns:                 ?
-    :param row_col:                 ?
-    :param column_col:              ?
-    :param all_index_col:           ?
+    :param array:                   Input 2D array from input raster
+    :param columns:                 list; Target columns
+    :param row_col:                 Name of row column
+    :param column_col:              Name of column column
+    :param all_index_col:           Name of `all_index` column
 
-    :return:                        DataFrame of ?
+    :return:                        Typed data frame of indicies
 
     """
-    # read the input raster before converting it to an array
-    with rasterio.open(raster) as src_raster:
-        array = src_raster.read(1)
+    # # read the input raster before converting it to an array
+    # with rasterio.open(raster) as src_raster:
+    #     array = src_raster.read(1)
     
     # put the row, column and linear indices of all elements in a dataframe
     shape = array.shape
@@ -83,9 +81,7 @@ def all_index_retriever(raster, columns, row_col='row', column_col='column', all
     df = pd.DataFrame({all_index_col: array.flatten()}, index=index).reset_index()
     df[all_index_col] = df.index
     
-    df = df.astype({row_col: np.int32, column_col: np.int32, all_index_col: np.int32})
-
-    return df
+    return df.astype({row_col: np.int32, column_col: np.int32, all_index_col: np.int32})
 
 
 def suitability_estimator(pop_dist_params):
@@ -109,21 +105,19 @@ def suitability_estimator(pop_dist_params):
     pop_xx_alpha[pop_xx_alpha == np.inf] = 0
     pop_dist_factor = pop_xx_alpha * pop_dist_params[4]
     
-    estimate = np.sum(pop_dist_factor)
+    return np.sum(pop_dist_factor)
 
-    return estimate
-    
 
-def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_file, row_col='row',
-                           column_col='column', all_index_col='all_index', dis_col='dis', ind_diff_col='ind_diff',
-                           row_diff_col='row_diff', col_diff_col='col_diff'):
+def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_array, row_col='row',
+                           column_col='column', all_index_col='all_index', dis_col='dis',
+                           ind_diff_col='ind_diff', row_diff_col='row_diff', col_diff_col='col_diff'):
     """?
 
 
     :param first_index:             ?
     :param cut_off_meters:          ?
     :param all_indices:             ?
-    :param coors_csv_file:          ?
+    :param coordinate_array:        ?
     :param row_col:                 ?
     :param column_col:              ?
     :param all_index_col:           ?
@@ -135,26 +129,22 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     :return:                        ?
 
     """
-    # read all points with their coordinates
-    points = np.genfromtxt(coors_csv_file, delimiter = ',', skip_header = 1, usecols = (0, 1, 2),
-                           dtype = float)
-    
     # calculate distances between the first point and all other points within a 100km neighborhood
     cut_off_metres = cut_off_meters + 1
-    tree_1 = cKDTree(points[first_index:first_index + 1, [0, 1]])
-    tree_2 = cKDTree(points[:, [0, 1]])         
+    tree_1 = cKDTree(coordinate_array[first_index:first_index + 1, [0, 1]])
+    tree_2 = cKDTree(coordinate_array[:, [0, 1]])
     tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type='dict', p=2)
     
-    # put distances and indices of neighboring in a dataframe
+    # put distances and indices of neighboring in a data frame
     dist_df = pd.DataFrame(columns=["near_id", dis_col])
 
-    # add list for zip to accomodate Python 3
-    dist_df["near_id"] = points[list(zip(*tree_dist))[1], 2].astype(np.int32)
+    # add list for zip to accommodate Python 3
+    dist_df["near_id"] = coordinate_array[list(zip(*tree_dist))[1], 2].astype(np.int32)
     dist_df[dis_col] = tree_dist.values()
     dist_df = dist_df.loc[dist_df.loc[:, dis_col] != 0, :] # Remove the distance to itself
     
     # bring row and column indices of neighboring points by a join
-    dist_df = dist_df.join(all_indices, on = "near_id")
+    dist_df = dist_df.join(all_indices, on="near_id")
     
     # add to columns holding the relative difference in rows and colums beween focal point and its neighbors
     foc_indices = all_indices.loc[first_index, [row_col, column_col]].values
@@ -163,44 +153,34 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coors_csv_f
     dist_df[col_diff_col] = dist_df[column_col] - foc_indices[1]
     
     # drop unwanted columns
-    dist_df = dist_df.drop([row_col, column_col, "near_id", all_index_col], axis = 1)
+    dist_df = dist_df.drop([row_col, column_col, "near_id", all_index_col], axis=1)
         
-    dist_df = dist_df.astype({ind_diff_col: np.int32, row_diff_col: np.int32, col_diff_col: np.int32})
-        
-    return dist_df
+    return dist_df.astype({ind_diff_col: np.int32, row_diff_col: np.int32, col_diff_col: np.int32})
 
 
-def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
+def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
+                     dist_matrix, within_indices, ind_diff_col='ind_diff', dist_col='dis'):
     """?
 
     :param z:                       ?
-    :param params:                  ?
-    :param ind_diff_col:            ?
-    :param dis:                     ?
+    :param arr_pop_1st:
+    :param arr_pop_2nd:
+    :param arr_tot_pop_1st:
+    :param points_mask:             Mask values of points
+    :param dist_matrix:             Template distance matrix
+    :param within_indices:         Indices of points within the state boundary (subset of the above)
+    :param ind_diff_col:            Column name for index difference between focal and nearby points
+    :param dist_col:                Column containing distance
 
     :return:                        ?
 
     """
     # unpack z tuple
     a, b = z
-    
-    # inputs to the optimization
-    setting = params[0]
-    population_1st = params[1] # Population of points in the first year (urban/rural)
-    population_2nd = params[2] # Population of points in the second year (urban/rural)
-    total_population_1st = params[3] # Total population of points in the first year
-    points_mask = params[4] # Mask values of points
-    dist_matrix = params[5] # Template distance matrix
-    within_indices = params[6] # Indices of points within the state boundary (subset of the above)
-    
-    # outputs of the optimization at each step
-    # TODO:  find out if these are need for any reason
-    suitability_estimates = deque() # Suitability estimates in the second year
-    pop_estimates = np.zeros(len(within_indices)) # Population estimates in the second year
-    
+
     # calculate aggregate urban/rural population at times 1 and 2
-    pop_t1 = population_1st[setting][within_indices].sum()
-    pop_t2 = population_2nd[setting][within_indices].sum()
+    pop_t1 = np.sum(arr_pop_1st[within_indices])
+    pop_t2 = np.sum(arr_pop_2nd[within_indices])
     
     # population change between the two reference years
     pop_change = pop_t2 - pop_t1    
@@ -213,29 +193,25 @@ def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
     ind_diffs = dist_matrix[ind_diff_col].values
     
     # distances between current point and its close points
-    ini_dist = dist_matrix[dis_col].values/1000.0
+    ini_dist = dist_matrix[dist_col].values/1000.0
     dist = -b * ini_dist
-    
+
     exp_xx_inv_beta_dist = np.exp(dist)
-    
+
     # initialize the parallelization
-    pool = Pool(processes = multiprocessing.cpu_count())
-    
+    pool = Pool(processes=multiprocessing.cpu_count())
+
     # provide the inputs for the parallelized function
-    parallel_elements = deque([(i, ind_diffs, total_population_1st, a, exp_xx_inv_beta_dist)
-                            for i in within_indices])
-    
+    parallel_elements = deque([(i, ind_diffs, arr_tot_pop_1st, a, exp_xx_inv_beta_dist) for i in within_indices])
+
     # derive suitability estimates
-    suitability_estimates = pool.map(suitability_estimator, parallel_elements)
-    
-    # change suitability estimates to a numpy array
-    suitability_estimates = np.array(suitability_estimates)
-    
+    suitability_estimates = np.array(pool.map(suitability_estimator, parallel_elements))
+
     # extract only the necessary mask values that fall within the state boundary
     points_mask = points_mask[within_indices]
     
     # population in the first year
-    pop_first_year = population_1st[setting][within_indices]
+    pop_first_year = arr_pop_1st[within_indices]
     
     # in case of population decline, suitability estimates are reciprocated for non-zero values
     if negative_mod:
@@ -268,10 +244,6 @@ def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
     
     if negative_mod:
         while any(pop < 0 for pop in pop_estimates): # To ensure there is no negative population
-
-            # TODO:  find out if these are need for any reason
-            new_tot_suitability = 0  # Total suitability calculated over points with positive population
-            extra_pop_mod = 0  # For adjusting negative population values
             
             # treating negative population values
             extra_pop_mod = abs(pop_estimates[pop_estimates < 0].sum())
@@ -284,9 +256,6 @@ def pop_min_function(z, *params, ind_diff_col='ind_diff', dis_col='dis'):
             pop_estimates[pop_estimates > 0] = pop_estimates[pop_estimates > 0] - (suitability_estimates[pop_estimates > 0]/new_tot_suitability) * extra_pop_mod
 
     # produce the total error compared to observed values
-    tot_error = abs(population_2nd[setting][within_indices] - pop_estimates).sum()
+    tot_error = abs(arr_pop_2nd[within_indices] - pop_estimates).sum()
     
     return tot_error
-        
-
-

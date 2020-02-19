@@ -5,7 +5,7 @@ datadir_histdata    : Main_Inputs
 datadir_future      : ssp_projections
 point_indices       : Point_Indices.txt
 ssp_code            : SSP2
-region_code         : Pennsylvania
+region_code         : District of Columbia
 datadir_output      : outputs
 
 # run settings

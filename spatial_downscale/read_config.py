@@ -34,7 +34,7 @@ class ReadConfig:
         self.compute_proj = cfg['compute_proj']
 
         # output directory
-        self.datadir_output = cfg['datadir_output']
+        self.datadir_output = os.path.join(self.data_rootdir, cfg['datadir_output'])
 
         # start year
         self.start_year = cfg['start_year']
