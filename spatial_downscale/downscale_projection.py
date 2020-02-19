@@ -35,10 +35,10 @@ def pop_projection(cfg, urban_raster, rural_raster):
     params_file = cfg.params_file
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
-    point_coors = cfg.point_coors
+    point_coors = np.genfromtxt(cfg.point_coors, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
     datadir_output = cfg.datadir_output
     point_indices = cfg.point_indices
-    urb_pop_snd_year = cfg.urb_pop_snd_year
+    urb_pop_snd_year = pdm.raster_to_array(cfg.urb_pop_snd_year)
     urb_pop_init_year = urban_raster
     rur_pop_init_year = rural_raster
 
@@ -88,10 +88,12 @@ def pop_projection(cfg, urban_raster, rural_raster):
         suitability_estimates = deque()  # Suitability estimates in the second year
 
         # output raster
-        output = datadir_output + region_code + "_1km_" + ssp_code + "_" + setting + "_" + str(
-            current_timestep) + ".tif"
+        output = datadir_output + region_code + "_1km_" + ssp_code + "_" + setting + "_" + str(current_timestep) + ".tif"
 
         # calculate aggregate urban/rural population at time 1
+        print(setting)
+        print(population_1st)
+        print(within_indices)
         pop_first_year = population_1st[setting][within_indices]
         pop_t1 = pop_first_year.sum()
 
