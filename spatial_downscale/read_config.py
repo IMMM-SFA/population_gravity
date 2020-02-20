@@ -16,7 +16,7 @@ class ReadConfig:
         self.datadir_histdata = os.path.join(cfg['data_rootdir'], cfg['region_code'], cfg['datadir_histdata'])
 
         # directory of projections
-        self.datadir_future = cfg['datadir_future']
+        self.datadir_future = os.path.join(cfg['data_rootdir'], cfg['region_code'], cfg['datadir_future'])
 
         # point indicies file
         self.point_indices = cfg['point_indices']

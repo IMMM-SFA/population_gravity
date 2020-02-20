@@ -49,10 +49,10 @@ def pop_projection(cfg, urban_raster, rural_raster):
     time_one_data['Rural'] = rur_pop_init_year  # Rural
     time_one_data['Urban'] = urb_pop_init_year  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
-    final_raster = datadir_output + region_code + "_1km_" + ssp_code + "_Total_" + str(current_timestep) + ".tif"
+    final_raster = datadir_output + '/' + region_code + "_1km_" + ssp_code + "_Total_" + str(current_timestep) + ".tif"
 
     # populate the array containing mask values for all points
-    points_mask = pdm.raster_to_array(mask_raster)
+    points_mask = pdm.raster_to_array(mask_raster).flatten()
 
     # all indices
     all_indices = pdm.all_index_retriever(urb_pop_snd_year, ["row", "column"])
@@ -68,7 +68,7 @@ def pop_projection(cfg, urban_raster, rural_raster):
     # Read historical urban and rural population grids into arrrays
     for setting in time_one_data:
         # create the dictionary containing population of each point in year 1
-        population_1st[setting] = pdm.raster_to_array(time_one_data[setting])
+        population_1st[setting] = pdm.raster_to_array(time_one_data[setting]).flatten()
 
     # create an array containing total population values in the first historical year
     total_population_1st = population_1st["Rural"] + population_1st["Urban"]
@@ -88,12 +88,9 @@ def pop_projection(cfg, urban_raster, rural_raster):
         suitability_estimates = deque()  # Suitability estimates in the second year
 
         # output raster
-        output = datadir_output + region_code + "_1km_" + ssp_code + "_" + setting + "_" + str(current_timestep) + ".tif"
+        output = datadir_output + '/' + region_code + "_1km_" + ssp_code + "_" + setting + "_" + str(current_timestep) + ".tif"
 
         # calculate aggregate urban/rural population at time 1
-        print(setting)
-        print(population_1st)
-        print(within_indices)
         pop_first_year = population_1st[setting][within_indices]
         pop_t1 = pop_first_year.sum()
 

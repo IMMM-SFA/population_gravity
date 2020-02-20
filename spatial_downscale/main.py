@@ -148,8 +148,8 @@ class Downscale:
                     rural_raster = self.cfg.rur_pop_init_year
 
                 else:
-                    urban_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
-                    rural_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
+                    urban_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, yr))
+                    rural_raster = os.path.join(self.cfg.datadir_output, "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, yr))
 
                 # run downscaling
                 prj.pop_projection(self.cfg, urban_raster, rural_raster)
