@@ -1,3 +1,7 @@
+# test outputs
+./spatial_downscale/tests/data/outputs/
+
+# system
 .DS_Store
 
 # pycharm
