@@ -162,6 +162,8 @@ class Model:
         # run time for calibration
         logging.info("Calibration completed in {} minutes.".format((time.time() - tc) / 60))
 
+        self.close()
+
     def downscale(self):
         """Downscale rural and urban projection for all input years"""
 
