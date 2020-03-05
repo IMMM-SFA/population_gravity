@@ -10,6 +10,25 @@ import simplejson
 import spatial_downscale.downscale_utilities as pdm
 
 
+class Projection:
+
+    def __init__(self):
+
+        pass
+
+    def initialize(self):
+        """Set up projection run."""
+        pass
+
+    def run_time_step(self):
+        """Run current timestep."""
+        pass
+
+    def clean_up(self):
+        """Clean up run."""
+        pass
+
+
 def pop_projection(cfg, urban_raster, rural_raster):
     """ ?
 
@@ -174,10 +193,6 @@ def pop_projection(cfg, urban_raster, rural_raster):
 
             # to make sure that there is no negative population
             while any(pop < 0 for pop in pop_estimates):
-
-                # TODO:  find out why these are not used
-                new_tot_suitability = 0  # Total suitability calculated over points with positive population
-                extra_pop_mod = 0  # For adjusting negative population values
 
                 # treating negative population values
                 extra_pop_mod = abs(pop_estimates[pop_estimates < 0].sum())

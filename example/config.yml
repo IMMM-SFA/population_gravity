@@ -1,16 +1,15 @@
 
 # project level settings
-data_rootdir        : /Users/d3y010/projects/population
-datadir_histdata    : Main_Inputs
-datadir_future      : ssp_projections
-point_indices       : Point_Indices.txt
-ssp_code            : SSP2
-region_code         : District of Columbia
-datadir_output      : outputs
+datadir_histdata              : /Users/d3y010/projects/population/district_of_columbia/main_inputs
+ssp_data_directory            : /Users/d3y010/projects/population/district_of_columbia/ssp_projections
+ssp_code                      : SSP2
+region_code                   : district_of_columbia
+output_directory              : /Users/d3y010/projects/population/district_of_columbia/outputs
+calibration_parameters_file   : /Users/d3y010/projects/population/district_of_columbia/district_of_columbia_SSP2_calibration_parameters.csv
 
 # run settings
-compute_params      : false
-compute_proj        : true
+compute_params      : False
+compute_proj        : True
 start_year          : 2000
 end_year            : 2020
 time_step           : 10
