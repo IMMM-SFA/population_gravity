@@ -29,7 +29,7 @@ class TestProjectedOutputs(unittest.TestCase):
     HISTORIC_DATA = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/main_inputs')
     PROJECTION_DATA = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/projection')
     OUTPUT_DIRECTORY = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs')
-    PARAM_FILE = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs')
+    PARAM_FILE = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/district_of_columbia_SSP2_calibration_parameters.csv')
 
     RUN_RURAL_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2010.tif')
     RUN_RURAL_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2020.tif')
