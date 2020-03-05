@@ -37,7 +37,6 @@ def pop_projection(cfg, urban_raster, rural_raster):
     :param rural_raster:                    ?
     :param mask_raster:                     ?
     :param ssp_dataFn:                      ?
-    :param params_file:                     ?
     :param region_code:                     ?
     :param ssp_code:                        ?
     :param point_coors:                     ?
@@ -51,12 +50,15 @@ def pop_projection(cfg, urban_raster, rural_raster):
 
     mask_raster = cfg.mask_raster
     ssp_dataFn = cfg.ssp_dataFn
-    params_file = cfg.params_file
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
     point_coors = np.genfromtxt(cfg.point_coors, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
     datadir_output = cfg.datadir_output
     point_indices = cfg.point_indices
+    alpha_urban = cfg.alpha_urban
+    beta_urban = cfg.beta_urban
+    alpha_rural = cfg.alpha_rural
+    beta_rural = cfg.beta_rural
     urb_pop_snd_year = pdm.raster_to_array(cfg.urb_pop_snd_year)
     urb_pop_init_year = urban_raster
     rur_pop_init_year = rural_raster
@@ -130,24 +132,21 @@ def pop_projection(cfg, urban_raster, rural_raster):
         else:
             negative_mod = 0
 
-        # extract the alpha and beta values from the calibration files
-        calib_params = pd.read_csv(params_file)
         if setting == "Urban":
-            calib_params = calib_params.loc[calib_params.SSP == ssp_code, ["Alpha_Urban", "Beta_Urban"]].values
+            alpha_parameter = alpha_urban
+            beta_parameter = -beta_urban  # note negative multiplier
         else:
-            calib_params = calib_params.loc[calib_params.SSP == ssp_code, ["Alpha_Rural", "Beta_Rural"]].values
+            alpha_parameter = alpha_rural
+            beta_parameter = -beta_rural  # note negative multiplier
 
-        a = calib_params[0][0]
-        b = calib_params[0][1]
-
-        dist = -b * ini_dist
+        dist = beta_parameter * ini_dist
         exp_xx_inv_beta_dist = np.exp(dist)
 
         # initialize the parallelization
         pool = Pool(processes=multiprocessing.cpu_count())
 
         # provide the inputs for the parallelized function
-        parallel_elements = deque([(i, ind_diffs, total_population_1st, a, exp_xx_inv_beta_dist)
+        parallel_elements = deque([(i, ind_diffs, total_population_1st, alpha_parameter, exp_xx_inv_beta_dist)
                                    for i in within_indices])
 
         # derive suitability estimates

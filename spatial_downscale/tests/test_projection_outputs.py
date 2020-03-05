@@ -13,7 +13,7 @@ import unittest
 import numpy.testing as np
 
 from spatial_downscale.downscale_utilities import raster_to_array
-from spatial_downscale import Downscale
+from spatial_downscale import Model
 
 
 class TestProjectedOutputs(unittest.TestCase):
@@ -49,17 +49,15 @@ class TestProjectedOutputs(unittest.TestCase):
         comp_total_2010 = raster_to_array(TestProjectedOutputs.COMP_TOTAL_2010)
         comp_total_2020 = raster_to_array(TestProjectedOutputs.COMP_TOTAL_2020)
 
-        run = Downscale(datadir_histdata=TestProjectedOutputs.HISTORIC_DATA,
+        run = Model(datadir_histdata=TestProjectedOutputs.HISTORIC_DATA,
                         ssp_data_directory=TestProjectedOutputs.PROJECTION_DATA,
                         ssp_code='SSP2',
                         region_code='district_of_columbia',
                         output_directory=TestProjectedOutputs.OUTPUT_DIRECTORY,
                         calibration_parameters_file=TestProjectedOutputs.PARAM_FILE,
-                        compute_params=False,
-                        compute_proj=True,
                         start_year=2000,
                         end_year=2020,
-                        time_step=10).execute()
+                        time_step=10).downscale()
 
         # read in run data from rasters to arrays
         run_rural_2010 = raster_to_array(TestProjectedOutputs.RUN_RURAL_2010)

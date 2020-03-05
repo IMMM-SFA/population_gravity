@@ -1,13 +1,14 @@
 import os
 import yaml
 
+import pandas as pd
+
 
 class ReadConfig:
 
     def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
-                 region_code=None, output_directory=None, calibration_parameters_file=None,
-                 compute_params=False, compute_proj=True, start_year=None, end_year=None,
-                 time_step=None):
+                 region_code=None, output_directory=None, calibration_parameters_file=None, start_year=None,
+                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None):
 
         if config_file is None:
 
@@ -17,12 +18,20 @@ class ReadConfig:
             self.region_code = region_code
             self.datadir_output = output_directory
             self.calibration_parameters_file = calibration_parameters_file
-            self.compute_params = compute_params
-            self.compute_proj = compute_proj
             self.start_year = start_year
             self.end_year = end_year
             self.time_step = time_step
 
+            if self.calibration_parameters_file is None:
+                # calibration parameters
+                self.alpha_urban = alpha_urban
+                self.beta_urban = beta_urban
+                self.alpha_rural = alpha_rural
+                self.beta_rural = beta_rural
+
+            else:
+                # unpack calibration parameters
+                self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural = self.unpack_calibration_parameters()
         else:
 
             # extract config file to YAML object
@@ -40,12 +49,6 @@ class ReadConfig:
             # region code
             self.region_code = cfg['region_code']
 
-            # Boolean compute parameters
-            self.compute_params = cfg['compute_params']
-
-            # Boolean compute projections
-            self.compute_proj = cfg['compute_proj']
-
             # output directory
             self.datadir_output = cfg['output_directory']
 
@@ -60,6 +63,11 @@ class ReadConfig:
 
             # calibration parameters file
             self.calibration_parameters_file = cfg['calibration_parameters_file']
+
+            # unpack calibration parameters
+            self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural = self.unpack_calibration_parameters()
+
+        self.steps = range(self.start_year, self.end_year + self.time_step, self.time_step)
 
         # calibration inputs -- derived from user inputs
         self.urb_pop_fst_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.start_year))
@@ -80,6 +88,29 @@ class ReadConfig:
         self.ssp_dataFn = os.path.join(self.datadir_future, "{}_{}_popproj.csv".format(self.region_code, self.ssp_code))
 
         self.params_file = self.calibration_parameters_file
+
+    def unpack_calibration_parameters(self):
+        """Extract calibration parameters from file.
+
+        :retrun:            [0]  float, Alpha Urban
+                            [1]  float, Beta Urban
+                            [2]  float, Alpha Rural
+                            [3]  float, Beta Rural
+
+        """
+
+        df = pd.read_csv(self.calibration_parameters_file)
+
+        urban_arr = df.loc[df['SSP'] == self.ssp_code, ["Alpha_Urban", "Beta_Urban"]].values
+        rural_arr = df.loc[df['SSP'] == self.ssp_code, ["Alpha_Rural", "Beta_Rural"]].values
+
+        alpha_urban = urban_arr[0][0]
+        beta_urban = urban_arr[0][1]
+
+        alpha_rural = rural_arr[0][0]
+        beta_rural = rural_arr[0][1]
+
+        return alpha_urban, beta_urban, alpha_rural, beta_rural
 
     @staticmethod
     def get_yaml(config_file):
