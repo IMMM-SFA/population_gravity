@@ -9,13 +9,68 @@ The Spatial Population Downscaling Model allocates aggregate urban and rural pop
 
 Fill in once we get the package built
 
-### Accompanying input data
+### Setting up a run
 
 Fill in with DOI link once we get it setup
 
-## Example
+## Examples
 
-Fill in once we get the package built
+### Run population downscaling for all years by passing argument values
+```python
+from spatial_downscale import Model
+
+run = Model(
+    datadir_histdata='<full path to historical input file directory>',
+    ssp_data_directory='<full path to projected input directory>',
+    ssp_code='SSP2', # shared socioeconomic pathway abbreviation
+    region_code='district_of_columbia',  # US State name
+    output_directory='<full path to the output directory>',
+    start_year=2000,
+    end_year=2020,
+    time_step=10,
+    alpha_urban=-0.606381394, # calibrated alpha parameter for urban
+    alpha_rural=0, # calibrated alpha parameter for rural
+    beta_urban=1.999999534, # calibrated beta parameter for urban
+    beta_rural=0) # calibrated beta parameter for rural
+
+# run downscaling for all years
+run.downscale()
+```
+
+### Modify values per time step
+```python
+from spatial_downscale import Model
+
+run = Model(
+    datadir_histdata='<full path to historical input file directory>',
+    ssp_data_directory='<full path to projected input directory>',
+    ssp_code='SSP2', # shared socioeconomic pathway abbreviation
+    region_code='district_of_columbia',  # US State name
+    output_directory='<full path to the output directory>',
+    start_year=2000,
+    end_year=2020,
+    time_step=10,
+    alpha_urban=-0.606381394, # calibrated alpha parameter for urban
+    alpha_rural=0, # calibrated alpha parameter for rural
+    beta_urban=1.999999534, # calibrated beta parameter for urban
+    beta_rural=0) # calibrated beta parameter for rural
+
+# initialize model
+run.initialize()
+
+# downscale year 0
+run.advance_step()
+
+# modify the calibrated alpha parameter value for urban
+run.cfg.alpha_urban = -0.1
+
+# run next step with modified parameters
+run.advance_step()
+
+# close out run
+run.close()
+
+```
 
 ## Contact
 For questions please contact:
