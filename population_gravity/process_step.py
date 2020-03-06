@@ -23,7 +23,7 @@ class ProcessStep:
         self.cfg = cfg
         self.yr = yr
 
-        if self.yr == self.cfg.start_year:
+        if self.yr == self.cfg.future_start_year:
 
             # run downscaling
             pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year, alpha_urban, beta_urban,
@@ -31,10 +31,12 @@ class ProcessStep:
 
         else:
 
+            prev_step = self.yr - self.cfg.time_step
+
             urban_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
+                                        "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, prev_step))
             rural_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
+                                        "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, prev_step))
 
             pop_projection(self.cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural,
                            rural_pop_proj_n, urban_pop_proj_n, self.yr)

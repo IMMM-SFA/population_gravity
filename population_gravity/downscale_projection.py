@@ -64,13 +64,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     rur_pop_init_year = rural_raster
 
     # Define local variables
-    current_timestep = [int(s) for s in urb_pop_init_year.split("/")[-1][:-4].split("_") if s.isdigit()][0] + 10
     time_one_data = {}  # Dictionary storing the base year population grids
     population_1st = {}  # Dictionary storing the base year population arrays
     time_one_data['Rural'] = rur_pop_init_year  # Rural
     time_one_data['Urban'] = urb_pop_init_year  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
-    final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(region_code, ssp_code, current_timestep))
+    final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(region_code, ssp_code, yr))
 
     # all indices
     all_indices = pdm.all_index_retriever(urb_pop_snd_year, ["row", "column"])
@@ -101,7 +100,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     for setting in time_one_data:
 
         # output raster path and file name with extension
-        output = os.path.join(datadir_output, "{}_1km_{}_{}_{}.tif".format(region_code, ssp_code, setting, current_timestep))
+        output = os.path.join(datadir_output, "{}_1km_{}_{}_{}.tif".format(region_code, ssp_code, setting, yr))
 
         # calculate aggregate urban/rural population at time 1
         pop_first_year = population_1st[setting][within_indices]
@@ -117,10 +116,10 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         else:
 
             if setting == "Urban":
-                pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
+                pop_t2 = ssp_data.loc[(ssp_data["Year"] == yr) & (ssp_data["Scenario"] == ssp_code),
                                       "UrbanPop"].values[0]
             else:
-                pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
+                pop_t2 = ssp_data.loc[(ssp_data["Year"] == yr) & (ssp_data["Scenario"] == ssp_code),
                                       "RuralPop"].values[0]
 
         # population change between years 1 and 2
@@ -207,7 +206,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         final_arrays[setting] = pop_estimates
 
         # save the final urban, rural raster
-        logging.info("Saving urban and rural raster to:  {}".format(output))
+        logging.info("Saving {} raster to:  {}".format(setting, output))
 
         pdm.array_to_raster(mask_raster_file, pop_estimates, within_indices, output)
 

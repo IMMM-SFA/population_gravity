@@ -41,9 +41,9 @@ class Model:
     """
 
     def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
-                 region_code=None, output_directory=None, calibration_parameters_file=None, start_year=None,
-                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
-                 rural_pop_proj_n=None, urban_pop_proj_n=None):
+                 region_code=None, output_directory=None, calibration_parameters_file=None, future_start_year=None,
+                 future_end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
+                 rural_pop_proj_n=None, urban_pop_proj_n=None, historic_base_year=None):
 
         # read the YAML configuration file
         self.cfg = ReadConfig(config_file=config_file,
@@ -53,8 +53,9 @@ class Model:
                               region_code=region_code,
                               output_directory=output_directory,
                               calibration_parameters_file=calibration_parameters_file,
-                              start_year=start_year,
-                              end_year=end_year,
+                              future_start_year=future_start_year,
+                              future_end_year=future_end_year,
+                              historic_base_year=historic_base_year,
                               time_step=time_step,
                               alpha_urban=alpha_urban,
                               beta_urban=beta_urban,
@@ -136,6 +137,10 @@ class Model:
         logging.info("\tssp_proj_file = {}".format(self.cfg.ssp_proj_file))
         logging.info("\tssp_code = {}".format(self.cfg.ssp_code))
         logging.info("\tdatadir_output = {}".format(self.cfg.datadir_output))
+
+    def load_base_year(self):
+        """Load historic base year data for time step 0"""
+        pass
 
     def build_step_generator(self):
         """Build step generator."""
