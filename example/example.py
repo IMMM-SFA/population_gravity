@@ -1,8 +1,8 @@
-from spatial_downscale import Model
+from population_gravity import Model
 
 run = Model(
-    datadir_histdata='/Users/d3y010/repos/github/spatial_population_downscaling_model/spatial_downscale/tests/data/inputs/main_inputs',
-    ssp_data_directory='/Users/d3y010/repos/github/spatial_population_downscaling_model/spatial_downscale/tests/data/inputs/projection',
+    datadir_histdata='/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/main_inputs',
+    ssp_data_directory='/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/projection',
     ssp_code='SSP2',
     region_code='district_of_columbia',
     output_directory='/Users/d3y010/Desktop/outputs',

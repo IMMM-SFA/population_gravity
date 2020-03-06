@@ -8,7 +8,8 @@ class ReadConfig:
 
     def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
                  region_code=None, output_directory=None, calibration_parameters_file=None, start_year=None,
-                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None):
+                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
+                 rural_pop_proj_n=None, urban_pop_proj_n=None):
 
         if config_file is None:
 
@@ -21,6 +22,12 @@ class ReadConfig:
             self.start_year = start_year
             self.end_year = end_year
             self.time_step = time_step
+
+            # urban population projection number
+            self.urban_pop_proj_n = urban_pop_proj_n
+
+            # urban population projection number
+            self.rural_pop_proj_n = rural_pop_proj_n
 
             if self.calibration_parameters_file is None:
                 # calibration parameters
@@ -74,10 +81,7 @@ class ReadConfig:
         self.urb_pop_snd_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
         self.rur_pop_fst_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year))
         self.rur_pop_snd_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
-
         self.mask_raster = os.path.join(self.datadir_histdata, "{}_mask_short_term.tif".format(self.region_code))
-
-        # TODO: why are there two point_indicies files with different names - same variable name
         self.point_indices = os.path.join(self.datadir_histdata, "{}_within_indices.txt".format(self.region_code))
         self.point_coors = os.path.join(self.datadir_histdata, "{}_coordinates.csv".format(self.region_code))
 
@@ -85,7 +89,13 @@ class ReadConfig:
         self.urb_pop_init_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.start_year))
         self.rur_pop_init_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year))
 
-        self.ssp_dataFn = os.path.join(self.datadir_future, "{}_{}_popproj.csv".format(self.region_code, self.ssp_code))
+        # if the user wants to pass in the projections by file then use it, if not get params from user
+        if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
+            self.ssp_proj_file = os.path.join(self.datadir_future, "{}_{}_popproj.csv".format(self.region_code, self.ssp_code))
+            self.ssp_data = pd.read_csv(self.ssp_proj_file)
+
+        else:
+            self.ssp_proj_file = None
 
         self.params_file = self.calibration_parameters_file
 

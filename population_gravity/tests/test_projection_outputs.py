@@ -12,31 +12,31 @@ import unittest
 
 import numpy.testing as np
 
-from spatial_downscale.downscale_utilities import raster_to_array
-from spatial_downscale import Model
+from population_gravity.downscale_utilities import raster_to_array
+from population_gravity import Model
 
 
 class TestProjectedOutputs(unittest.TestCase):
     """Test configuration integrity."""
 
-    COMP_RURAL_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Rural_2010.tif')
-    COMP_RURAL_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Rural_2020.tif')
-    COMP_URBAN_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Urban_2010.tif')
-    COMP_URBAN_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Urban_2020.tif')
-    COMP_TOTAL_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Total_2010.tif')
-    COMP_TOTAL_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Total_2020.tif')
+    COMP_RURAL_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Rural_2010.tif')
+    COMP_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Rural_2020.tif')
+    COMP_URBAN_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Urban_2010.tif')
+    COMP_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Urban_2020.tif')
+    COMP_TOTAL_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Total_2010.tif')
+    COMP_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/district_of_columbia_1km_SSP2_Total_2020.tif')
 
-    HISTORIC_DATA = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/main_inputs')
-    PROJECTION_DATA = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/projection')
-    OUTPUT_DIRECTORY = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs')
-    PARAM_FILE = pkg_resources.resource_filename('spatial_downscale', 'tests/data/inputs/district_of_columbia_SSP2_calibration_parameters.csv')
+    HISTORIC_DATA = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/main_inputs')
+    PROJECTION_DATA = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/projection')
+    OUTPUT_DIRECTORY = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs')
+    PARAM_FILE = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/district_of_columbia_SSP2_calibration_parameters.csv')
 
-    RUN_RURAL_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2010.tif')
-    RUN_RURAL_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2020.tif')
-    RUN_URBAN_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Urban_2010.tif')
-    RUN_URBAN_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Urban_2020.tif')
-    RUN_TOTAL_2010 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Total_2010.tif')
-    RUN_TOTAL_2020 = pkg_resources.resource_filename('spatial_downscale', 'tests/data/outputs/district_of_columbia_1km_SSP2_Total_2020.tif')
+    RUN_RURAL_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2010.tif')
+    RUN_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Rural_2020.tif')
+    RUN_URBAN_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Urban_2010.tif')
+    RUN_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Urban_2020.tif')
+    RUN_TOTAL_2010 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Total_2010.tif')
+    RUN_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/district_of_columbia_1km_SSP2_Total_2020.tif')
 
     def test_proj_outputs(self):
         """Test for projection outputs"""

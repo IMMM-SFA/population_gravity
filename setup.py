@@ -28,7 +28,7 @@ def get_requirements():
 
 
 setup(
-    name='spatial_population_downscaling_model',
+    name='population_gravity',
     version='1.0.0',
     packages=find_packages(),
     url='https://github.com/IMMM-SFA/spatial_population_downscaling_model',

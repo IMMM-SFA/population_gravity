@@ -2,7 +2,7 @@ import logging
 import os
 import time
 
-from spatial_downscale.downscale_projection import pop_projection
+from population_gravity.downscale_projection import pop_projection
 
 
 class ProcessStep:
@@ -21,8 +21,9 @@ class ProcessStep:
         logging.info("\tDownscaling year:  {}".format(yr))
 
         self.cfg = cfg
+        self.yr = yr
 
-        if yr == self.cfg.start_year:
+        if self.yr == self.cfg.start_year:
 
             # run downscaling
             pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year)
@@ -30,9 +31,9 @@ class ProcessStep:
         else:
 
             urban_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, yr))
+                                        "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
             rural_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, yr))
+                                        "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
 
             pop_projection(self.cfg, urban_raster, rural_raster)
 

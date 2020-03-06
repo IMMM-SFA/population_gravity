@@ -1,4 +1,5 @@
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -7,7 +8,7 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from collections import deque
 import simplejson
 
-import spatial_downscale.downscale_utilities as pdm
+import population_gravity.downscale_utilities as pdm
 
 
 class Projection:
@@ -49,7 +50,7 @@ def pop_projection(cfg, urban_raster, rural_raster):
     """
 
     mask_raster = cfg.mask_raster
-    ssp_dataFn = cfg.ssp_dataFn
+    ssp_data = cfg.ssp_data
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
     point_coors = np.genfromtxt(cfg.point_coors, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
@@ -59,6 +60,9 @@ def pop_projection(cfg, urban_raster, rural_raster):
     beta_urban = cfg.beta_urban
     alpha_rural = cfg.alpha_rural
     beta_rural = cfg.beta_rural
+    rural_pop_proj_n = cfg.rural_pop_proj_n,
+    urban_pop_proj_n = cfg.urban_pop_proj_n
+
     urb_pop_snd_year = pdm.raster_to_array(cfg.urb_pop_snd_year)
     urb_pop_init_year = urban_raster
     rur_pop_init_year = rural_raster
@@ -70,7 +74,7 @@ def pop_projection(cfg, urban_raster, rural_raster):
     time_one_data['Rural'] = rur_pop_init_year  # Rural
     time_one_data['Urban'] = urb_pop_init_year  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
-    final_raster = datadir_output + '/' + region_code + "_1km_" + ssp_code + "_Total_" + str(current_timestep) + ".tif"
+    final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(region_code, ssp_code, current_timestep))
 
     # populate the array containing mask values for all points
     points_mask = pdm.raster_to_array(mask_raster).flatten()
@@ -116,13 +120,20 @@ def pop_projection(cfg, urban_raster, rural_raster):
         pop_t1 = pop_first_year.sum()
 
         # load the SSP file to retrieve the aggregated projected population at time 2 for downscaling
-        ssp_data = pd.read_csv(ssp_dataFn)
-        if setting == "Urban":
-            pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
-                                  "UrbanPop"].values[0]
+        if ssp_data is None:
+            if setting == "Urban":
+                pop_t2 = urban_pop_proj_n
+            else:
+                pop_t2 = rural_pop_proj_n
+
         else:
-            pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
-                                  "RuralPop"].values[0]
+
+            if setting == "Urban":
+                pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
+                                      "UrbanPop"].values[0]
+            else:
+                pop_t2 = ssp_data.loc[(ssp_data["Year"] == current_timestep) & (ssp_data["Scenario"] == ssp_code),
+                                      "RuralPop"].values[0]
 
         # population change between years 1 and 2
         pop_change = pop_t2 - pop_t1

@@ -8,16 +8,15 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 """
 
-import argparse
 import logging
 import os
 import sys
 import time
 
-import spatial_downscale.downscale_calibrate as calib
+import population_gravity.downscale_calibrate as calib
 
-from spatial_downscale.read_config import ReadConfig
-from spatial_downscale.process_step import ProcessStep
+from population_gravity.read_config import ReadConfig
+from population_gravity.process_step import ProcessStep
 
 
 class Model:
@@ -43,7 +42,8 @@ class Model:
 
     def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
                  region_code=None, output_directory=None, calibration_parameters_file=None, start_year=None,
-                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None):
+                 end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
+                 rural_pop_proj_n=None, urban_pop_proj_n=None):
 
         # read the YAML configuration file
         self.cfg = ReadConfig(config_file=config_file,
@@ -59,12 +59,29 @@ class Model:
                               alpha_urban=alpha_urban,
                               beta_urban=beta_urban,
                               alpha_rural=alpha_rural,
-                              beta_rural=beta_rural)
+                              beta_rural=beta_rural,
+                              rural_pop_proj_n=rural_pop_proj_n,
+                              urban_pop_proj_n=urban_pop_proj_n)
+
+        self.datadir_histdata = self.cfg.datadir_histdata
+        self.ssp_code = self.cfg.ssp_code
+        self.region_code = self.cfg.region_code
+        self.calibration_parameters_file = self.cfg.calibration_parameters_file
+        self.start_year = self.cfg.start_year
+        self.end_year = self.cfg.end_year
+        self.time_step = self.cfg.time_step
+        self.alpha_urban = self.cfg.alpha_urban
+        self.beta_urban = self.cfg.beta_urban
+        self.alpha_rural = self.cfg.alpha_rural
+        self.beta_rural = self.cfg.beta_rural
+        self.rural_pop_proj_n = self.cfg.rural_pop_proj_n
+        self.urban_pop_proj_n = self.cfg.urban_pop_proj_n
 
         # logfile path
         self.logfile = os.path.join(self.cfg.datadir_output, 'logfile_{}_{}.log'.format(self.cfg.ssp_code, self.cfg.region_code))
 
-        self.timestep = None
+        # set up time step generator
+        self.timestep = self.build_step_generator()
 
     @staticmethod
     def make_dir(pth):
@@ -122,12 +139,9 @@ class Model:
         # for either
         logging.info("\tmask_raster = {}".format(self.cfg.mask_raster))
         logging.info("\tregion_code = {}".format(self.cfg.region_code))
-        logging.info("\tssp_dataFn = {}".format(self.cfg.ssp_dataFn))
+        logging.info("\tssp_proj_file = {}".format(self.cfg.ssp_proj_file))
         logging.info("\tssp_code = {}".format(self.cfg.ssp_code))
         logging.info("\tdatadir_output = {}".format(self.cfg.datadir_output))
-
-        # set up time step generator
-        self.timestep = self.build_step_generator()
 
     def build_step_generator(self):
         """Build step generator."""

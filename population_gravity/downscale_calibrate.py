@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 
-import spatial_downscale.downscale_utilities as pdm
+import population_gravity.downscale_utilities as pdm
 
 
 def build_iterator(obj_x, obj_y):
