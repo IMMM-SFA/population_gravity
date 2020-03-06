@@ -13,7 +13,7 @@ class ProcessStep:
 
     """
 
-    def __init__(self, cfg, yr):
+    def __init__(self, cfg, yr, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n):
 
         # start time
         td = time.time()
@@ -26,7 +26,8 @@ class ProcessStep:
         if self.yr == self.cfg.start_year:
 
             # run downscaling
-            pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year)
+            pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year, alpha_urban, beta_urban,
+                           alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n)
 
         else:
 
@@ -35,6 +36,7 @@ class ProcessStep:
             rural_raster = os.path.join(self.cfg.datadir_output,
                                         "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
 
-            pop_projection(self.cfg, urban_raster, rural_raster)
+            pop_projection(self.cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural,
+                           rural_pop_proj_n, urban_pop_proj_n)
 
         logging.info("Downscaling for year {} completed in {} minutes.".format(yr, (time.time() - td) / 60))

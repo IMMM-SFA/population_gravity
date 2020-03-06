@@ -24,19 +24,23 @@ If no error is returned then you are ready to go!
 
 ### Setting up a run
 
-Fill in with DOI link once we get it setup
+The following are required input files to start a model run for a target state:
+| Input File                   | Description                                                                                                                                                                                                                                                                                                       | Source             |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| <state_name>_coordinates.csv | Coordinates for each 1 km grid cell within the target state.  File includes a header with the fields `XCoord`, `YCoord`, `FID`. Where data types and field descriptions are as follows: - `XCoord`, `float`, X coordinate in meters - `YCoord`, `float`, Y coordinate in meters - `FID`, `int`, unique feature id | Generated in a GIS |
 
 ### Key variables
-Users can modify any key variables after model initialization.  This includes in between time steps.
+Users can modify any key variables after model initialization.  This includes updating values between time steps.
 
-| variable         | type  | description                                                 |   |   |
-|------------------|-------|-------------------------------------------------------------|---|---|
-| alpha_urban      | float | Alpha parameter for urban                                   |   |   |
-| beta_urban       | float | Beta parameter for urban                                    |   |   |
-| alpha_rural      | float | Alpha parameter for rural                                   |   |   |
-| beta_rural       | float | Beta parameter for rural                                    |   |   |
-| urban_pop_proj_n | float | Urban population projection number for the second time step |   |   |
-| rural_pop_proj_n | float | Rural population projection number for the second time step |   |   |
+| variable         | type  | description                                                 |
+|------------------|-------|-------------------------------------------------------------|
+| alpha_urban      | float | Alpha parameter for urban                                   |
+| beta_urban       | float | Beta parameter for urban                                    |
+| alpha_rural      | float | Alpha parameter for rural                                   |
+| beta_rural       | float | Beta parameter for rural                                    |
+| urban_pop_proj_n | float | Urban population projection number for the second time step |
+| rural_pop_proj_n | float | Rural population projection number for the second time step |
+
 
 ## Examples
 

@@ -63,13 +63,7 @@ class Model:
                               rural_pop_proj_n=rural_pop_proj_n,
                               urban_pop_proj_n=urban_pop_proj_n)
 
-        self.datadir_histdata = self.cfg.datadir_histdata
-        self.ssp_code = self.cfg.ssp_code
-        self.region_code = self.cfg.region_code
-        self.calibration_parameters_file = self.cfg.calibration_parameters_file
-        self.start_year = self.cfg.start_year
-        self.end_year = self.cfg.end_year
-        self.time_step = self.cfg.time_step
+        # expose key variables that we want the user to have non-nested access to
         self.alpha_urban = self.cfg.alpha_urban
         self.beta_urban = self.cfg.beta_urban
         self.alpha_rural = self.cfg.alpha_rural
@@ -134,7 +128,7 @@ class Model:
         logging.info("\turb_pop_init_year = {}".format(self.cfg.urb_pop_init_year))
         logging.info("\trur_pop_init_year = {}".format(self.cfg.rur_pop_init_year))
         logging.info("\tparams_file = {}".format(self.cfg.params_file))
-        logging.info("\tpoint_coors = {}".format(self.cfg.point_coors))
+        logging.info("\tpoint_coordinates_file = {}".format(self.cfg.point_coordinates_file))
 
         # for either
         logging.info("\tmask_raster = {}".format(self.cfg.mask_raster))
@@ -148,7 +142,8 @@ class Model:
 
         for step in self.cfg.steps:
 
-            yield ProcessStep(self.cfg, step)
+            yield ProcessStep(self.cfg, step, self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural,
+                              self.rural_pop_proj_n, self.urban_pop_proj_n)
 
     def advance_step(self):
         """Advance to next time step.

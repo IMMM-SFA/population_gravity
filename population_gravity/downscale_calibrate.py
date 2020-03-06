@@ -8,7 +8,6 @@ Calibration module for population downscaling.
 
 import logging
 import os
-import pickle
 
 import simplejson
 import numpy as np
@@ -66,17 +65,12 @@ def calibration(cfg):
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
 
-    urb_outfile = os.path.join(cfg.datadir_output, '{}_{}_urban_calib_output.pkl'.format(cfg.region_code.replace(' ', '_'), cfg.ssp_code))
-    rur_outfile = os.path.join(cfg.datadir_output, '{}_{}_rural_calib_output.pkl'.format(cfg.region_code.replace(' ', '_'), cfg.ssp_code))
-
     # Read indices of points that fall within the state boundary
     with open(cfg.point_indices, 'r') as r:
         within_indices = simplejson.load(r)
 
-    arr_coords = np.genfromtxt(cfg.point_coors, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
-
     # A csv file to write the parameters into
-    out_cal = os.path.join(cfg.datadir_output, '{}_{}_Parmas.csv'.format(region_code, ssp_code))
+    out_cal = os.path.join(cfg.datadir_output, '{}_{}_parmas.csv'.format(region_code, ssp_code))
 
     # Dictionary storing initial urban and rural population grids
     all_rasters = {'Rural': [cfg.rur_pop_fst_year, cfg.rur_pop_snd_year],
@@ -102,7 +96,7 @@ def calibration(cfg):
     # Calculate a distance matrix that serves as a template
     DIST_THRESHOLD_METERS = 100000
 
-    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], DIST_THRESHOLD_METERS, df_all_indices, arr_coords)
+    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], DIST_THRESHOLD_METERS, df_all_indices, cfg.point_coordinates_array)
 
     # initial alpha values
     a_lower = -2.0
@@ -145,13 +139,6 @@ def calibration(cfg):
             estimate = pdm.pop_min_function(a_b, arr_1st, arr_2nd, arr_pop_tot_1st, points_mask, dist_matrix, within_indices)
 
             fst_results.loc[(fst_results["a"] == a_b[0]) & (fst_results["b"] == a_b[1]), "estimate"] = estimate
-
-            # logging.info("\t{}th iteration done".format(index))
-
-        # pickle the current optimization files
-        # pickle_file = '/Users/d3y010/Desktop/fst_results_urb.pik'
-        # with open(pickle_file, "wb") as pickle_params:
-        #     pickle.dump(fst_results, pickle_params)
 
         parameters_dict = final_optimization(fst_results, params[1:], parameters_dict, bounds, setting)
 

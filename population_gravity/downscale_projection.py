@@ -2,7 +2,6 @@ import logging
 import os
 
 import numpy as np
-import pandas as pd
 import multiprocessing
 from pathos.multiprocessing import ProcessingPool as Pool
 from collections import deque
@@ -30,22 +29,19 @@ class Projection:
         pass
 
 
-def pop_projection(cfg, urban_raster, rural_raster):
-    """ ?
+def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n,
+                   urban_pop_proj_n):
+    """Downscale population from state-level projections for urban and rural to 1 km gridded data.
 
     :param cfg:                             Configuration object
-    :param urban_raster:                    ?
-    :param rural_raster:                    ?
-    :param mask_raster:                     ?
-    :param ssp_dataFn:                      ?
-    :param region_code:                     ?
-    :param ssp_code:                        ?
-    :param point_coors:                     ?
-    :param datadir_output:                  ?
-    :param point_indices:                   ?
-    :param urb_pop_snd_year:                ?
-
-    :return:
+    :param urban_raster:                    string, Urban raster from historic data for base year
+    :param rural_raster:                    string, Rural raster from historic data for base year
+    :param alpha_urban:                     Alpha parameter for urban
+    :param beta_urban:                      Beta parameter for urban
+    :param alpha_rural:                     Alpha parameter for rural
+    :param beta_rural:                      Beta parameter for rural
+    :param rural_pop_proj_n:                Population number for rural for the projection year
+    :param urban_pop_proj_n:                Population number for urban for the projection year
 
     """
 
@@ -53,16 +49,9 @@ def pop_projection(cfg, urban_raster, rural_raster):
     ssp_data = cfg.ssp_data
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
-    point_coors = np.genfromtxt(cfg.point_coors, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+    point_coordinates_array = cfg.point_coordinates_array
     datadir_output = cfg.datadir_output
     point_indices = cfg.point_indices
-    alpha_urban = cfg.alpha_urban
-    beta_urban = cfg.beta_urban
-    alpha_rural = cfg.alpha_rural
-    beta_rural = cfg.beta_rural
-    rural_pop_proj_n = cfg.rural_pop_proj_n,
-    urban_pop_proj_n = cfg.urban_pop_proj_n
-
     urb_pop_snd_year = pdm.raster_to_array(cfg.urb_pop_snd_year)
     urb_pop_init_year = urban_raster
     rur_pop_init_year = rural_raster
@@ -88,7 +77,7 @@ def pop_projection(cfg, urban_raster, rural_raster):
 
     # Calculate a distance matrix that serves as a template
     cut_off_meters = 100000
-    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, all_indices, point_coors)
+    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, all_indices, point_coordinates_array)
 
     # Read historical urban and rural population grids into arrrays
     for setting in time_one_data:
@@ -107,13 +96,8 @@ def pop_projection(cfg, urban_raster, rural_raster):
     # downscale population projection
     for setting in time_one_data:
 
-        # TODO: See why these are not used
-        # define required parameters within the loop
-        pop_estimates = np.zeros(len(within_indices))  # Population estimates for the second year
-        suitability_estimates = deque()  # Suitability estimates in the second year
-
-        # output raster
-        output = datadir_output + '/' + region_code + "_1km_" + ssp_code + "_" + setting + "_" + str(current_timestep) + ".tif"
+        # output raster path and file name with extension
+        output = os.path.join(datadir_output, "{}_1km_{}_{}_{}.tif".format(region_code, ssp_code, setting, current_timestep))
 
         # calculate aggregate urban/rural population at time 1
         pop_first_year = population_1st[setting][within_indices]
