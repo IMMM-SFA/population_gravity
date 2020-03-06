@@ -44,12 +44,6 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     :param urban_pop_proj_n:                Population number for urban for the projection year
 
     """
-    # TODO:  CHANGE current_timestep to be consistent with yr step.  Currently, the output is produced for the year
-    # TODO:    after the initialization year.  So for the base year of 2000, the outputs will actually be for 2010.
-    # TODO:    The code needs to initialize with the base year (currently 2000) outside of the time step advancement
-    # TODO:    generator.  Each projected year processed should then be saved as an array that can be passed into
-    # TODO:    the urb_pop_init_year and rur_pop_init_year for the current time step being processed.  So when
-    # TODO:    processing 2010, the code produces output for 2010.
 
     mask_raster = cfg.mask_raster
     mask_raster_file = cfg.mask_raster_file
