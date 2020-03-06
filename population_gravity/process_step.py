@@ -27,7 +27,7 @@ class ProcessStep:
 
             # run downscaling
             pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year, alpha_urban, beta_urban,
-                           alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n)
+                           alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n, self.yr)
 
         else:
 
@@ -37,6 +37,6 @@ class ProcessStep:
                                         "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, self.yr))
 
             pop_projection(self.cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural,
-                           rural_pop_proj_n, urban_pop_proj_n)
+                           rural_pop_proj_n, urban_pop_proj_n, self.yr)
 
         logging.info("Downscaling for year {} completed in {} minutes.".format(yr, (time.time() - td) / 60))

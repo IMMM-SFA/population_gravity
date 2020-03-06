@@ -30,7 +30,7 @@ class Projection:
 
 
 def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n,
-                   urban_pop_proj_n):
+                   urban_pop_proj_n, yr):
     """Downscale population from state-level projections for urban and rural to 1 km gridded data.
 
     :param cfg:                             Configuration object
@@ -44,6 +44,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     :param urban_pop_proj_n:                Population number for urban for the projection year
 
     """
+    # TODO:  CHANGE current_timestep to be consistent with yr step.  Currently, the output is produced for the year
+    # TODO:    after the initialization year.  So for the base year of 2000, the outputs will actually be for 2010.
+    # TODO:    The code needs to initialize with the base year (currently 2000) outside of the time step advancement
+    # TODO:    generator.  Each projected year processed should then be saved as an array that can be passed into
+    # TODO:    the urb_pop_init_year and rur_pop_init_year for the current time step being processed.  So when
+    # TODO:    processing 2010, the code produces output for 2010.
 
     mask_raster = cfg.mask_raster
     mask_raster_file = cfg.mask_raster_file
@@ -77,9 +83,9 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     cut_off_meters = 100000
     dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, all_indices, point_coordinates_array)
 
-    # Read historical urban and rural population grids into arrrays
+    # Read historical urban and rural population grids into arrays
     for setting in time_one_data:
-        # create the dictionary containing population of each point in year 1
+        # create the dictionary containing population of each point in year 0
         population_1st[setting] = pdm.raster_to_array(time_one_data[setting]).flatten()
 
     # create an array containing total population values in the first historical year

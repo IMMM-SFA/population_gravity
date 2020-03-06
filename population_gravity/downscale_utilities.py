@@ -60,7 +60,7 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
     
 
 def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
-    """?
+    """Build data frame in the shape of the input array.
 
     :param array:                   Input 2D array from input raster
     :param columns:                 list; Target columns
@@ -71,9 +71,6 @@ def all_index_retriever(array, columns, row_col='row', column_col='column', all_
     :return:                        Typed data frame of indicies
 
     """
-    # # read the input raster before converting it to an array
-    # with rasterio.open(raster) as src_raster:
-    #     array = src_raster.read(1)
     
     # put the row, column and linear indices of all elements in a dataframe
     shape = array.shape
