@@ -4,6 +4,8 @@ import yaml
 import numpy as np
 import pandas as pd
 
+import population_gravity.downscale_utilities as utils
+
 
 class ReadConfig:
 
@@ -82,12 +84,14 @@ class ReadConfig:
         self.urb_pop_snd_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
         self.rur_pop_fst_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year))
         self.rur_pop_snd_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year + self.time_step))
-        self.mask_raster = os.path.join(self.datadir_histdata, "{}_mask_short_term.tif".format(self.region_code))
+        self.mask_raster_file = os.path.join(self.datadir_histdata, "{}_mask_short_term.tif".format(self.region_code))
         self.point_indices = os.path.join(self.datadir_histdata, "{}_within_indices.txt".format(self.region_code))
         self.point_coordinates_file = os.path.join(self.datadir_histdata, "{}_coordinates.csv".format(self.region_code))
         self.point_coordinates_array = np.genfromtxt(self.point_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
 
         # downscaling inputs -- derived from user inputs
+        self.mask_raster = utils.raster_to_array(self.mask_raster_file).flatten()
+
         self.urb_pop_init_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.start_year))
         self.rur_pop_init_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.start_year))
 

@@ -79,9 +79,6 @@ def calibration(cfg):
     # define local variables
     parameters_dict = {}  # Dictionary storing urban/rural calibration parameters
 
-    # populate the array containing mask values
-    points_mask = pdm.raster_to_array(cfg.mask_raster).flatten()
-
     # Create an array containing total population values in the first historical year
     arr_pop_rur_1st = pdm.raster_to_array(cfg.rur_pop_fst_year).flatten()
     arr_pop_rur_2nd = pdm.raster_to_array(cfg.rur_pop_snd_year).flatten()
@@ -125,7 +122,7 @@ def calibration(cfg):
             arr_1st = arr_pop_rur_1st
             arr_2nd = arr_pop_rur_2nd
 
-        params = (setting, arr_1st, arr_2nd, arr_pop_tot_1st, points_mask, dist_matrix, within_indices)
+        params = (setting, arr_1st, arr_2nd, arr_pop_tot_1st, cfg.mask_raster, dist_matrix, within_indices)
 
         # initialize the dataframe that will hold values of the brute force
         fst_results = pd.DataFrame(data={"a": np.repeat(a_list, 10).astype(np.float32),
@@ -136,7 +133,7 @@ def calibration(cfg):
         # run brute force to calculate optimization per grid point
         for index, a_b in enumerate(ab_iter):
 
-            estimate = pdm.pop_min_function(a_b, arr_1st, arr_2nd, arr_pop_tot_1st, points_mask, dist_matrix, within_indices)
+            estimate = pdm.pop_min_function(a_b, arr_1st, arr_2nd, arr_pop_tot_1st, cfg.mask_raster, dist_matrix, within_indices)
 
             fst_results.loc[(fst_results["a"] == a_b[0]) & (fst_results["b"] == a_b[1]), "estimate"] = estimate
 
@@ -145,8 +142,13 @@ def calibration(cfg):
     # write the parameters to the designated csv file
     logging.info("\tWriting parameterization file:  {}".format(out_cal))
 
+    alpha_urban = parameters_dict["Urban"][0]
+    alpha_rural = parameters_dict["Rural"][0]
+    beta_urban = parameters_dict["Urban"][1]
+    beta_rural = parameters_dict["Rural"][1]
+
     with open(out_cal, 'w') as out_csv:
-        out_csv.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban,Comments\n")
-        out_csv.write('{},{},{},{},{},{},{}\n'.format(region_code, ssp_code, parameters_dict["Rural"][0],
-                                                      parameters_dict["Rural"][1], parameters_dict["Urban"][0],
-                                                      parameters_dict["Urban"][1], ""))
+        out_csv.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban\n")
+        out_csv.write('{},{},{},{},{},{}\n'.format(region_code, ssp_code, alpha_rural, beta_rural, alpha_urban, beta_urban))
+
+    return alpha_urban, alpha_rural, beta_urban, beta_rural

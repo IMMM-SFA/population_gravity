@@ -131,7 +131,7 @@ class Model:
         logging.info("\tpoint_coordinates_file = {}".format(self.cfg.point_coordinates_file))
 
         # for either
-        logging.info("\tmask_raster = {}".format(self.cfg.mask_raster))
+        logging.info("\tmask_raster_file = {}".format(self.cfg.mask_raster_file))
         logging.info("\tregion_code = {}".format(self.cfg.region_code))
         logging.info("\tssp_proj_file = {}".format(self.cfg.ssp_proj_file))
         logging.info("\tssp_code = {}".format(self.cfg.ssp_code))

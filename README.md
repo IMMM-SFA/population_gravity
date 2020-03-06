@@ -25,9 +25,12 @@ If no error is returned then you are ready to go!
 ### Setting up a run
 
 The following are required input files to start a model run for a target state:
-| Input File                   | Description                                                                                                                                                                                                                                                                                                       | Source             |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
-| <state_name>_coordinates.csv | Coordinates for each 1 km grid cell within the target state.  File includes a header with the fields `XCoord`, `YCoord`, `FID`. Where data types and field descriptions are as follows: (`XCoord`, `float`, X coordinate in meters), (`YCoord`, `float`, Y coordinate in meters), (`FID`, `int`, Unique feature id) | Generated in a GIS |
+| Input File | Description | Source |
+|----|----|----|
+| `<state_name>_coordinates.csv` | Coordinates for each 1 km grid cell within the target state.,File includes a header with the fields `XCoord`, `YCoord`, `FID`. Where data types and field descriptions are as follows: (`XCoord`, `float`, X coordinate in meters), (`YCoord`, `float`, Y coordinate in meters), (`FID`, `int`, Unique feature id) | Generated in a GIS |
+| `<state_name>_mask_short_term.tif` | Mask raster for 1 km grid cells in the target state | Generated in a GIS |
+| `<state_name>_rural_1990_1km.tif` |  |  |
+| `<state_name>_rural_2000_1km.tif` |  |  |
 
 ### Key variables
 Users can modify any key variables after model initialization.  This includes updating values between time steps.

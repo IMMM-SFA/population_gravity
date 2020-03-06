@@ -46,6 +46,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     """
 
     mask_raster = cfg.mask_raster
+    mask_raster_file = cfg.mask_raster_file
     ssp_data = cfg.ssp_data
     region_code = cfg.region_code
     ssp_code = cfg.ssp_code
@@ -64,9 +65,6 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     time_one_data['Urban'] = urb_pop_init_year  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
     final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(region_code, ssp_code, current_timestep))
-
-    # populate the array containing mask values for all points
-    points_mask = pdm.raster_to_array(mask_raster).flatten()
 
     # all indices
     all_indices = pdm.all_index_retriever(urb_pop_snd_year, ["row", "column"])
@@ -151,7 +149,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         suitability_estimates = np.array(suitability_estimates)
 
         # exract only the necessary mask values that fall within the state boundary
-        cur_points_mask = points_mask[within_indices]
+        cur_points_mask = mask_raster[within_indices]
 
         # in case of population decline, suitability estimates are reciprocated
         if negative_mod:
@@ -205,7 +203,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         # save the final urban, rural raster
         logging.info("Saving urban and rural raster to:  {}".format(output))
 
-        pdm.array_to_raster(mask_raster, pop_estimates, within_indices, output)
+        pdm.array_to_raster(mask_raster_file, pop_estimates, within_indices, output)
 
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
@@ -213,4 +211,4 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     # save the final total raster
     logging.info("Saving total population raster to:  {}".format(final_raster))
 
-    pdm.array_to_raster(mask_raster, total_array, within_indices, final_raster)
+    pdm.array_to_raster(mask_raster_file, total_array, within_indices, final_raster)
