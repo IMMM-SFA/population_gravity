@@ -1,5 +1,5 @@
 # test outputs
-spatial_downscale/tests/data/outputs/
+**/outputs
 
 # system
 .DS_Store
