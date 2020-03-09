@@ -40,27 +40,32 @@ class Model:
 
     """
 
-    def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
-                 region_code=None, output_directory=None, calibration_parameters_file=None, future_start_year=None,
-                 future_end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
-                 rural_pop_proj_n=None, urban_pop_proj_n=None, historic_base_year=None):
+    def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
+                 historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
+                 one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
+                 alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
+                 projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
+                 urban_pop_proj_n=None):
 
         # read the YAML configuration file
         self.cfg = ReadConfig(config_file=config_file,
-                              datadir_histdata=datadir_histdata,
-                              ssp_data_directory=ssp_data_directory,
-                              ssp_code=ssp_code,
-                              region_code=region_code,
+                              grid_coordinates_file=grid_coordinates_file,
+                              historical_rural_pop_raster=historical_rural_pop_raster,
+                              historical_urban_pop_raster=historical_urban_pop_raster,
+                              historical_suitability_raster=historical_suitability_raster,
+                              projected_population_file=projected_population_file,
+                              one_dimension_indices_file=one_dimension_indices_file,
                               output_directory=output_directory,
-                              calibration_parameters_file=calibration_parameters_file,
-                              future_start_year=future_start_year,
-                              future_end_year=future_end_year,
-                              historic_base_year=historic_base_year,
-                              time_step=time_step,
                               alpha_urban=alpha_urban,
                               beta_urban=beta_urban,
                               alpha_rural=alpha_rural,
                               beta_rural=beta_rural,
+                              scenario=scenario,
+                              state_name=state_name,
+                              historic_base_year=historic_base_year,
+                              projection_start_year=projection_start_year,
+                              projection_end_year=projection_end_year,
+                              time_step=time_step,
                               rural_pop_proj_n=rural_pop_proj_n,
                               urban_pop_proj_n=urban_pop_proj_n)
 
@@ -73,7 +78,7 @@ class Model:
         self.urban_pop_proj_n = self.cfg.urban_pop_proj_n
 
         # logfile path
-        self.logfile = os.path.join(self.cfg.datadir_output, 'logfile_{}_{}.log'.format(self.cfg.ssp_code, self.cfg.region_code))
+        self.logfile = os.path.join(self.cfg.output_directory, 'logfile_{}_{}.log'.format(self.cfg.scenario, self.cfg.state_name))
 
         # set up time step generator
         self.timestep = self.build_step_generator()
@@ -110,7 +115,7 @@ class Model:
         """Setup model."""
 
         # build output directory first to store logfile and other outputs
-        self.make_dir(self.cfg.datadir_output)
+        self.make_dir(self.cfg.output_directory)
 
         # initialize logger
         self.init_log()
@@ -120,23 +125,20 @@ class Model:
         # log run parameters
         logging.info("Input parameters:")
         logging.info("\turb_pop_fst_year = {}".format(self.cfg.urb_pop_fst_year))
-        logging.info("\turb_pop_snd_year = {}".format(self.cfg.urb_pop_snd_year))
         logging.info("\trur_pop_fst_year = {}".format(self.cfg.rur_pop_fst_year))
-        logging.info("\trur_pop_snd_year = {}".format(self.cfg.rur_pop_snd_year))
         logging.info("\tpoint_indices = {}".format(self.cfg.point_indices))
 
         # for projection
         logging.info("\turb_pop_init_year = {}".format(self.cfg.urb_pop_init_year))
         logging.info("\trur_pop_init_year = {}".format(self.cfg.rur_pop_init_year))
-        logging.info("\tparams_file = {}".format(self.cfg.params_file))
         logging.info("\tpoint_coordinates_file = {}".format(self.cfg.point_coordinates_file))
 
         # for either
         logging.info("\tmask_raster_file = {}".format(self.cfg.mask_raster_file))
-        logging.info("\tregion_code = {}".format(self.cfg.region_code))
+        logging.info("\tstate_name = {}".format(self.cfg.state_name))
         logging.info("\tssp_proj_file = {}".format(self.cfg.ssp_proj_file))
-        logging.info("\tssp_code = {}".format(self.cfg.ssp_code))
-        logging.info("\tdatadir_output = {}".format(self.cfg.datadir_output))
+        logging.info("\tscenario = {}".format(self.cfg.scenario))
+        logging.info("\toutput_directory = {}".format(self.cfg.output_directory))
 
     def load_base_year(self):
         """Load historic base year data for time step 0"""

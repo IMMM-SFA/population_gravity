@@ -8,8 +8,6 @@ output_directory              : /Users/d3y010/projects/population/district_of_co
 calibration_parameters_file   : /Users/d3y010/projects/population/district_of_columbia/district_of_columbia_SSP2_calibration_parameters.csv
 
 # run settings
-compute_params      : False
-compute_proj        : True
 start_year          : 2000
 end_year            : 2020
 time_step           : 10

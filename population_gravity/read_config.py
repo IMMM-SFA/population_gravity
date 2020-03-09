@@ -1,4 +1,3 @@
-import os
 import yaml
 
 import numpy as np
@@ -8,129 +7,176 @@ import population_gravity.downscale_utilities as utils
 
 
 class ReadConfig:
+    """Read configuration data either provided in the configuration YAML file or as passed in via arguments.
 
-    def __init__(self, config_file=None, datadir_histdata=None, ssp_data_directory=None, ssp_code=None,
-                 region_code=None, output_directory=None, calibration_parameters_file=None, future_start_year=None,
-                 future_end_year=None, time_step=None, alpha_urban=None, beta_urban=None, alpha_rural=None, beta_rural=None,
-                 rural_pop_proj_n=None, urban_pop_proj_n=None, historic_base_year=None):
+    :param config_file:                         string. Full path to configuration YAML file with file name and
+                                                extension. If not provided by the user, the code will default to the
+                                                expectation of alternate arguments.
+
+    :param grid_coordinates_file:               string. Full path with file name and extension to the CSV file
+                                                containing the coordinates for each 1 km grid cell within the target
+                                                state. File includes a header with the fields XCoord, YCoord, FID.
+                                                Where data types and field descriptions are as follows:
+                                                (XCoord, float, X coordinate in meters),
+                                                (YCoord, float, Y coordinate in meters),
+                                                (FID, int, Unique feature id)
+
+    :param historical_suitability_raster:       string. Full path with file name and extension to the suitability
+                                                raster containing values from 0.0 to 1.0 for each 1 km grid cell
+                                                representing suitability depending on topographic and land use and
+                                                land cover characteristics within the target state.
+
+    :param historical_rural_pop_raster:         string. Full path with file name and extension to a raster containing
+                                                rural population counts for each 1 km grid cell for the historical
+                                                base time step.
+
+    :param historical_urban_pop_raster:         string. Full path with file name and extension to a raster containing
+                                                urban population counts for each 1 km grid cell for the historical
+                                                base time step.
+
+    :param projected_population_file:           string. Full path with file name and extension to a CSV file containing
+                                                population projections per year separated into urban and rural
+                                                categories.  Field descriptions for require fields as follows:
+                                                (Year, integer, four digit year),
+                                                (UrbanPop, float, population count for urban),
+                                                (RuralPop, float, population count for rural),
+                                                (Scenario, string, scenario as set in the `scenario` variable)
+
+    :param one_dimension_indices_file:          string. Full path with file name and extension to the text file
+                                                containing a file structured as a Python list (e.g. [0, 1]) that
+                                                contains the index of each grid cell when flattened from a 2D array to
+                                                a 1D array for the target state.
+
+    :param output_directory:                    string. Full path with file name and extension to the output directory
+                                                where outputs and the log file will be written.
+
+    :param alpha_urban:                         float. Alpha parameter for urban. Represents the degree to which the
+                                                population size of surrounding cells translates into the suitability
+                                                of a focal cell.  A positive value indicates that the larger the
+                                                population that is located within the 100 km neighborhood, the more
+                                                suitable the focal cell is.  More negative value implies less suitable.
+                                                Acceptable range:  -2.0 to 2.0
+
+    :param beta_urban:                          float. Beta parameter for urban. Reflects the significance of distance
+                                                to surrounding cells on the suitability of a focal cell.  Within 100 km,
+                                                beta determines how distance modifies the effect on suitability.
+                                                Acceptable range:  -0.5 to 2.0
+
+    :param alpha_rural:                         float. Alpha parameter for rural. Represents the degree to which the
+                                                population size of surrounding cells translates into the suitability
+                                                of a focal cell.  A positive value indicates that the larger the
+                                                population that is located within the 100 km neighborhood, the more
+                                                suitable the focal cell is.  More negative value implies less suitable.
+                                                Acceptable range:  -2.0 to 2.0
+
+    :param beta_rural:                          float. Beta parameter for rural. Reflects the significance of distance
+                                                to surrounding cells on the suitability of a focal cell.  Within 100 km,
+                                                beta determines how distance modifies the effect on suitability.
+                                                Acceptable range:  -0.5 to 2.0
+
+    :param scenario:                            string. String representing the scenario with no spaces. Must match
+                                                what is in the `projected_population_file` if passing population
+                                                projections in using a file.
+
+    :param state_name:                          string. Target state name with no spaces separated by an underscore.
+
+    :param historic_base_year:                  int. Four digit historic base year.
+
+    :param projection_start_year:               int. Four digit first year to process for the projection.
+
+    :param projection_end_year:                 int. Four digit last year to process for the projection.
+
+    :param time_step:                           int. Number of steps (e.g. number of years between projections)
+
+    :param rural_pop_proj_n:                    float.  Rural population projection count for the projected year being
+                                                calculated.
+
+    :param urban_pop_proj_n:                    float.  Urban population projection count for the projected year being
+                                                calculated.
+
+    """
+
+    def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
+                 historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
+                 one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
+                 alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
+                 projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
+                 urban_pop_proj_n=None):
 
         if config_file is None:
 
-            self.datadir_histdata = datadir_histdata
-            self.datadir_future = ssp_data_directory
-            self.ssp_code = ssp_code
-            self.region_code = region_code
-            self.datadir_output = output_directory
-            self.calibration_parameters_file = calibration_parameters_file
-            self.future_end_year = future_end_year
+            self.grid_coordinates_file = grid_coordinates_file
+            self.historical_suitability_raster = historical_suitability_raster
+            self.historical_rural_pop_raster = historical_rural_pop_raster
+            self.historical_urban_pop_raster = historical_urban_pop_raster
+            self.projected_population_file = projected_population_file
+            self.one_dimension_indices_file = one_dimension_indices_file
+            self.output_directory = output_directory
+            self.alpha_urban = alpha_urban
+            self.beta_urban = beta_urban
+            self.alpha_rural = alpha_rural
+            self.beta_rural = beta_rural
+            self.scenario = scenario
+            self.state_name = state_name
             self.historic_base_year = historic_base_year
-            self.future_start_year = future_start_year
-
+            self.future_start_year = projection_start_year
+            self.future_end_year = projection_end_year
             self.time_step = time_step
-
-            # urban population projection number
+            self.rural_pop_proj_n = rural_pop_proj_n
             self.urban_pop_proj_n = urban_pop_proj_n
 
-            # urban population projection number
-            self.rural_pop_proj_n = rural_pop_proj_n
-
-            if self.calibration_parameters_file is None:
-                # calibration parameters
-                self.alpha_urban = alpha_urban
-                self.beta_urban = beta_urban
-                self.alpha_rural = alpha_rural
-                self.beta_rural = beta_rural
-
-            else:
-                # unpack calibration parameters
-                self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural = self.unpack_calibration_parameters()
         else:
 
             # extract config file to YAML object
             cfg = self.get_yaml(config_file)
 
-            # directory of main inputs
-            self.datadir_histdata = cfg['datadir_histdata']
-
-            # directory of projections
-            self.datadir_future = cfg['ssp_data_directory']
-
-            # SSP
-            self.ssp_code = cfg['ssp_code']
-
-            # region code
-            self.region_code = cfg['region_code']
-
-            # output directory
-            self.datadir_output = cfg['output_directory']
-
+            self.grid_coordinates_file = cfg['grid_coordinates_file']
+            self.historical_suitability_raster = cfg['historical_suitability_raster']
+            self.historical_rural_pop_raster = cfg['historical_rural_pop_raster']
+            self.historical_urban_pop_raster = cfg['historical_urban_pop_raster']
+            self.projected_population_file = cfg['projected_population_file']
+            self.one_dimension_indices_file = cfg['one_dimension_indices_file']
+            self.output_directory = cfg['output_directory']
+            self.alpha_urban = cfg['alpha_urban']
+            self.beta_urban = cfg['beta_urban']
+            self.alpha_rural = cfg['alpha_rural']
+            self.beta_rural = cfg['beta_rural']
+            self.scenario = cfg['scenario']
+            self.state_name = cfg['state_name']
             self.historic_base_year = cfg['historic_base_year']
-
-            # start year
-            self.future_start_year = cfg['future_start_year']
-
-            # end year
-            self.future_end_year = cfg['future_end_year']
-
-            # interval
+            self.future_start_year = cfg['projection_start_year']
+            self.future_end_year = cfg['projection_end_year']
             self.time_step = cfg['time_step']
-
-            # calibration parameters file
-            self.calibration_parameters_file = cfg['calibration_parameters_file']
-
-            # unpack calibration parameters
-            self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural = self.unpack_calibration_parameters()
+            self.rural_pop_proj_n = cfg['rural_pop_proj_n']
+            self.urban_pop_proj_n = cfg['urban_pop_proj_n']
 
         self.steps = range(self.future_start_year, self.future_end_year + self.time_step, self.time_step)
 
         # calibration inputs -- derived from user inputs
-        self.urb_pop_fst_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.historic_base_year))
-        self.urb_pop_snd_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.historic_base_year + self.time_step))
-        self.rur_pop_fst_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.historic_base_year))
-        self.rur_pop_snd_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.historic_base_year + self.time_step))
-        self.mask_raster_file = os.path.join(self.datadir_histdata, "{}_mask_short_term.tif".format(self.region_code))
-        self.point_indices = os.path.join(self.datadir_histdata, "{}_within_indices.txt".format(self.region_code))
-        self.point_coordinates_file = os.path.join(self.datadir_histdata, "{}_coordinates.csv".format(self.region_code))
+        self.urb_pop_fst_year = self.historical_urban_pop_raster
+        self.rur_pop_fst_year = self.historical_rural_pop_raster
+        self.mask_raster_file = self.historical_suitability_raster
+
+        self.point_indices = self.one_dimension_indices_file
+        self.point_coordinates_file = self.grid_coordinates_file
         self.point_coordinates_array = np.genfromtxt(self.point_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+
+        # build data frame in the shape of the raster array
+        self.df_indicies = utils.all_index_retriever(utils.raster_to_array(self.mask_raster_file), ["row", "column"])
 
         # downscaling inputs -- derived from user inputs
         self.mask_raster = utils.raster_to_array(self.mask_raster_file).flatten()
 
-        self.urb_pop_init_year = os.path.join(self.datadir_histdata, "{}_urban_{}_1km.tif".format(self.region_code, self.historic_base_year))
-        self.rur_pop_init_year = os.path.join(self.datadir_histdata, "{}_rural_{}_1km.tif".format(self.region_code, self.historic_base_year))
+        self.urb_pop_init_year = self.historical_urban_pop_raster
+        self.rur_pop_init_year = self.historical_rural_pop_raster
 
         # if the user wants to pass in the projections by file then use it, if not get params from user
         if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
-            self.ssp_proj_file = os.path.join(self.datadir_future, "{}_{}_popproj.csv".format(self.region_code, self.ssp_code))
+            self.ssp_proj_file = projected_population_file
             self.ssp_data = pd.read_csv(self.ssp_proj_file)
 
         else:
             self.ssp_proj_file = None
-
-        self.params_file = self.calibration_parameters_file
-
-    def unpack_calibration_parameters(self):
-        """Extract calibration parameters from file.
-
-        :retrun:            [0]  float, Alpha Urban
-                            [1]  float, Beta Urban
-                            [2]  float, Alpha Rural
-                            [3]  float, Beta Rural
-
-        """
-
-        df = pd.read_csv(self.calibration_parameters_file)
-
-        urban_arr = df.loc[df['SSP'] == self.ssp_code, ["Alpha_Urban", "Beta_Urban"]].values
-        rural_arr = df.loc[df['SSP'] == self.ssp_code, ["Alpha_Rural", "Beta_Rural"]].values
-
-        alpha_urban = urban_arr[0][0]
-        beta_urban = urban_arr[0][1]
-
-        alpha_rural = rural_arr[0][0]
-        beta_rural = rural_arr[0][1]
-
-        return alpha_urban, beta_urban, alpha_rural, beta_rural
 
     @staticmethod
     def get_yaml(config_file):

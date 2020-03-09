@@ -96,7 +96,7 @@ def suitability_estimator(pop_dist_params):
             
     # population of close points
     pop = pop_dist_params[2][neigh_indices]
-           
+
     # calculation of the other elements of the suitability equation
     pop_xx_alpha = np.power(pop, pop_dist_params[3])
     pop_xx_alpha[pop_xx_alpha == np.inf] = 0

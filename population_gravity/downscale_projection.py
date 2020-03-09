@@ -10,25 +10,6 @@ import simplejson
 import population_gravity.downscale_utilities as pdm
 
 
-class Projection:
-
-    def __init__(self):
-
-        pass
-
-    def initialize(self):
-        """Set up projection run."""
-        pass
-
-    def run_time_step(self):
-        """Run current timestep."""
-        pass
-
-    def clean_up(self):
-        """Clean up run."""
-        pass
-
-
 def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n,
                    urban_pop_proj_n, yr):
     """Downscale population from state-level projections for urban and rural to 1 km gridded data.
@@ -48,12 +29,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     mask_raster = cfg.mask_raster
     mask_raster_file = cfg.mask_raster_file
     ssp_data = cfg.ssp_data
-    region_code = cfg.region_code
-    ssp_code = cfg.ssp_code
+    region_code = cfg.state_name
+    ssp_code = cfg.scenario
     point_coordinates_array = cfg.point_coordinates_array
-    datadir_output = cfg.datadir_output
+    datadir_output = cfg.output_directory
     point_indices = cfg.point_indices
-    urb_pop_snd_year = pdm.raster_to_array(cfg.urb_pop_snd_year)
+    df_indicies = cfg.df_indicies
     urb_pop_init_year = urban_raster
     rur_pop_init_year = rural_raster
 
@@ -65,16 +46,13 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     final_arrays = {}  # Dictionary containing final projected arrays
     final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(region_code, ssp_code, yr))
 
-    # all indices
-    all_indices = pdm.all_index_retriever(urb_pop_snd_year, ["row", "column"])
-
     # read indices of points that fall within the state boundary
     with open(point_indices, 'r') as r:
         within_indices = simplejson.load(r)
 
     # Calculate a distance matrix that serves as a template
     cut_off_meters = 100000
-    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, all_indices, point_coordinates_array)
+    dist_matrix = pdm.dist_matrix_calculator(within_indices[0], cut_off_meters, df_indicies, point_coordinates_array)
 
     # Read historical urban and rural population grids into arrays
     for setting in time_one_data:

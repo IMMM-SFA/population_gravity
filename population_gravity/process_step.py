@@ -33,10 +33,10 @@ class ProcessStep:
 
             prev_step = self.yr - self.cfg.time_step
 
-            urban_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Urban_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, prev_step))
-            rural_raster = os.path.join(self.cfg.datadir_output,
-                                        "{}_1km_{}_Rural_{}.tif".format(self.cfg.region_code, self.cfg.ssp_code, prev_step))
+            urban_raster = os.path.join(self.cfg.output_directory,
+                                        "{}_1km_{}_urban_{}.tif".format(self.cfg.state_name, self.cfg.scenario, prev_step))
+            rural_raster = os.path.join(self.cfg.output_directory,
+                                        "{}_1km_{}_rural_{}.tif".format(self.cfg.state_name, self.cfg.scenario, prev_step))
 
             pop_projection(self.cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural,
                            rural_pop_proj_n, urban_pop_proj_n, self.yr)

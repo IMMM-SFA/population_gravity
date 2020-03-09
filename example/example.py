@@ -1,23 +1,18 @@
 from population_gravity import Model
 
 run = Model(
-    datadir_histdata='/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/main_inputs',
-    ssp_data_directory='/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/projection',
+    datadir_histdata='/Users/d3y010/projects/population/rhode_island/inputs',
+    ssp_data_directory='/Users/d3y010/projects/population/rhode_island/inputs/projection',
     ssp_code='SSP2',
-    region_code='district_of_columbia',
+    region_code='rhode_island',
     output_directory='/Users/d3y010/Desktop/outputs',
     historic_base_year=2000,
     future_start_year=2010,
     future_end_year=2020,
     time_step=10,
-    alpha_urban=-0.606381394,
-    alpha_rural=0,
-    beta_urban=1.999999534,
-    beta_rural=0)
-
-# config_file = '/Users/d3y010/repos/github/spatial_population_downscaling_model/example/config.yml'
-# run = Model(config_file)
-
-# run.calibrate()
+    alpha_urban=-2,
+    alpha_rural=-0.341883268,
+    beta_urban=0.461313537,
+    beta_rural=0.996417737)
 
 run.downscale()
