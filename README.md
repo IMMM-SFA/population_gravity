@@ -24,15 +24,34 @@ If no error is returned then you are ready to go!
 
 ### Setting up a run
 
-The following are required input files to start a model run for a target state:
-| Input File | Description | Source |
-|----|----|----|
-| `<state_name>_coordinates.csv` | Coordinates for each 1 km grid cell within the target state.,File includes a header with the fields `XCoord`, `YCoord`, `FID`. Where data types and field descriptions are as follows: (`XCoord`, `float`, X coordinate in meters), (`YCoord`, `float`, Y coordinate in meters), (`FID`, `int`, Unique feature id) | Generated in a GIS |
-| `<state_name>_mask_short_term.tif` | Mask raster for 1 km grid cells in the target state | Generated in a GIS |
-| `<state_name>_rural_1990_1km.tif` |  |  |
-| `<state_name>_rural_2000_1km.tif` |  |  |
+#### Expected arguments
+See examples below for how to pass into the `Model` class
 
-### Key variables
+| Argument | Type | Description |
+|----|----|----|
+| `config_file` | string | Full path to configuration YAML file with file name and extension. If not provided by the user, the code will default to the expectation of alternate arguments. |
+| `grid_coordinates_file` | string | Full path with file name and extension to the CSV file containing the coordinates for each 1 km grid cell within the target state. File includes a header with the fields XCoord, YCoord, FID.,Where data types and field descriptions are as follows: (XCoord, float, X coordinate in meters),(YCoord, float, Y coordinate in meters),(FID, int, Unique feature id) |
+| `historical_suitability_raster` | string | Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0 for each 1 km grid cell representing suitability depending on topographic and land use and land cover characteristics within the target state. |
+| `historical_rural_pop_raster` | string | Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step. |
+| `historical_urban_pop_raster` | string | Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step. |
+| `projected_population_file` | string | Full path with file name and extension to a CSV file containing population projections per year separated into urban and rural categories.,Field descriptions for require fields as follows: (Year, integer, four digit year), (UrbanPop, float, population count for urban), (RuralPop, float, population count for rural), (Scenario, string, scenario as set in the `scenario` variable) |
+| `one_dimension_indices_file` | string | Full path with file name and extension to the text file containing a file structured as a Python list (e.g. [0, 1]) that contains the index of each grid cell when flattened from a 2D array to a 1D array for the target state. |
+| `output_directory` | string | Full path with file name and extension to the output directory where outputs and the log file will be written. |
+| `alpha_urban` | float | Alpha parameter for urban. Represents the degree to which the population size of surrounding cells translates into the suitability of a focal cell.,A positive value indicates that the larger the population that is located within the 100 km neighborhood, the more suitable the focal cell is.,More negative value implies less suitable. Acceptable range:,-2.0 to 2.0 |
+| `beta_urban` | float | Beta parameter for urban. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-0.5 to 2.0 |
+| `alpha_rural` | float | Alpha parameter for rural. Represents the degree to which the population size of surrounding cells translates into the suitability of a focal cell.,A positive value indicates that the larger the population that is located within the 100 km neighborhood, the more suitable the focal cell is.,More negative value implies less suitable. Acceptable range:,-2.0 to 2.0 |
+| `beta_rural` | float | Beta parameter for rural. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-0.5 to 2.0 |
+| `scenario` | string | String representing the scenario with no spaces. Must match what is in the `projected_population_file` if passing population projections in using a file. |
+| `state_name` | string | Target state name with no spaces separated by an underscore. |
+| `historic_base_year` | integer | Four digit historic base year. |
+| `projection_start_year` | integer | Four digit first year to process for the projection. |
+| `projection_end_year` | integer | Four digit last year to process for the projection. |
+| `time_step` | integer | Number of steps (e.g. number of years between projections) |
+| `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
+|  |  | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
+
+
+### Variable arguments
 Users can modify any key variables after model initialization.  This includes updating values between time steps.
 
 | variable         | type  | description                                                 |
