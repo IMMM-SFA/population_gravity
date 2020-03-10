@@ -192,7 +192,7 @@ class Model:
         """Initialize project-wide logger. The logger outputs to both stdout and a file."""
 
         log_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        log_level = logging.DEBUG
+        log_level = logging.INFO
 
         logger = logging.getLogger()
         logger.setLevel(log_level)
