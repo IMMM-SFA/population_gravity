@@ -3,10 +3,10 @@
 ### A model to allocate urban and rural populations for a defined region to a grid
 
 ## Overview
-The Spatial Population Downscaling Model allocates aggregate urban and rural populations for a defined region to grid cells within that region. In the IM3 application, the model is applied to US state-level urban and rural populations, which are allocated to 1 km grid cells within states. Allocation to grid cells is based on the relative suitability of each cell. Suitability is calculated using a gravity-based approach, in which the suitability of a given cell is determined by the population of surrounding cells (100 km radius), their distance away, and two parameters, namely alpha and beta. Alpha and beta are estimated based on historical population data and indicate the importance of returns to scale and distance in determining suitability values of cells, respectively. The model is composed of two components: calibration and projection. The calibration component uses historical urban/rural population grids of each state in 2000 and 2010 and an optimization algorithm to estimate the alpha and beta parameters that minimize the absolute difference between the actual population grid in 2010 and the one derived from the model. The two parameters can be modified to reflect distinctive forms of population development that may be desired in different socio-economic scenarios. Once the parameters are defined, the projection component downscales state-level urban/rural population aggregates of each state from 2020 to 2100 under different scenarios to grid cells within the state.
+The `population_gravity` model allocates aggregate urban and rural populations for a defined region to grid cells within that region. In the IM3 application, the model is applied to US state-level urban and rural populations, which are allocated to 1 km grid cells within states. Allocation to grid cells is based on the relative suitability of each cell. Suitability is calculated using a gravity-based approach, in which the suitability of a given cell is determined by the population of surrounding cells (100 km radius), their distance away, and two parameters, namely alpha and beta. Alpha and beta are estimated based on historical population data and indicate the importance of returns to scale and distance in determining suitability values of cells, respectively. The model is composed of two components: calibration and projection. The calibration component uses historical urban/rural population grids of each state in 2000 and 2010 and an optimization algorithm to estimate the alpha and beta parameters that minimize the absolute difference between the actual population grid in 2010 and the one derived from the model. The two parameters can be modified to reflect distinctive forms of population development that may be desired in different socio-economic scenarios. Once the parameters are defined, the projection component downscales state-level urban/rural population aggregates of each state from 2020 to 2100 under different scenarios to grid cells within the state.
 
 ## Getting Started
-The `population_gravity` package uses only Python 3.3 and up.
+The `population_gravity` package uses only **Python 3.3** and up.
 
 ### Step 1:
 You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `python` instance):
@@ -22,9 +22,9 @@ from population_gravity import Model
 
 If no error is returned then you are ready to go!
 
-### Setting up a run
+## Setting up a run
 
-#### Expected arguments
+### Expected arguments
 See examples below for how to pass into the `Model` class
 
 | Argument | Type | Description |
@@ -48,63 +48,97 @@ See examples below for how to pass into the `Model` class
 | `projection_end_year` | integer | Four digit last year to process for the projection. |
 | `time_step` | integer | Number of steps (e.g. number of years between projections) |
 | `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
-|  |  | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
+| `urban_pop_proj_n` | float | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
 
 
 ### Variable arguments
-Users can modify any key variables after model initialization.  This includes updating values between time steps.
+Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
+- `alpha_urban`
+- `beta_urban`
+- `alpha_rural`
+- `beta_rural`
+- `urban_pop_proj_n`
+- `rural_pop_proj_n`
 
-| variable         | type  | description                                                 |
-|------------------|-------|-------------------------------------------------------------|
-| alpha_urban      | float | Alpha parameter for urban                                   |
-| beta_urban       | float | Beta parameter for urban                                    |
-| alpha_rural      | float | Alpha parameter for rural                                   |
-| beta_rural       | float | Beta parameter for rural                                    |
-| urban_pop_proj_n | float | Urban population projection number for the second time step |
-| rural_pop_proj_n | float | Rural population projection number for the second time step |
+### Example configuration YAML file (e.g., config.yml)
+Arguments can be passed into the `Model` class using a YAML configuration file as well (see **Example 1**):
 
+```yaml
+# Example configuration file setup
+grid_coordinates_file: '<Full path with file name and extension to the file>',
+historical_rural_pop_raster: '<Full path with file name and extension to the file>',
+historical_urban_pop_raster: '<Full path with file name and extension to the file>',
+historical_suitability_raster: '<Full path with file name and extension to the file>',
+projected_population_file: '<Full path with file name and extension to the file>',
+one_dimension_indices_file: '<Full path with file name and extension to the file>',
+output_directory: '<Full path with file name and extension to the file>',
+alpha_urban: -2.0,
+alpha_rural: -0.34,
+beta_urban: 0.46,
+beta_rural: 1.0,
+scenario: 'SSP2',
+state_name: 'rhode_island',
+historic_base_year: 2010,
+projection_start_year: 2020,
+projection_end_year: 2050,
+time_step: 10
+```
 
 ## Examples
 
-### Run population downscaling for all years by passing argument values
+### Example 1:  Run population downscaling for all years using a configuration file
 ```python
-from population_gravity import Model
+run = Model(config_file='<Full path with file name and extension to the YAML configuration file>')
 
-run = Model(
-    datadir_histdata='<full path to historical input file directory>',
-    ssp_data_directory='<full path to projected input directory>',
-    ssp_code='SSP2', # shared socioeconomic pathway abbreviation
-    region_code='district_of_columbia',  # US State name
-    output_directory='<full path to the output directory>',
-    start_year=2000,
-    end_year=2020,
-    time_step=10,
-    alpha_urban=-0.606381394, # calibrated alpha parameter for urban
-    alpha_rural=0, # calibrated alpha parameter for rural
-    beta_urban=1.999999534, # calibrated beta parameter for urban
-    beta_rural=0) # calibrated beta parameter for rural
-
-# run downscaling for all years
 run.downscale()
 ```
 
-### Modify values per time step
+### Example 2:  Run population downscaling for all years by passing argument values
 ```python
 from population_gravity import Model
 
-run = Model(
-    datadir_histdata='<full path to historical input file directory>',
-    ssp_data_directory='<full path to projected input directory>',
-    ssp_code='SSP2', # shared socioeconomic pathway abbreviation
-    region_code='district_of_columbia',  # US State name
-    output_directory='<full path to the output directory>',
-    start_year=2000,
-    end_year=2020,
-    time_step=10,
-    alpha_urban=-0.606381394, # calibrated alpha parameter for urban
-    alpha_rural=0, # calibrated alpha parameter for rural
-    beta_urban=1.999999534, # calibrated beta parameter for urban
-    beta_rural=0) # calibrated beta parameter for rural
+run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
+            historical_rural_pop_raster='<Full path with file name and extension to the file>',
+            historical_urban_pop_raster='<Full path with file name and extension to the file>',
+            historical_suitability_raster='<Full path with file name and extension to the file>',
+            projected_population_file='<Full path with file name and extension to the file>',
+            one_dimension_indices_file='<Full path with file name and extension to the file>',
+            output_directory='<Full path with file name and extension to the file>',
+            alpha_urban=-2.0,
+            alpha_rural=-0.34,
+            beta_urban=0.46,
+            beta_rural=1.0,
+            scenario='SSP2', # shared socioeconomic pathway abbreviation
+            state_name='rhode_island',
+            historic_base_year=2010,
+            projection_start_year=2020,
+            projection_end_year=2050,
+            time_step=10)
+
+run.downscale()
+```
+
+### Example 3:  Run population downscaling for two years by passing argument values; update value in between time step
+```python
+from population_gravity import Model
+
+run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
+            historical_rural_pop_raster='<Full path with file name and extension to the file>',
+            historical_urban_pop_raster='<Full path with file name and extension to the file>',
+            historical_suitability_raster='<Full path with file name and extension to the file>',
+            projected_population_file='<Full path with file name and extension to the file>',
+            one_dimension_indices_file='<Full path with file name and extension to the file>',
+            output_directory='<Full path with file name and extension to the file>',
+            alpha_urban=-2.0,
+            alpha_rural=-0.34,
+            beta_urban=0.46,
+            beta_rural=1.0,
+            scenario='SSP2', # shared socioeconomic pathway abbreviation
+            state_name='rhode_island',
+            historic_base_year=2010,
+            projection_start_year=2020,
+            projection_end_year=2050,
+            time_step=10)
 
 # initialize model
 run.initialize()
@@ -113,12 +147,11 @@ run.initialize()
 run.advance_step()
 
 # modify the calibrated alpha parameter value for urban
-run.cfg.alpha_urban = -0.1
+run.alpha_urban = -0.1
 
 # run next step with modified parameters
 run.advance_step()
 
 # close out run
 run.close()
-
 ```
