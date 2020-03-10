@@ -38,9 +38,9 @@ See examples below for how to pass into the `Model` class
 | `one_dimension_indices_file` | string | Full path with file name and extension to the text file containing a file structured as a Python list (e.g. [0, 1]) that contains the index of each grid cell when flattened from a 2D array to a 1D array for the target state. |
 | `output_directory` | string | Full path with file name and extension to the output directory where outputs and the log file will be written. |
 | `alpha_urban` | float | Alpha parameter for urban. Represents the degree to which the population size of surrounding cells translates into the suitability of a focal cell.,A positive value indicates that the larger the population that is located within the 100 km neighborhood, the more suitable the focal cell is.,More negative value implies less suitable. Acceptable range:,-2.0 to 2.0 |
-| `beta_urban` | float | Beta parameter for urban. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-0.5 to 2.0 |
+| `beta_urban` | float | Beta parameter for urban. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-2.0 to 2.0 |
 | `alpha_rural` | float | Alpha parameter for rural. Represents the degree to which the population size of surrounding cells translates into the suitability of a focal cell.,A positive value indicates that the larger the population that is located within the 100 km neighborhood, the more suitable the focal cell is.,More negative value implies less suitable. Acceptable range:,-2.0 to 2.0 |
-| `beta_rural` | float | Beta parameter for rural. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-0.5 to 2.0 |
+| `beta_rural` | float | Beta parameter for rural. Reflects the significance of distance to surrounding cells on the suitability of a focal cell.,Within 100 km, beta determines how distance modifies the effect on suitability. Acceptable range:,-2.0 to 2.0 |
 | `scenario` | string | String representing the scenario with no spaces. Must match what is in the `projected_population_file` if passing population projections in using a file. |
 | `state_name` | string | Target state name with no spaces separated by an underscore. |
 | `historic_base_year` | integer | Four digit historic base year. |
@@ -49,7 +49,10 @@ See examples below for how to pass into the `Model` class
 | `time_step` | integer | Number of steps (e.g. number of years between projections) |
 | `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
 | `urban_pop_proj_n` | float | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
-
+| `calibration_urban_year_one_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for year one of the calibration. |
+| `calibration_urban_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for year two of the calibration. |
+| `calibration_rural_year_one_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year one of the calibration. |
+| `calibration_rural_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year two of the calibration. |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -84,6 +87,9 @@ projection_start_year: 2020
 projection_end_year: 2050
 time_step: 10
 ```
+
+### Generate calibration parameters
+If the calibration has not yet been conducted, follow **Example 4** to generate calibration parameters for a target state.
 
 ## Examples
 
@@ -155,4 +161,13 @@ run.advance_step()
 
 # close out run
 run.close()
+```
+
+### Example 4:  Calibrate downscaling parameters for a target state using a configuration file
+```python
+from population_gravity import Model
+
+run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
+
+run.calibrate()
 ```

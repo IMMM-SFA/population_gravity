@@ -110,6 +110,22 @@ class Model:
                                                 calculated.  These can be read from the `projected_population_file`
                                                 instead.
 
+    :param calibration_urban_year_one_raster:   string. Only used for running calibration.  Full path with file name and
+                                                extension to a raster containing urban population counts for each 1 km
+                                                grid cell for year one of the calibration.
+
+    :param calibration_urban_year_two_raster:   string. Only used for running calibration.  Full path with file name and
+                                                extension to a raster containing urban population counts for each 1 km
+                                                grid cell for year two of the calibration.
+
+    :param calibration_rural_year_one_raster:   string. Only used for running calibration.  Full path with file name and
+                                                extension to a raster containing rural population counts for each 1 km
+                                                grid cell for year one of the calibration.
+
+    :param calibration_rural_year_two_raster:   string. Only used for running calibration.  Full path with file name and
+                                                extension to a raster containing rural population counts for each 1 km
+                                                grid cell for year two of the  calibration.
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -117,7 +133,8 @@ class Model:
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
-                 urban_pop_proj_n=None):
+                 urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
+                 calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None):
 
         # get current time
         self.date_time_string = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%Ss')
@@ -142,7 +159,11 @@ class Model:
                               projection_end_year=projection_end_year,
                               time_step=time_step,
                               rural_pop_proj_n=rural_pop_proj_n,
-                              urban_pop_proj_n=urban_pop_proj_n)
+                              urban_pop_proj_n=urban_pop_proj_n,
+                              calibration_urban_year_one_raster=calibration_urban_year_one_raster,
+                              calibration_urban_year_two_raster=calibration_urban_year_two_raster,
+                              calibration_rural_year_one_raster=calibration_rural_year_one_raster,
+                              calibration_rural_year_two_raster=calibration_rural_year_two_raster)
 
         # expose key variables that we want the user to have non-nested access to
         self.alpha_urban = self.cfg.alpha_urban

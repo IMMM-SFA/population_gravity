@@ -1,5 +1,5 @@
 """
-Population downscaling function for the popultation_gravity model
+Population downscaling function for the population_gravity model
 
 @author   Hamid Zoraghein, Chris R. Vernon
 @email:   hzoraghein@popcouncil.org, chris.vernon@pnnl.gov
