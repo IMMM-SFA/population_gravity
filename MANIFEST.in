@@ -1,0 +1,2 @@
+include population_gravity/tests/data/comp_data/*
+include population_gravity/tests/data/inputs/*
