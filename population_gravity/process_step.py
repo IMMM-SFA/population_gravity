@@ -23,16 +23,18 @@ class ProcessStep:
         self.cfg = cfg
         self.yr = yr
 
-        if self.yr == self.cfg.future_start_year:
+        if self.yr == self.cfg.projection_start_year:
 
             # run downscaling
-            pop_projection(self.cfg, self.cfg.urb_pop_init_year, self.cfg.rur_pop_init_year, alpha_urban, beta_urban,
-                           alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n, self.yr)
+            pop_projection(self.cfg, self.cfg.historical_urban_pop_raster, self.cfg.historical_rural_pop_raster,
+                           alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n,
+                           self.yr)
 
         else:
 
             prev_step = self.yr - self.cfg.time_step
 
+            # TODO: switch to read from memory instead of file
             urban_raster = os.path.join(self.cfg.output_directory,
                                         "{}_1km_{}_urban_{}.tif".format(self.cfg.state_name, self.cfg.scenario, prev_step))
             rural_raster = os.path.join(self.cfg.output_directory,

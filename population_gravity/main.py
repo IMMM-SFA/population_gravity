@@ -1,7 +1,7 @@
 """
-Model interface for the Spatial Population Downscaling Model.
+Model interface for the popultation_gravity model
 
-@author   Hamidreza Zoraghein (for model), Chris R. Vernon (of this file)
+@author   Chris R. Vernon
 @email:   chris.vernon@pnnl.gov
 
 License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
@@ -20,23 +20,93 @@ from population_gravity.process_step import ProcessStep
 
 
 class Model:
-    """Run the spatial population downscaling model.
+    """Run the population downscaling model.
 
-    :param config_file:             Full path with file name and extension to the config.yml file
+   :param config_file:                         string. Full path to configuration YAML file with file name and
+                                                extension. If not provided by the user, the code will default to the
+                                                expectation of alternate arguments.
 
-    datadir_histdata              : /Users/d3y010/projects/population/district_of_columbia/main_inputs
-    ssp_data_directory            : /Users/d3y010/projects/population/district_of_columbia/ssp_projections
-    ssp_code                      : SSP2
-    region_code                   : district_of_columbia
-    output_directory              : /Users/d3y010/projects/population/district_of_columbia/outputs
-    calibration_parameters_file   : /Users/d3y010/projects/population/district_of_columbia/district_of_columbia_SSP2_calibration_parameters.csv
+    :param grid_coordinates_file:               string. Full path with file name and extension to the CSV file
+                                                containing the coordinates for each 1 km grid cell within the target
+                                                state. File includes a header with the fields XCoord, YCoord, FID.
+                                                Where data types and field descriptions are as follows:
+                                                (XCoord, float, X coordinate in meters),
+                                                (YCoord, float, Y coordinate in meters),
+                                                (FID, int, Unique feature id)
 
-    # run settings
-    compute_params      : False
-    compute_proj        : True
-    start_year          : 2000
-    end_year            : 2020
-    time_step           : 10
+    :param historical_suitability_raster:       string. Full path with file name and extension to the suitability
+                                                raster containing values from 0.0 to 1.0 for each 1 km grid cell
+                                                representing suitability depending on topographic and land use and
+                                                land cover characteristics within the target state.
+
+    :param historical_rural_pop_raster:         string. Full path with file name and extension to a raster containing
+                                                rural population counts for each 1 km grid cell for the historical
+                                                base time step.
+
+    :param historical_urban_pop_raster:         string. Full path with file name and extension to a raster containing
+                                                urban population counts for each 1 km grid cell for the historical
+                                                base time step.
+
+    :param projected_population_file:           string. Full path with file name and extension to a CSV file containing
+                                                population projections per year separated into urban and rural
+                                                categories.  Field descriptions for require fields as follows:
+                                                (Year, integer, four digit year),
+                                                (UrbanPop, float, population count for urban),
+                                                (RuralPop, float, population count for rural),
+                                                (Scenario, string, scenario as set in the `scenario` variable)
+
+    :param one_dimension_indices_file:          string. Full path with file name and extension to the text file
+                                                containing a file structured as a Python list (e.g. [0, 1]) that
+                                                contains the index of each grid cell when flattened from a 2D array to
+                                                a 1D array for the target state.
+
+    :param output_directory:                    string. Full path with file name and extension to the output directory
+                                                where outputs and the log file will be written.
+
+    :param alpha_urban:                         float. Alpha parameter for urban. Represents the degree to which the
+                                                population size of surrounding cells translates into the suitability
+                                                of a focal cell.  A positive value indicates that the larger the
+                                                population that is located within the 100 km neighborhood, the more
+                                                suitable the focal cell is.  More negative value implies less suitable.
+                                                Acceptable range:  -2.0 to 2.0
+
+    :param beta_urban:                          float. Beta parameter for urban. Reflects the significance of distance
+                                                to surrounding cells on the suitability of a focal cell.  Within 100 km,
+                                                beta determines how distance modifies the effect on suitability.
+                                                Acceptable range:  -0.5 to 2.0
+
+    :param alpha_rural:                         float. Alpha parameter for rural. Represents the degree to which the
+                                                population size of surrounding cells translates into the suitability
+                                                of a focal cell.  A positive value indicates that the larger the
+                                                population that is located within the 100 km neighborhood, the more
+                                                suitable the focal cell is.  More negative value implies less suitable.
+                                                Acceptable range:  -2.0 to 2.0
+
+    :param beta_rural:                          float. Beta parameter for rural. Reflects the significance of distance
+                                                to surrounding cells on the suitability of a focal cell.  Within 100 km,
+                                                beta determines how distance modifies the effect on suitability.
+                                                Acceptable range:  -0.5 to 2.0
+
+    :param scenario:                            string. String representing the scenario with no spaces. Must match
+                                                what is in the `projected_population_file` if passing population
+                                                projections in using a file.
+
+    :param state_name:                          string. Target state name with no spaces separated by an underscore.
+
+    :param historic_base_year:                  int. Four digit historic base year.
+
+    :param projection_start_year:               int. Four digit first year to process for the projection.
+
+    :param projection_end_year:                 int. Four digit last year to process for the projection.
+
+    :param time_step:                           int. Number of steps (e.g. number of years between projections)
+
+    :param rural_pop_proj_n:                    float.  Rural population projection count for the projected year being
+                                                calculated.
+
+    :param urban_pop_proj_n:                    float.  Urban population projection count for the projected year being
+                                                calculated.
+
 
     """
 
@@ -124,25 +194,19 @@ class Model:
 
         # log run parameters
         logging.info("Input parameters:")
-        logging.info("\turb_pop_fst_year = {}".format(self.cfg.urb_pop_fst_year))
-        logging.info("\trur_pop_fst_year = {}".format(self.cfg.rur_pop_fst_year))
-        logging.info("\tpoint_indices = {}".format(self.cfg.point_indices))
+        logging.info("\thistorical_urban_pop_raster = {}".format(self.cfg.historical_urban_pop_raster))
+        logging.info("\thistorical_rural_pop_raster = {}".format(self.cfg.historical_urban_pop_raster))
+        logging.info("\tone_dimension_indices_file = {}".format(self.cfg.one_dimension_indices_file))
 
         # for projection
-        logging.info("\turb_pop_init_year = {}".format(self.cfg.urb_pop_init_year))
-        logging.info("\trur_pop_init_year = {}".format(self.cfg.rur_pop_init_year))
-        logging.info("\tpoint_coordinates_file = {}".format(self.cfg.point_coordinates_file))
+        logging.info("\tgrid_coordinates_file = {}".format(self.cfg.grid_coordinates_file))
 
         # for either
-        logging.info("\tmask_raster_file = {}".format(self.cfg.mask_raster_file))
+        logging.info("\thistorical_suitability_raster = {}".format(self.cfg.historical_suitability_raster))
         logging.info("\tstate_name = {}".format(self.cfg.state_name))
-        logging.info("\tssp_proj_file = {}".format(self.cfg.ssp_proj_file))
+        logging.info("\tprojected_population_file = {}".format(self.cfg.projected_population_file))
         logging.info("\tscenario = {}".format(self.cfg.scenario))
         logging.info("\toutput_directory = {}".format(self.cfg.output_directory))
-
-    def load_base_year(self):
-        """Load historic base year data for time step 0"""
-        pass
 
     def build_step_generator(self):
         """Build step generator."""

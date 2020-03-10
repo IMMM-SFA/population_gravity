@@ -1,3 +1,4 @@
+import simplejson
 import yaml
 
 import numpy as np
@@ -119,8 +120,8 @@ class ReadConfig:
             self.scenario = scenario
             self.state_name = state_name
             self.historic_base_year = historic_base_year
-            self.future_start_year = projection_start_year
-            self.future_end_year = projection_end_year
+            self.projection_start_year = projection_start_year
+            self.projection_end_year = projection_end_year
             self.time_step = time_step
             self.rural_pop_proj_n = rural_pop_proj_n
             self.urban_pop_proj_n = urban_pop_proj_n
@@ -150,33 +151,29 @@ class ReadConfig:
             self.rural_pop_proj_n = cfg['rural_pop_proj_n']
             self.urban_pop_proj_n = cfg['urban_pop_proj_n']
 
-        self.steps = range(self.future_start_year, self.future_end_year + self.time_step, self.time_step)
+        # list of time steps in projection
+        self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
 
-        # calibration inputs -- derived from user inputs
-        self.urb_pop_fst_year = self.historical_urban_pop_raster
-        self.rur_pop_fst_year = self.historical_rural_pop_raster
-        self.mask_raster_file = self.historical_suitability_raster
-
-        self.point_indices = self.one_dimension_indices_file
-        self.point_coordinates_file = self.grid_coordinates_file
-        self.point_coordinates_array = np.genfromtxt(self.point_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+        # read in historical sutability mask as an array
+        historical_suitability_2darray = utils.raster_to_array(self.historical_suitability_raster)
+        self.historical_suitability_array = historical_suitability_2darray.flatten()
 
         # build data frame in the shape of the raster array
-        self.df_indicies = utils.all_index_retriever(utils.raster_to_array(self.mask_raster_file), ["row", "column"])
+        self.df_indicies = utils.all_index_retriever(historical_suitability_2darray, ["row", "column"])
 
-        # downscaling inputs -- derived from user inputs
-        self.mask_raster = utils.raster_to_array(self.mask_raster_file).flatten()
+        # read grid indices of points that fall within the state boundary
+        with open(one_dimension_indices_file, 'r') as r:
+            self.one_dimension_indices = simplejson.load(r)
 
-        self.urb_pop_init_year = self.historical_urban_pop_raster
-        self.rur_pop_init_year = self.historical_rural_pop_raster
+        # read in grid coordinates and feature ids
+        self.grid_coordinates_array = np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
 
         # if the user wants to pass in the projections by file then use it, if not get params from user
         if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
-            self.ssp_proj_file = projected_population_file
-            self.ssp_data = pd.read_csv(self.ssp_proj_file)
+            self.df_projected = pd.read_csv(self.projected_population_file)
 
         else:
-            self.ssp_proj_file = None
+            self.projected_population_file = None
 
     @staticmethod
     def get_yaml(config_file):
