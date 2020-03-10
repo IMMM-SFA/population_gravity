@@ -49,8 +49,14 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
     # Read historical urban and rural population grids into arrays
     for setting in time_one_data:
+
+        rast_array = utils.raster_to_array(time_one_data[setting]).flatten()
+
+        # this ensures that the no data value is filtered out otherwise the array will overflow on add
+        rast_array = np.where(rast_array < 0.0, 0.0, rast_array)
+
         # create the dictionary containing population of each point in year 0
-        population_1st[setting] = utils.raster_to_array(time_one_data[setting]).flatten()
+        population_1st[setting] = rast_array
 
     # create an array containing total population values in the first historical year
     total_population_1st = population_1st["Rural"] + population_1st["Urban"]
