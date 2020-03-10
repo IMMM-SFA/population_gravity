@@ -96,6 +96,11 @@ calibration_rural_year_two_raster: '<Full path with file name and extension to t
 ### Generate calibration parameters
 If the calibration has not yet been conducted, follow **Example 4** to generate calibration parameters for a target state.
 
+### Expected outputs
+Each downscaling run will output a raster for urban, rural, and total population count for each 1 km grid cell for the target state.  These will be written to where the `output_directory` has been assigned.
+
+Each calibration run will output a CSV file containing the calibration parameters for the target state and scenario.  These will be written to where the `output_directory` has been assigned.
+
 ## Examples
 
 ### Example 1:  Run population downscaling for all years using a configuration file
