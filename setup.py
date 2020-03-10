@@ -4,12 +4,6 @@ Spatial population downscaling model
 License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 """
 
-
-class VersionError(Exception):
-    def __init__(self, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
-
-
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -33,8 +27,8 @@ setup(
     packages=find_packages(),
     url='https://github.com/IMMM-SFA/spatial_population_downscaling_model',
     license='BSD 2-Clause',
-    author='Hamidreza Zoraghein',
-    author_email='Hamidreza.Zoraghein@du.edu',
-    description='A model to allocate urban and rural populations for a defined region to a grid',
+    author='Hamidreza Zoraghein, Chris R. Vernon',
+    author_email='hzoraghein@popcouncil.org, chris.vernon@pnnl.gov',
+    description='A model to downscale state-level urban and rural populations to a 1 km grid',
     python_requires='>=3.3.*, <4'
 )

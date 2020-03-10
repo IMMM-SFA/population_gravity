@@ -1,3 +1,13 @@
+"""
+Population downscaling function for the popultation_gravity model
+
+@author   Hamid Zoraghein, Chris R. Vernon
+@email:   hzoraghein@popcouncil.org, chris.vernon@pnnl.gov
+
+License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
+
+"""
+
 import logging
 import os
 
@@ -6,11 +16,11 @@ import multiprocessing
 from pathos.multiprocessing import ProcessingPool as Pool
 from collections import deque
 
-import population_gravity.downscale_utilities as pdm
+import population_gravity.downscale_utilities as utils
 
 
 def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n,
-                   urban_pop_proj_n, yr):
+                   urban_pop_proj_n, yr, cut_off_meters=100000):
     """Downscale population from state-level projections for urban and rural to 1 km gridded data.
 
     :param cfg:                             Configuration object
@@ -22,37 +32,25 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     :param beta_rural:                      Beta parameter for rural
     :param rural_pop_proj_n:                Population number for rural for the projection year
     :param urban_pop_proj_n:                Population number for urban for the projection year
+    :param cut_off_meters:                  Distance kernel in meters; default 100,000 meters
 
     """
-
-    historical_suitability_array = cfg.historical_suitability_array
-    historical_suitability_raster = cfg.historical_suitability_raster
-    df_projected = cfg.df_projected
-    state_name = cfg.state_name
-    scenario = cfg.scenario
-    grid_coordinates_array = cfg.grid_coordinates_array
-    datadir_output = cfg.output_directory
-    one_dimension_indices = cfg.one_dimension_indices
-    df_indicies = cfg.df_indicies
-    urb_pop_init_year = urban_raster
-    rur_pop_init_year = rural_raster
 
     # Define local variables
     time_one_data = {}  # Dictionary storing the base year population grids
     population_1st = {}  # Dictionary storing the base year population arrays
-    time_one_data['Rural'] = rur_pop_init_year  # Rural
-    time_one_data['Urban'] = urb_pop_init_year  # Urban
+    time_one_data['Rural'] = rural_raster  # Rural
+    time_one_data['Urban'] = urban_raster  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
-    final_raster = os.path.join(datadir_output, "{}_1km_{}_Total_{}.tif".format(state_name, scenario, yr))
+    final_raster = os.path.join(cfg.output_directory, "{}_1km_{}_Total_{}.tif".format(cfg.state_name, cfg.scenario, yr))
 
     # Calculate a distance matrix that serves as a template
-    cut_off_meters = 100000
-    dist_matrix = pdm.dist_matrix_calculator(one_dimension_indices[0], cut_off_meters, df_indicies, grid_coordinates_array)
+    dist_matrix = utils.dist_matrix_calculator(cfg.one_dimension_indices[0], cut_off_meters, cfg.df_indicies, cfg.grid_coordinates_array)
 
     # Read historical urban and rural population grids into arrays
     for setting in time_one_data:
         # create the dictionary containing population of each point in year 0
-        population_1st[setting] = pdm.raster_to_array(time_one_data[setting]).flatten()
+        population_1st[setting] = utils.raster_to_array(time_one_data[setting]).flatten()
 
     # create an array containing total population values in the first historical year
     total_population_1st = population_1st["Rural"] + population_1st["Urban"]
@@ -67,14 +65,14 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     for setting in time_one_data:
 
         # output raster path and file name with extension
-        output = os.path.join(datadir_output, "{}_1km_{}_{}_{}.tif".format(state_name, scenario, setting, yr))
+        output = os.path.join(cfg.output_directory, "{}_1km_{}_{}_{}.tif".format(cfg.state_name, cfg.scenario, setting, yr))
 
         # calculate aggregate urban/rural population at time 1
-        pop_first_year = population_1st[setting][one_dimension_indices]
+        pop_first_year = population_1st[setting][cfg.one_dimension_indices]
         pop_t1 = pop_first_year.sum()
 
         # load the SSP file to retrieve the aggregated projected population at time 2 for downscaling
-        if df_projected is None:
+        if cfg.df_projected is None:
             if setting == "Urban":
                 pop_t2 = urban_pop_proj_n
             else:
@@ -83,10 +81,10 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         else:
 
             if setting == "Urban":
-                pop_t2 = df_projected.loc[(df_projected["Year"] == yr) & (df_projected["Scenario"] == scenario),
+                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["Year"] == yr) & (cfg.df_projected["Scenario"] == cfg.scenario),
                                       "UrbanPop"].values[0]
             else:
-                pop_t2 = df_projected.loc[(df_projected["Year"] == yr) & (df_projected["Scenario"] == scenario),
+                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["Year"] == yr) & (cfg.df_projected["Scenario"] == cfg.scenario),
                                       "RuralPop"].values[0]
 
         # population change between years 1 and 2
@@ -112,16 +110,16 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
         # provide the inputs for the parallelized function
         parallel_elements = deque([(i, ind_diffs, total_population_1st, alpha_parameter, exp_xx_inv_beta_dist)
-                                   for i in one_dimension_indices])
+                                   for i in cfg.one_dimension_indices])
 
         # derive suitability estimates
-        suitability_estimates = pool.map(pdm.suitability_estimator, parallel_elements)
+        suitability_estimates = pool.map(utils.suitability_estimator, parallel_elements)
 
         # change suitability estimates to a numpy array
         suitability_estimates = np.array(suitability_estimates)
 
-        # exract only the necessary mask values that fall within the state boundary
-        cur_points_mask = historical_suitability_array[one_dimension_indices]
+        # extract only the necessary mask values that fall within the state boundary
+        cur_points_mask = cfg.historical_suitability_array[cfg.one_dimension_indices]
 
         # in case of population decline, suitability estimates are reciprocated
         if negative_mod:
@@ -175,7 +173,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         # save the final urban, rural raster
         logging.info("Saving {} raster to:  {}".format(setting, output))
 
-        pdm.array_to_raster(historical_suitability_raster, pop_estimates, one_dimension_indices, output)
+        utils.array_to_raster(cfg.historical_suitability_raster, pop_estimates, cfg.one_dimension_indices, output)
 
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
@@ -183,4 +181,4 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     # save the final total raster
     logging.info("Saving total population raster to:  {}".format(final_raster))
 
-    pdm.array_to_raster(historical_suitability_raster, total_array, one_dimension_indices, final_raster)
+    utils.array_to_raster(cfg.historical_suitability_raster, total_array, cfg.one_dimension_indices, final_raster)

@@ -10,14 +10,15 @@ SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_
 
 """
 
-from collections import deque
-
+import multiprocessing
 import rasterio
+
 import numpy as np
 import pandas as pd
-from scipy.spatial import cKDTree
-import multiprocessing
+
+from collections import deque
 from pathos.multiprocessing import ProcessingPool as Pool
+from scipy.spatial import cKDTree
 
 
 def raster_to_array(raster):
@@ -82,10 +83,13 @@ def all_index_retriever(array, columns, row_col='row', column_col='column', all_
 
 
 def suitability_estimator(pop_dist_params):
-    """?
+    """Estimate suitability based on neighbor characteristics
 
-    :param pop_dist_params:         ?
-    :return:
+    :param pop_dist_params:                 [0] target grid cell
+                                            [1] ind_diffs
+                                            [2] total_population_1st
+                                            [3] alpha_parameter
+                                            [4] exp_xx_inv_beta_dist
 
     """
     # the id of the current focal point
@@ -108,7 +112,7 @@ def suitability_estimator(pop_dist_params):
 def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_array, row_col='row',
                            column_col='column', all_index_col='all_index', dis_col='dis',
                            ind_diff_col='ind_diff', row_diff_col='row_diff', col_diff_col='col_diff'):
-    """?
+    """TODO: Fill in description
 
 
     :param first_index:             ?
@@ -157,7 +161,7 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_
 
 def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
                      dist_matrix, within_indices, ind_diff_col='ind_diff', dist_col='dis'):
-    """?
+    """TODO: fill in description
 
     :param z:                       ?
     :param arr_pop_1st:

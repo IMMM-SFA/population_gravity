@@ -1,3 +1,13 @@
+"""
+Process population projection by step for the popultation_gravity model
+
+@author   Chris R. Vernon
+@email:   chris.vernon@pnnl.gov
+
+License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
+
+"""
+
 import logging
 import os
 import time
