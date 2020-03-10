@@ -1,6 +1,6 @@
 # population_gravity
 
-### A model to allocate urban and rural populations for a defined region to a grid
+### A model to downscale urban and rural population for a defined state to a 1 km grid
 
 ## Overview
 The `population_gravity` model allocates aggregate urban and rural populations for a defined region to grid cells within that region. In the IM3 application, the model is applied to US state-level urban and rural populations, which are allocated to 1 km grid cells within states. Allocation to grid cells is based on the relative suitability of each cell. Suitability is calculated using a gravity-based approach, in which the suitability of a given cell is determined by the population of surrounding cells (100 km radius), their distance away, and two parameters, namely alpha and beta. Alpha and beta are estimated based on historical population data and indicate the importance of returns to scale and distance in determining suitability values of cells, respectively. The model is composed of two components: calibration and projection. The calibration component uses historical urban/rural population grids of each state in 2000 and 2010 and an optimization algorithm to estimate the alpha and beta parameters that minimize the absolute difference between the actual population grid in 2010 and the one derived from the model. The two parameters can be modified to reflect distinctive forms of population development that may be desired in different socio-economic scenarios. Once the parameters are defined, the projection component downscales state-level urban/rural population aggregates of each state from 2020 to 2100 under different scenarios to grid cells within the state.
@@ -68,7 +68,6 @@ Arguments can be passed into the `Model` class using a YAML configuration file a
 
 ```yaml
 # Example configuration file setup
-
 grid_coordinates_file: '<Full path with file name and extension to the file>'
 historical_rural_pop_raster: '<Full path with file name and extension to the file>'
 historical_urban_pop_raster: '<Full path with file name and extension to the file>'
@@ -86,6 +85,12 @@ historic_base_year: 2010
 projection_start_year: 2020
 projection_end_year: 2050
 time_step: 10
+
+# calibration specific entries
+calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
+calibration_urban_year_two_raster: '<Full path with file name and extension to the file>'
+calibration_rural_year_one_raster: '<Full path with file name and extension to the file>'
+calibration_rural_year_two_raster: '<Full path with file name and extension to the file>'
 ```
 
 ### Generate calibration parameters
