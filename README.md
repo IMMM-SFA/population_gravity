@@ -60,11 +60,12 @@ Users can update variable argument values after model initialization; this inclu
 - `urban_pop_proj_n`
 - `rural_pop_proj_n`
 
-### Example configuration YAML file (e.g., config.yml)
+### YAML configuration file option (e.g., config.yml)
 Arguments can be passed into the `Model` class using a YAML configuration file as well (see **Example 1**):
 
 ```yaml
 # Example configuration file setup
+
 grid_coordinates_file: '<Full path with file name and extension to the file>',
 historical_rural_pop_raster: '<Full path with file name and extension to the file>',
 historical_urban_pop_raster: '<Full path with file name and extension to the file>',
@@ -88,7 +89,7 @@ time_step: 10
 
 ### Example 1:  Run population downscaling for all years using a configuration file
 ```python
-run = Model(config_file='<Full path with file name and extension to the YAML configuration file>')
+run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
 
 run.downscale()
 ```
@@ -118,7 +119,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
 run.downscale()
 ```
 
-### Example 3:  Run population downscaling for two years by passing argument values; update value in between time step
+### Example 3:  Run population downscaling by year by passing argument values; update value in between time step
 ```python
 from population_gravity import Model
 
