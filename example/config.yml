@@ -1,15 +1,19 @@
+# Example config.yml file
 
-# project level settings
-datadir_histdata              : /Users/d3y010/projects/population/district_of_columbia/main_inputs
-ssp_data_directory            : /Users/d3y010/projects/population/district_of_columbia/ssp_projections
-ssp_code                      : SSP2
-region_code                   : district_of_columbia
-output_directory              : /Users/d3y010/projects/population/district_of_columbia/outputs
-calibration_parameters_file   : /Users/d3y010/projects/population/district_of_columbia/district_of_columbia_SSP2_calibration_parameters.csv
-
-# run settings
-start_year          : 2000
-end_year            : 2020
-time_step           : 10
-
-
+grid_coordinates_file: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_coordinates.csv'
+historical_rural_pop_raster: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_rural_2010_1km.tif'
+historical_urban_pop_raster: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_urban_2010_1km.tif'
+historical_suitability_raster: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_mask_short_term.tif'
+projected_population_file: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_SSP2_popproj.csv'
+one_dimension_indices_file: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/inputs/rhode_island_within_indices.txt'
+output_directory: '/Users/d3y010/repos/github/spatial_population_downscaling_model/population_gravity/tests/data/outputs'
+alpha_urban: -2.0
+alpha_rural: -0.34
+beta_urban: 0.46
+beta_rural: 1.0
+scenario: 'SSP2'
+state_name: 'rhode_island'
+historic_base_year: 2010
+projection_start_year: 2020
+projection_end_year: 2030
+time_step: 10

@@ -12,6 +12,7 @@ import logging
 import os
 import sys
 import time
+import datetime
 
 import population_gravity.downscale_calibrate as calib
 
@@ -22,7 +23,7 @@ from population_gravity.process_step import ProcessStep
 class Model:
     """Run the population downscaling model.
 
-   :param config_file:                         string. Full path to configuration YAML file with file name and
+    :param config_file:                         string. Full path to configuration YAML file with file name and
                                                 extension. If not provided by the user, the code will default to the
                                                 expectation of alternate arguments.
 
@@ -102,11 +103,12 @@ class Model:
     :param time_step:                           int. Number of steps (e.g. number of years between projections)
 
     :param rural_pop_proj_n:                    float.  Rural population projection count for the projected year being
-                                                calculated.
+                                                calculated.  These can be read from the `projected_population_file`
+                                                instead.
 
     :param urban_pop_proj_n:                    float.  Urban population projection count for the projected year being
-                                                calculated.
-
+                                                calculated.  These can be read from the `projected_population_file`
+                                                instead.
 
     """
 
@@ -116,6 +118,9 @@ class Model:
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None):
+
+        # get current time
+        self.date_time_string = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%Ss')
 
         # read the YAML configuration file
         self.cfg = ReadConfig(config_file=config_file,
@@ -148,7 +153,9 @@ class Model:
         self.urban_pop_proj_n = self.cfg.urban_pop_proj_n
 
         # logfile path
-        self.logfile = os.path.join(self.cfg.output_directory, 'logfile_{}_{}.log'.format(self.cfg.scenario, self.cfg.state_name))
+        self.logfile = os.path.join(self.cfg.output_directory, 'logfile_{}_{}_{}.log'.format(self.cfg.scenario,
+                                                                                             self.cfg.state_name,
+                                                                                             self.date_time_string))
 
         # set up time step generator
         self.timestep = self.build_step_generator()

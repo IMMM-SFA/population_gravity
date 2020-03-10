@@ -90,10 +90,12 @@ class ReadConfig:
     :param time_step:                           int. Number of steps (e.g. number of years between projections)
 
     :param rural_pop_proj_n:                    float.  Rural population projection count for the projected year being
-                                                calculated.
+                                                calculated.  These can be read from the `projected_population_file`
+                                                instead.
 
     :param urban_pop_proj_n:                    float.  Urban population projection count for the projected year being
-                                                calculated.
+                                                calculated.  These can be read from the `projected_population_file`
+                                                instead.
 
     """
 
@@ -131,25 +133,25 @@ class ReadConfig:
             # extract config file to YAML object
             cfg = self.get_yaml(config_file)
 
-            self.grid_coordinates_file = cfg['grid_coordinates_file']
-            self.historical_suitability_raster = cfg['historical_suitability_raster']
-            self.historical_rural_pop_raster = cfg['historical_rural_pop_raster']
-            self.historical_urban_pop_raster = cfg['historical_urban_pop_raster']
-            self.projected_population_file = cfg['projected_population_file']
-            self.one_dimension_indices_file = cfg['one_dimension_indices_file']
-            self.output_directory = cfg['output_directory']
-            self.alpha_urban = cfg['alpha_urban']
-            self.beta_urban = cfg['beta_urban']
-            self.alpha_rural = cfg['alpha_rural']
-            self.beta_rural = cfg['beta_rural']
-            self.scenario = cfg['scenario']
-            self.state_name = cfg['state_name']
-            self.historic_base_year = cfg['historic_base_year']
-            self.future_start_year = cfg['projection_start_year']
-            self.future_end_year = cfg['projection_end_year']
-            self.time_step = cfg['time_step']
-            self.rural_pop_proj_n = cfg['rural_pop_proj_n']
-            self.urban_pop_proj_n = cfg['urban_pop_proj_n']
+            self.grid_coordinates_file = self.validate_key(cfg, 'grid_coordinates_file')
+            self.historical_suitability_raster = self.validate_key(cfg, 'historical_suitability_raster')
+            self.historical_rural_pop_raster = self.validate_key(cfg, 'historical_rural_pop_raster')
+            self.historical_urban_pop_raster = self.validate_key(cfg, 'historical_urban_pop_raster')
+            self.projected_population_file = self.validate_key(cfg, 'projected_population_file')
+            self.one_dimension_indices_file = self.validate_key(cfg, 'one_dimension_indices_file')
+            self.output_directory = self.validate_key(cfg, 'output_directory')
+            self.alpha_urban = self.validate_key(cfg, 'alpha_urban')
+            self.beta_urban = self.validate_key(cfg, 'beta_urban')
+            self.alpha_rural = self.validate_key(cfg, 'alpha_rural')
+            self.beta_rural = self.validate_key(cfg, 'beta_rural')
+            self.scenario = self.validate_key(cfg, 'scenario')
+            self.state_name = self.validate_key(cfg, 'state_name')
+            self.historic_base_year = self.validate_key(cfg, 'historic_base_year')
+            self.projection_start_year = self.validate_key(cfg, 'projection_start_year')
+            self.projection_end_year = self.validate_key(cfg, 'projection_end_year')
+            self.time_step = self.validate_key(cfg, 'time_step')
+            self.rural_pop_proj_n = self.validate_key(cfg, 'rural_pop_proj_n')
+            self.urban_pop_proj_n = self.validate_key(cfg, 'urban_pop_proj_n')
 
         # list of time steps in projection
         self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
@@ -162,7 +164,7 @@ class ReadConfig:
         self.df_indicies = utils.all_index_retriever(historical_suitability_2darray, ["row", "column"])
 
         # read grid indices of points that fall within the state boundary
-        with open(one_dimension_indices_file, 'r') as r:
+        with open(self.one_dimension_indices_file, 'r') as r:
             self.one_dimension_indices = simplejson.load(r)
 
         # read in grid coordinates and feature ids
@@ -176,6 +178,14 @@ class ReadConfig:
             self.projected_population_file = None
 
     @staticmethod
+    def validate_key(yaml_object, key):
+        """Check to see if key is in YAML file, if not return None"""
+        try:
+            return yaml_object[key]
+        except KeyError:
+            return None
+
+    @staticmethod
     def get_yaml(config_file):
         """Read the YAML config file
 
@@ -184,5 +194,5 @@ class ReadConfig:
         :return:                    YAML config object
 
         """
-        with open(config_file, 'r') as ymlfile:
-            return yaml.load(ymlfile)
+        with open(config_file, 'r') as yml:
+            return yaml.load(yml)
