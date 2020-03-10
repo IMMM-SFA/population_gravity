@@ -66,22 +66,22 @@ Arguments can be passed into the `Model` class using a YAML configuration file a
 ```yaml
 # Example configuration file setup
 
-grid_coordinates_file: '<Full path with file name and extension to the file>',
-historical_rural_pop_raster: '<Full path with file name and extension to the file>',
-historical_urban_pop_raster: '<Full path with file name and extension to the file>',
-historical_suitability_raster: '<Full path with file name and extension to the file>',
-projected_population_file: '<Full path with file name and extension to the file>',
-one_dimension_indices_file: '<Full path with file name and extension to the file>',
-output_directory: '<Full path with file name and extension to the file>',
-alpha_urban: -2.0,
-alpha_rural: -0.34,
-beta_urban: 0.46,
-beta_rural: 1.0,
-scenario: 'SSP2',
-state_name: 'rhode_island',
-historic_base_year: 2010,
-projection_start_year: 2020,
-projection_end_year: 2050,
+grid_coordinates_file: '<Full path with file name and extension to the file>'
+historical_rural_pop_raster: '<Full path with file name and extension to the file>'
+historical_urban_pop_raster: '<Full path with file name and extension to the file>'
+historical_suitability_raster: '<Full path with file name and extension to the file>'
+projected_population_file: '<Full path with file name and extension to the file>'
+one_dimension_indices_file: '<Full path with file name and extension to the file>'
+output_directory: '<Full path with file name and extension to the file>'
+alpha_urban: -2.0
+alpha_rural: -0.34
+beta_urban: 0.46
+beta_rural: 1.0
+scenario: 'SSP2'
+state_name: 'rhode_island'
+historic_base_year: 2010
+projection_start_year: 2020
+projection_end_year: 2050
 time_step: 10
 ```
 
