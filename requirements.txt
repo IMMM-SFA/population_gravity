@@ -5,3 +5,4 @@ pathos>=0.2
 rasterio>=1.0
 simplejson>=3.16
 setuptools>=24.2.0
+pyyaml>=3.0
