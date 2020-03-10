@@ -97,13 +97,20 @@ def suitability_estimator(pop_dist_params):
     
     # construct nearby indices
     neigh_indices = element + pop_dist_params[1]
-            
+
     # population of close points
     pop = pop_dist_params[2][neigh_indices]
 
+    # if 0.0 then inf will be generated which will raise a divide by zero runtime warning for np.power()
+    pop = np.where(pop == 0.0, np.nan, pop)
+
     # calculation of the other elements of the suitability equation
     pop_xx_alpha = np.power(pop, pop_dist_params[3])
-    pop_xx_alpha[pop_xx_alpha == np.inf] = 0
+
+    # convert back to 0.0
+    pop_xx_alpha = np.where(np.isnan(pop_xx_alpha), 0.0, pop_xx_alpha)
+    pop_xx_alpha = np.where(np.isinf(pop_xx_alpha), 0.0, pop_xx_alpha)
+
     pop_dist_factor = pop_xx_alpha * pop_dist_params[4]
     
     return np.sum(pop_dist_factor)
