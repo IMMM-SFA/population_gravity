@@ -1,5 +1,5 @@
 """
-Configuration reader for the popultation_gravity model
+Configuration reader for the population_gravity model
 
 @author   Chris R. Vernon
 @email:   chris.vernon@pnnl.gov

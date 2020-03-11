@@ -223,7 +223,7 @@ class Model:
         # log run parameters
         logging.info("Input parameters:")
         logging.info("\thistorical_urban_pop_raster = {}".format(self.cfg.historical_urban_pop_raster))
-        logging.info("\thistorical_rural_pop_raster = {}".format(self.cfg.historical_urban_pop_raster))
+        logging.info("\thistorical_rural_pop_raster = {}".format(self.cfg.historical_rural_pop_raster))
         logging.info("\tone_dimension_indices_file = {}".format(self.cfg.one_dimension_indices_file))
 
         # for projection

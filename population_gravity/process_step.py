@@ -28,7 +28,7 @@ class ProcessStep:
         # start time
         td = time.time()
 
-        logging.info("\tDownscaling year:  {}".format(yr))
+        logging.info("Downscaling year:  {}".format(yr))
 
         self.cfg = cfg
         self.yr = yr
