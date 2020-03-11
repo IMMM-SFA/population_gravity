@@ -80,7 +80,7 @@ alpha_rural: -0.34
 beta_urban: 0.46
 beta_rural: 1.0
 scenario: 'SSP2'
-state_name: 'rhode_island'
+state_name: 'vermont'
 historic_base_year: 2010
 projection_start_year: 2020
 projection_end_year: 2050
@@ -128,7 +128,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             beta_urban=0.46,
             beta_rural=1.0,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='rhode_island',
+            state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
             projection_end_year=2050,
@@ -153,7 +153,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             beta_urban=0.46,
             beta_rural=1.0,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='rhode_island',
+            state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
             projection_end_year=2050,
