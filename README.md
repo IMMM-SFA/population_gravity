@@ -75,10 +75,10 @@ historical_suitability_raster: '<Full path with file name and extension to the f
 projected_population_file: '<Full path with file name and extension to the file>'
 one_dimension_indices_file: '<Full path with file name and extension to the file>'
 output_directory: '<Full path with file name and extension to the file>'
-alpha_urban: -2.0
-alpha_rural: -0.34
-beta_urban: 0.46
-beta_rural: 1.0
+alpha_urban: 2.0
+alpha_rural: 0.08
+beta_urban: 1.78
+beta_rural: 1.42
 scenario: 'SSP2'
 state_name: 'vermont'
 historic_base_year: 2010
@@ -123,10 +123,10 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=-2.0,
-            alpha_rural=-0.34,
-            beta_urban=0.46,
-            beta_rural=1.0,
+            alpha_urban=2.0,
+            alpha_rural=0.08,
+            beta_urban=1.78,
+            beta_rural=1.42,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
@@ -148,10 +148,10 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=-2.0,
-            alpha_rural=-0.34,
-            beta_urban=0.46,
-            beta_rural=1.0,
+            alpha_urban=2.0,
+            alpha_rural=0.08,
+            beta_urban=1.78,
+            beta_rural=1.42,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
