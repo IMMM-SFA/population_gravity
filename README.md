@@ -105,6 +105,8 @@ Each calibration run will output a CSV file containing the calibration parameter
 
 ### Example 1:  Run population downscaling for all years using a configuration file
 ```python
+from population_gravity import Model
+
 run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
 
 run.downscale()
