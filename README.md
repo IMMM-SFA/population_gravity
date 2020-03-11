@@ -9,9 +9,9 @@ The `population_gravity` model allocates aggregate urban and rural populations f
 The `population_gravity` package uses only **Python 3.3** and up.
 
 ### Step 1:
-You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `python` instance):
+You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `pip` instance that matches your Python3 distribution):
 
-`pip install git+https://github.com/IMMM-SFA/spatial_population_downscaling_model.git --user`
+`pip3 install git+https://github.com/IMMM-SFA/spatial_population_downscaling_model.git --user`
 
 ### Step 2:
 Confirm that the module and its dependencies have been installed by running from your prompt:
