@@ -19,15 +19,16 @@ from population_gravity import Model
 class TestProjectedOutputs(unittest.TestCase):
     """Test configuration integrity."""
 
-    COMP_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Rural_2030.tif')
-    COMP_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Rural_2020.tif')
-    COMP_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Urban_2030.tif')
-    COMP_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Urban_2020.tif')
-    COMP_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Total_2030.tif')
-    COMP_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/rhode_island_1km_SSP2_Total_2020.tif')
-
-    STATE_NAME = 'rhode_island'
+    STATE_NAME = 'vermont'
     SCENARIO = 'SSP2'
+
+    COMP_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Rural_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Rural_2020.tif'.format(STATE_NAME, SCENARIO))
+    COMP_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Urban_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Urban_2020.tif'.format(STATE_NAME, SCENARIO))
+    COMP_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Total_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Total_2020.tif'.format(STATE_NAME, SCENARIO))
+
     GRID_COORD_FILE = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_coordinates.csv'.format(STATE_NAME))
     HIST_RURAL_RASTER = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_rural_2010_1km.tif'.format(STATE_NAME))
     HIST_URBAN_RASTER = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_urban_2010_1km.tif'.format(STATE_NAME))
@@ -36,12 +37,12 @@ class TestProjectedOutputs(unittest.TestCase):
     HIST_SUITABILITY = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_mask_short_term.tif'.format(STATE_NAME))
     OUTPUT_DIRECTORY = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs')
 
-    RUN_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Rural_2030.tif')
-    RUN_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Rural_2020.tif')
-    RUN_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Urban_2030.tif')
-    RUN_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Urban_2020.tif')
-    RUN_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Total_2030.tif')
-    RUN_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/rhode_island_1km_SSP2_Total_2020.tif')
+    RUN_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Rural_2030.tif'.format(STATE_NAME, SCENARIO))
+    RUN_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Rural_2020.tif'.format(STATE_NAME, SCENARIO))
+    RUN_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Urban_2030.tif'.format(STATE_NAME, SCENARIO))
+    RUN_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Urban_2020.tif'.format(STATE_NAME, SCENARIO))
+    RUN_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Total_2030.tif'.format(STATE_NAME, SCENARIO))
+    RUN_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs/{}_1km_{}_Total_2020.tif'.format(STATE_NAME, SCENARIO))
 
     def test_proj_outputs(self):
         """Test for projection outputs"""
@@ -61,10 +62,10 @@ class TestProjectedOutputs(unittest.TestCase):
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
                     output_directory=TestProjectedOutputs.OUTPUT_DIRECTORY,
-                    alpha_urban=-2,
-                    alpha_rural=-0.34,
-                    beta_urban=0.46,
-                    beta_rural=1.0,
+                    alpha_urban=2.0,
+                    alpha_rural=0.08,
+                    beta_urban=1.78,
+                    beta_rural=1.42,
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
