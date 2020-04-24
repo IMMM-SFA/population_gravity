@@ -10,7 +10,10 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import logging
 import os
+import pkg_resources
 import time
+
+import pandas as pd
 
 from population_gravity.downscale_projection import pop_projection
 
@@ -32,6 +35,14 @@ class ProcessStep:
 
         self.cfg = cfg
         self.yr = yr
+
+        # load neighboring state reference
+        near_states_file = pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv')
+
+        # find which states to run based on the target state
+        states_df = pd.read_csv(near_states_file)
+
+        self.states_list = states_df.groupby('target_state')['near_state'].apply(list).to_dict()[cfg.state_name]
 
         if self.yr == self.cfg.projection_start_year:
 
