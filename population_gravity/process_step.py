@@ -36,13 +36,12 @@ class ProcessStep:
         self.cfg = cfg
         self.yr = yr
 
-        # load neighboring state reference
-        near_states_file = pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv')
-
         # find which states to run based on the target state
-        states_df = pd.read_csv(near_states_file)
+        self.states_list = self.get_neighboring_states_list()
 
-        self.states_list = states_df.groupby('target_state')['near_state'].apply(list).to_dict()[cfg.state_name]
+        print(self.states_list)
+
+        raise ValueError
 
         if self.yr == self.cfg.projection_start_year:
 
@@ -65,3 +64,27 @@ class ProcessStep:
                            rural_pop_proj_n, urban_pop_proj_n, self.yr)
 
         logging.info("Downscaling for year {} completed in {} minutes.".format(yr, (time.time() - td) / 60))
+
+    def get_neighboring_states_list(self):
+        """Get a list of all states within a 100 km distance from the target state border, including the target state,
+        as a list.
+
+        :return:                List of state names that are lower case and underscore separated
+
+        """
+        # load neighboring state reference
+        near_states_file = pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv')
+
+        # find which states to run based on the target state
+        states_df = pd.read_csv(near_states_file).apply(lambda x: x.str.lower().str.replace(' ', '_'))
+
+        return states_df.groupby('target_state')['near_state'].apply(list).to_dict()[self.cfg.state_name]
+
+
+
+
+
+
+
+
+
