@@ -1,0 +1,274 @@
+target_state,near_state
+Minnesota,Minnesota
+Minnesota,North Dakota
+Minnesota,Iowa
+Minnesota,South Dakota
+Minnesota,Wisconsin
+Minnesota,Michigan
+Montana,Montana
+Montana,North Dakota
+Montana,Idaho
+Montana,Wyoming
+Montana,South Dakota
+North Dakota,Minnesota
+North Dakota,Montana
+North Dakota,North Dakota
+North Dakota,South Dakota
+Hawaii,Hawaii
+Idaho,Montana
+Idaho,Idaho
+Idaho,Washington
+Idaho,Nevada
+Idaho,Oregon
+Idaho,Utah
+Idaho,Wyoming
+Washington,Idaho
+Washington,Washington
+Washington,Oregon
+Arizona,Arizona
+Arizona,California
+Arizona,Colorado
+Arizona,Nevada
+Arizona,New Mexico
+Arizona,Utah
+California,Arizona
+California,California
+California,Nevada
+California,Oregon
+Colorado,Arizona
+Colorado,Colorado
+Colorado,New Mexico
+Colorado,Utah
+Colorado,Wyoming
+Colorado,Kansas
+Colorado,Nebraska
+Colorado,Oklahoma
+Nevada,Idaho
+Nevada,Arizona
+Nevada,California
+Nevada,Nevada
+Nevada,Oregon
+Nevada,Utah
+New Mexico,Arizona
+New Mexico,Colorado
+New Mexico,New Mexico
+New Mexico,Utah
+New Mexico,Oklahoma
+New Mexico,Texas
+Oregon,Idaho
+Oregon,Washington
+Oregon,California
+Oregon,Nevada
+Oregon,Oregon
+Utah,Idaho
+Utah,Arizona
+Utah,Colorado
+Utah,Nevada
+Utah,New Mexico
+Utah,Utah
+Utah,Wyoming
+Wyoming,Montana
+Wyoming,Idaho
+Wyoming,Colorado
+Wyoming,Utah
+Wyoming,Wyoming
+Wyoming,Nebraska
+Wyoming,South Dakota
+Arkansas,Arkansas
+Arkansas,Missouri
+Arkansas,Oklahoma
+Arkansas,Louisiana
+Arkansas,Texas
+Arkansas,Mississippi
+Arkansas,Tennessee
+Iowa,Minnesota
+Iowa,Iowa
+Iowa,Missouri
+Iowa,Nebraska
+Iowa,South Dakota
+Iowa,Illinois
+Iowa,Wisconsin
+Kansas,Colorado
+Kansas,Kansas
+Kansas,Missouri
+Kansas,Nebraska
+Kansas,Oklahoma
+Missouri,Arkansas
+Missouri,Iowa
+Missouri,Kansas
+Missouri,Missouri
+Missouri,Nebraska
+Missouri,Oklahoma
+Missouri,Illinois
+Missouri,Kentucky
+Missouri,Tennessee
+Nebraska,Colorado
+Nebraska,Wyoming
+Nebraska,Iowa
+Nebraska,Kansas
+Nebraska,Missouri
+Nebraska,Nebraska
+Nebraska,South Dakota
+Oklahoma,Colorado
+Oklahoma,New Mexico
+Oklahoma,Arkansas
+Oklahoma,Kansas
+Oklahoma,Missouri
+Oklahoma,Oklahoma
+Oklahoma,Texas
+South Dakota,Minnesota
+South Dakota,Montana
+South Dakota,North Dakota
+South Dakota,Wyoming
+South Dakota,Iowa
+South Dakota,Nebraska
+South Dakota,South Dakota
+Louisiana,Arkansas
+Louisiana,Louisiana
+Louisiana,Texas
+Louisiana,Mississippi
+Texas,New Mexico
+Texas,Arkansas
+Texas,Oklahoma
+Texas,Louisiana
+Texas,Texas
+Connecticut,Connecticut
+Connecticut,Massachusetts
+Connecticut,Rhode Island
+Connecticut,New York
+Massachusetts,Connecticut
+Massachusetts,Massachusetts
+Massachusetts,New Hampshire
+Massachusetts,Rhode Island
+Massachusetts,Vermont
+Massachusetts,New York
+New Hampshire,Massachusetts
+New Hampshire,New Hampshire
+New Hampshire,Vermont
+New Hampshire,Maine
+Rhode Island,Connecticut
+Rhode Island,Massachusetts
+Rhode Island,Rhode Island
+Vermont,Massachusetts
+Vermont,New Hampshire
+Vermont,Vermont
+Vermont,New York
+Alabama,Alabama
+Alabama,Florida
+Alabama,Georgia
+Alabama,Mississippi
+Alabama,Tennessee
+Florida,Alabama
+Florida,Florida
+Florida,Georgia
+Georgia,Alabama
+Georgia,Florida
+Georgia,Georgia
+Georgia,South Carolina
+Georgia,North Carolina
+Georgia,Tennessee
+Mississippi,Arkansas
+Mississippi,Louisiana
+Mississippi,Alabama
+Mississippi,Mississippi
+Mississippi,Tennessee
+South Carolina,Georgia
+South Carolina,South Carolina
+South Carolina,North Carolina
+Illinois,Iowa
+Illinois,Missouri
+Illinois,Illinois
+Illinois,Indiana
+Illinois,Kentucky
+Illinois,Wisconsin
+Illinois,Michigan
+Indiana,Illinois
+Indiana,Indiana
+Indiana,Kentucky
+Indiana,Ohio
+Indiana,Michigan
+Kentucky,Missouri
+Kentucky,Illinois
+Kentucky,Indiana
+Kentucky,Kentucky
+Kentucky,Ohio
+Kentucky,Tennessee
+Kentucky,Virginia
+Kentucky,West Virginia
+North Carolina,Georgia
+North Carolina,South Carolina
+North Carolina,North Carolina
+North Carolina,Tennessee
+North Carolina,Virginia
+Ohio,Indiana
+Ohio,Kentucky
+Ohio,Ohio
+Ohio,West Virginia
+Ohio,Pennsylvania
+Ohio,Michigan
+Tennessee,Arkansas
+Tennessee,Missouri
+Tennessee,Alabama
+Tennessee,Georgia
+Tennessee,Mississippi
+Tennessee,Kentucky
+Tennessee,North Carolina
+Tennessee,Tennessee
+Tennessee,Virginia
+Virginia,Kentucky
+Virginia,North Carolina
+Virginia,Tennessee
+Virginia,Virginia
+Virginia,West Virginia
+Virginia,District of Columbia
+Virginia,Maryland
+Wisconsin,Minnesota
+Wisconsin,Iowa
+Wisconsin,Illinois
+Wisconsin,Wisconsin
+Wisconsin,Michigan
+West Virginia,Kentucky
+West Virginia,Ohio
+West Virginia,Virginia
+West Virginia,West Virginia
+West Virginia,Maryland
+West Virginia,Pennsylvania
+Delaware,Delaware
+Delaware,Maryland
+Delaware,New Jersey
+Delaware,Pennsylvania
+District of Columbia,Virginia
+District of Columbia,District of Columbia
+District of Columbia,Maryland
+Maryland,Virginia
+Maryland,West Virginia
+Maryland,Delaware
+Maryland,District of Columbia
+Maryland,Maryland
+Maryland,Pennsylvania
+New Jersey,Delaware
+New Jersey,New Jersey
+New Jersey,New York
+New Jersey,Pennsylvania
+New York,Connecticut
+New York,Massachusetts
+New York,Vermont
+New York,New Jersey
+New York,New York
+New York,Pennsylvania
+Pennsylvania,Ohio
+Pennsylvania,West Virginia
+Pennsylvania,Delaware
+Pennsylvania,Maryland
+Pennsylvania,New Jersey
+Pennsylvania,New York
+Pennsylvania,Pennsylvania
+Maine,New Hampshire
+Maine,Maine
+Michigan,Minnesota
+Michigan,Illinois
+Michigan,Indiana
+Michigan,Ohio
+Michigan,Wisconsin
+Michigan,Michigan
+Alaska,Alaska
