@@ -39,10 +39,6 @@ class ProcessStep:
         # find which states to run based on the target state
         self.states_list = self.get_neighboring_states_list()
 
-        print(self.states_list)
-
-        raise ValueError
-
         if self.yr == self.cfg.projection_start_year:
 
             # run downscaling
