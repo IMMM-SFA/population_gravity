@@ -56,7 +56,7 @@ def mosaic(raster_list, out_raster, source_metadata):
 
     # write output
     with rasterio.open(out_raster, 'w', **source_metadata) as dest:
-        dest.write(out_raster)
+        dest.write(mosaic)
 
     return out_raster
 
