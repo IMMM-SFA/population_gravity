@@ -22,6 +22,19 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from scipy.spatial import cKDTree
 
 
+def get_raster_metadata(source_raster):
+    """Get a copy of the metadata from a source raster.
+
+    :param source_raster:           Full path with file name and extension of an input raster
+
+    :return:                        Rasterio metadata object
+
+    """
+    source_raster = rasterio.open(source_raster)
+
+    return source_raster.meta.copy()
+
+
 def mosaic(raster_list, out_raster, source_metadata):
     """Create a raster mosiac from multiple rasters and save to file.
 
