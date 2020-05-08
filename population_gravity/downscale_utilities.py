@@ -16,9 +16,36 @@ import rasterio
 import numpy as np
 import pandas as pd
 
+from rasterio.merge import merge
 from collections import deque
 from pathos.multiprocessing import ProcessingPool as Pool
 from scipy.spatial import cKDTree
+
+
+def mosaic(raster_list, out_raster, source_metadata):
+    """Create a raster mosiac from multiple rasters and save to file.
+
+    :param raster_list:             List of full path to rasters with file name and extensions
+    :param out_raster:              Full path with file name and extension to write the raster to
+    :param source_metadata:         Metadata rasterio object from the target states init raster
+
+    :return:                        Mosaicked raster file name
+
+    """
+    # build list of raster objects
+    raster_objects = [rasterio.open(i) for i in raster_list]
+
+    # create mosaic
+    mosaic, out_transform = merge(raster_objects)
+
+    # update metadata with mosiac values
+    source_metadata.update({"height": mosaic.shape[1], "width": mosaic.shape[2], "transform": out_transform})
+
+    # write output
+    with rasterio.open(out_raster, 'w', **source_metadata) as dest:
+        dest.write(out_raster)
+
+    return out_raster
 
 
 def raster_to_array(raster):
