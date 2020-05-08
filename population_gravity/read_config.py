@@ -220,6 +220,9 @@ class ReadConfig:
         # get all neighboring states including the target state as a list
         self.neighbors = self.get_state_neighbors(state_name)
 
+        # get a copy of the raster metadata from a states input raster
+        self.metadata = utils.get_raster_metadata(self.historical_suitability_raster)
+
     @staticmethod
     def get_state_neighbors(state_name):
         """Get all neighboring states and the target state from lookup file as a list"""
