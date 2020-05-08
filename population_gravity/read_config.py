@@ -8,6 +8,7 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 """
 
+import pkg_resources
 import simplejson
 import yaml
 
@@ -147,7 +148,7 @@ class ReadConfig:
             self.alpha_rural = alpha_rural
             self.beta_rural = beta_rural
             self.scenario = scenario
-            self.state_name = state_name
+            self.state_name = state_name.lower()
             self.historic_base_year = historic_base_year
             self.projection_start_year = projection_start_year
             self.projection_end_year = projection_end_year
@@ -178,7 +179,7 @@ class ReadConfig:
             self.alpha_rural = self.validate_key(cfg, 'alpha_rural')
             self.beta_rural = self.validate_key(cfg, 'beta_rural')
             self.scenario = self.validate_key(cfg, 'scenario')
-            self.state_name = self.validate_key(cfg, 'state_name')
+            self.state_name = self.validate_key(cfg, 'state_name').lower()
             self.historic_base_year = self.validate_key(cfg, 'historic_base_year')
             self.projection_start_year = self.validate_key(cfg, 'projection_start_year')
             self.projection_end_year = self.validate_key(cfg, 'projection_end_year')
@@ -215,6 +216,17 @@ class ReadConfig:
 
         else:
             self.projected_population_file = None
+
+        # get all neighboring states including the target state as a list
+        self.neighbors = self.get_state_neighbors(state_name)
+
+    @staticmethod
+    def get_state_neighbors(state_name):
+        """Get all neighboring states and the target state from lookup file as a list"""
+
+        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
+
+        return df.loc[df['target_state'] == state_name]['near_state'].to_list()
 
     @staticmethod
     def validate_key(yaml_object, key):
