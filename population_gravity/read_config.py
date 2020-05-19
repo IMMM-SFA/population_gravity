@@ -10,6 +10,8 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import pkg_resources
 import simplejson
+
+import rasterio
 import yaml
 
 import numpy as np
@@ -221,7 +223,10 @@ class ReadConfig:
         self.neighbors = self.get_state_neighbors(state_name)
 
         # get a copy of the raster metadata from a states input raster
-        self.metadata = utils.get_raster_metadata(self.historical_suitability_raster)
+        self.template_raster_object, self.metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+
+        # get a bounding box from the historical raster
+        self.bbox = utils.create_bbox(self.template_raster_object)
 
     @staticmethod
     def get_state_neighbors(state_name):
@@ -229,7 +234,16 @@ class ReadConfig:
 
         df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
 
-        return df.loc[df['target_state'] == state_name]['near_state'].to_list()
+        # get the actual state name from the near states because they are not lower case like what is being passed
+        state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]
+
+        # extract a list of all neighboring states including the target state
+        state_list = df.loc[df['target_state'] == state_name]['near_state'].to_list()
+
+        # ensure that the target state comes first to prevent any issue with the reverse painter's algorithm for merge
+        state_list.insert(0, state_list.pop(state_list.index(state_find)))
+
+        return state_list
 
     @staticmethod
     def validate_key(yaml_object, key):
