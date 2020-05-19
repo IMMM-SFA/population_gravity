@@ -22,17 +22,17 @@ from pathos.multiprocessing import ProcessingPool as Pool
 from scipy.spatial import cKDTree
 
 
-def get_raster_metadata(source_raster):
+def get_raster_with_metadata(source_raster):
     """Get a copy of the metadata from a source raster.
 
     :param source_raster:           Full path with file name and extension of an input raster
 
-    :return:                        Rasterio metadata object
+    :return:                        Rasterio object, Rasterio metadata object
 
     """
-    source_raster = rasterio.open(source_raster)
+    raster_obj = rasterio.open(source_raster)
 
-    return source_raster.meta.copy()
+    return raster_obj, raster_obj.meta.copy()
 
 
 def mosaic(raster_list, out_raster, source_metadata):
@@ -42,9 +42,10 @@ def mosaic(raster_list, out_raster, source_metadata):
     :param out_raster:              Full path with file name and extension to write the raster to
     :param source_metadata:         Metadata rasterio object from the target states init raster
 
-    :return:                        Mosaicked raster file name
+    :return:                        Mosaicked rasterio object
 
     """
+
     # build list of raster objects
     raster_objects = [rasterio.open(i) for i in raster_list]
 
@@ -58,7 +59,23 @@ def mosaic(raster_list, out_raster, source_metadata):
     with rasterio.open(out_raster, 'w', **source_metadata) as dest:
         dest.write(mosaic)
 
-    return out_raster
+    # open output object with updated metadata
+    return rasterio.open(out_raster)
+
+
+def create_bbox(raster_object):
+    """Create a bounding box array from a rasterio object.
+
+    :param raster_object:           Rasterio raster object
+
+    :return:                        bounding box
+
+    """
+
+    return np.array([raster_object.bounds.left,
+                     raster_object.bounds.bottom,
+                     raster_object.bounds.right,
+                     raster_object.bounds.top])
 
 
 def raster_to_array(raster):
