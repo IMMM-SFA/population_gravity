@@ -84,12 +84,12 @@ class TestProjectedOutputs(unittest.TestCase):
         run_total_2030 = raster_to_array(TestProjectedOutputs.RUN_TOTAL_2030)
 
         # test equality
-        np.assert_array_equal(comp_urban_2020, run_urban_2020)
-        np.assert_array_equal(comp_rural_2020, run_rural_2020)
-        np.assert_array_equal(comp_total_2020, run_total_2020)
-        np.assert_array_equal(comp_rural_2030, run_rural_2030)
-        np.assert_array_equal(comp_urban_2030, run_urban_2030)
-        np.assert_array_equal(comp_total_2030, run_total_2030)
+        np.assert_array_almost_equal(comp_urban_2020, run_urban_2020, decimal=5)
+        np.assert_array_almost_equal(comp_rural_2020, run_rural_2020, decimal=5)
+        np.assert_array_almost_equal(comp_total_2020, run_total_2020, decimal=5)
+        np.assert_array_almost_equal(comp_rural_2030, run_rural_2030, decimal=5)
+        np.assert_array_almost_equal(comp_urban_2030, run_urban_2030, decimal=5)
+        np.assert_array_almost_equal(comp_total_2030, run_total_2030, decimal=5)
 
 
 if __name__ == '__main__':
