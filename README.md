@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/IMMM-SFA/population_gravity.svg?branch=master)](https://travis-ci.org/IMMM-SFA/population_gravity)
+
 # population_gravity
 
 ### A model to downscale urban and rural population for a defined state to a 1 km grid
