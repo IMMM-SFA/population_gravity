@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/IMMM-SFA/population_gravity.svg?branch=master)](https://travis-ci.org/IMMM-SFA/population_gravity)
+[![Build Status](https://travis-ci.org/IMMM-SFA/population_gravity.svg?branch=master)](https://travis-ci.org/IMMM-SFA/population_gravity) 
+[![codecov](https://codecov.io/gh/IMMM-SFA/population_gravity/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/population_gravity)
 
 # population_gravity
 
