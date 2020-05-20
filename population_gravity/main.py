@@ -128,6 +128,8 @@ class Model:
 
     :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
 
+    :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -137,7 +139,7 @@ class Model:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None):
+                 kernel_distance_meters=None, raster_to_csv=False):
 
         # get current time
         self.date_time_string = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%Ss')
@@ -167,7 +169,8 @@ class Model:
                               calibration_urban_year_two_raster=calibration_urban_year_two_raster,
                               calibration_rural_year_one_raster=calibration_rural_year_one_raster,
                               calibration_rural_year_two_raster=calibration_rural_year_two_raster,
-                              kernel_distance_meters=kernel_distance_meters)
+                              kernel_distance_meters=kernel_distance_meters,
+                              raster_to_csv=raster_to_csv)
 
         # expose key variables that we want the user to have non-nested access to
         self.alpha_urban = self.cfg.alpha_urban

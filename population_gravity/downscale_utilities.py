@@ -10,6 +10,7 @@ SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_
 
 """
 
+import os
 import multiprocessing
 import rasterio
 
@@ -115,6 +116,41 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
     
     with rasterio.open(output_raster, "w", **src_profile) as dst:
         dst.write_band(1, array)
+
+
+def raster_to_csv(input_raster, grid_coordinates_array):
+    """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster
+
+    :param input_raster:                        Full path with file name and extension to input raster
+
+    :param grid_coordinates_array:              Numpy Array containing the coordinates for each 1 km grid cell
+                                                within the target state. File includes a header with the fields
+                                                XCoord, YCoord, FID.
+                                                Where data types and field descriptions are as follows:
+                                                (XCoord, float, X coordinate in meters),
+                                                (YCoord, float, Y coordinate in meters),
+                                                (FID, int, Unique feature id)
+
+    """
+
+    # read in raster
+    r = rasterio.open(input_raster)
+
+    # convert to 1D array
+    arr = r.read(1).flatten()
+
+    # just get x, y from array
+    coordinate_array = grid_coordinates_array[:, :2]
+
+    # build data frame and remove nodata points
+    df = pd.DataFrame({'x_coord': coordinate_array[:, 0], 'y_coord': coordinate_array[:, 1], 'value': arr})
+    dfx = df.loc[df['value'] != r.nodata]
+
+    # generate output file name
+    out_csv = f"{os.path.splitext(input_raster)[0]}.csv"
+
+    # write output
+    dfx.to_csv(out_csv, index=False)
     
 
 def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
