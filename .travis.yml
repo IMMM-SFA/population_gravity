@@ -19,9 +19,10 @@ addons:
       - libgdal-dev
 install:
   - pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
+  - pip install -U pip
   - pip install -r requirements.txt
   - python setup.py -q install
-  - pip setup.py -q install
+  - python install coverage
 script:
   - travis_wait 35 coverage run -m unittest discover
 cache: pip
