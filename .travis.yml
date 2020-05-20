@@ -1,0 +1,30 @@
+name: "Python 3.6 on Linux"
+os: linux
+dist: trusty
+language: python
+matrix:
+  include:
+    - python: 3.6
+      dist: xenial
+warnings_are_errors: false
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+    packages:
+      - libudunits2-dev
+      - libproj-dev
+      - libgeos-dev
+      - gdal-bin
+      - libgdal-dev
+install:
+  - pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
+  - pip install -r requirements.txt
+  - python setup.py -q install
+  - pip setup.py -q install
+script:
+  - travis_wait 35 coverage run -m unittest discover
+cache: pip
+sudo: required
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
