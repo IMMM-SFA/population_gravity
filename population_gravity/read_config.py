@@ -243,7 +243,8 @@ class ReadConfig:
         # ensure that the target state comes first to prevent any issue with the reverse painter's algorithm for merge
         state_list.insert(0, state_list.pop(state_list.index(state_find)))
 
-        return state_list
+        # make all lower case
+        return [i.lower() for i in state_list]
 
     @staticmethod
     def validate_key(yaml_object, key):

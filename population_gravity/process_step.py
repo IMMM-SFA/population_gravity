@@ -53,16 +53,16 @@ class ProcessStep:
             prev_step = self.yr - self.cfg.time_step
 
             # build raster list for all neighboring raster outputs from the previous time step
-            urban_raster_list = [self.construct_file_name(i, prev_step, 'urban') for i in self.cfg.neighbors]
-            rural_raster_list = [self.construct_file_name(i, prev_step, 'rural') for i in self.cfg.neighbors]
+            urban_raster_list = [self.construct_file_name(i, prev_step, 'Urban') for i in self.cfg.neighbors]
+            rural_raster_list = [self.construct_file_name(i, prev_step, 'Rural') for i in self.cfg.neighbors]
 
             # construct output mosaic file names
-            urban_mosaic_file = self.construct_file_name(self.cfg.state_name, prev_step, 'urban', suffix='_mosaic')
-            rural_mosaic_file = self.construct_file_name(self.cfg.state_name, prev_step, 'rural', suffix='_mosaic')
+            urban_mosaic_file = self.construct_file_name(self.cfg.state_name, prev_step, 'Urban', suffix='_mosaic')
+            rural_mosaic_file = self.construct_file_name(self.cfg.state_name, prev_step, 'Rural', suffix='_mosaic')
 
             # construct output mask file names
-            urban_mask_file = self.construct_file_name(self.cfg.state_name, prev_step, 'urban', suffix='_mask')
-            rural_mask_file = self.construct_file_name(self.cfg.state_name, prev_step, 'rural', suffix='_mask')
+            urban_mask_file = self.construct_file_name(self.cfg.state_name, prev_step, 'Urban', suffix='_mask')
+            rural_mask_file = self.construct_file_name(self.cfg.state_name, prev_step, 'Rural', suffix='_mask')
 
             # build mosaics
             urban_mosaic = utils.mosaic(urban_raster_list, urban_mosaic_file, self.cfg.metadata.copy())
