@@ -63,6 +63,7 @@ See examples below for how to pass into the `Model` class
 | `calibration_urban_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for year two of the calibration. |
 | `calibration_rural_year_one_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year one of the calibration. |
 | `calibration_rural_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year two of the calibration. |
+| `kernel_distance_meters` | float | Distance kernel in meters; default 100,000 meters. |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -72,6 +73,7 @@ Users can update variable argument values after model initialization; this inclu
 - `beta_rural`
 - `urban_pop_proj_n`
 - `rural_pop_proj_n`
+- `kernel_distance_meters`
 
 ### YAML configuration file option (e.g., config.yml)
 Arguments can be passed into the `Model` class using a YAML configuration file as well (see **Example 1**):
@@ -89,6 +91,7 @@ alpha_urban: 2.0
 alpha_rural: 0.08
 beta_urban: 1.78
 beta_rural: 1.42
+kernel_distance_meters: 100000
 scenario: 'SSP2'
 state_name: 'vermont'
 historic_base_year: 2010
@@ -137,6 +140,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             alpha_rural=0.08,
             beta_urban=1.78,
             beta_rural=1.42,
+            kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
@@ -162,6 +166,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             alpha_rural=0.08,
             beta_urban=1.78,
             beta_rural=1.42,
+            kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,

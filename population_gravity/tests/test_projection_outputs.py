@@ -66,6 +66,7 @@ class TestProjectedOutputs(unittest.TestCase):
                     alpha_rural=0.0750326293181678,
                     beta_urban=1.77529986067379,
                     beta_rural=1.42410799449511,
+                    kernel_distance_meters=100000,
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
