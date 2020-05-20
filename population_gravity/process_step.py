@@ -18,10 +18,9 @@ import pandas as pd
 
 import population_gravity.downscale_utilities as utils
 from population_gravity.downscale_projection import pop_projection
-from population_gravity.main import Model
 
 
-class ProcessStep(Model):
+class ProcessStep:
     """Process population downscaling for a single time step
 
     :param cfg:                 Configuration file object

@@ -252,7 +252,7 @@ class Model:
         for step in self.cfg.steps:
 
             yield ProcessStep(self.cfg, step, self.alpha_urban, self.beta_urban, self.alpha_rural, self.beta_rural,
-                              self.rural_pop_proj_n, self.urban_pop_proj_n)
+                              self.rural_pop_proj_n, self.urban_pop_proj_n, self.kernel_distance_meters)
 
     def advance_step(self):
         """Advance to next time step.
