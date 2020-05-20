@@ -126,6 +126,8 @@ class Model:
                                                 extension to a raster containing rural population counts for each 1 km
                                                 grid cell for year two of the  calibration.
 
+    :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -134,7 +136,8 @@ class Model:
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
-                 calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None):
+                 calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
+                 kernel_distance_meters=None):
 
         # get current time
         self.date_time_string = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%Ss')
@@ -163,7 +166,8 @@ class Model:
                               calibration_urban_year_one_raster=calibration_urban_year_one_raster,
                               calibration_urban_year_two_raster=calibration_urban_year_two_raster,
                               calibration_rural_year_one_raster=calibration_rural_year_one_raster,
-                              calibration_rural_year_two_raster=calibration_rural_year_two_raster)
+                              calibration_rural_year_two_raster=calibration_rural_year_two_raster,
+                              kernel_distance_meters=kernel_distance_meters)
 
         # expose key variables that we want the user to have non-nested access to
         self.alpha_urban = self.cfg.alpha_urban
@@ -172,6 +176,7 @@ class Model:
         self.beta_rural = self.cfg.beta_rural
         self.rural_pop_proj_n = self.cfg.rural_pop_proj_n
         self.urban_pop_proj_n = self.cfg.urban_pop_proj_n
+        self.kernel_distance_meters = self.cfg.kernel_distance_meters
 
         # logfile path
         self.logfile = os.path.join(self.cfg.output_directory, 'logfile_{}_{}_{}.log'.format(self.cfg.scenario,
@@ -235,6 +240,11 @@ class Model:
         logging.info("\tprojected_population_file = {}".format(self.cfg.projected_population_file))
         logging.info("\tscenario = {}".format(self.cfg.scenario))
         logging.info("\toutput_directory = {}".format(self.cfg.output_directory))
+        logging.info("\tkernel_distance_meters = {}".format(self.cfg.kernel_distance_meters))
+        logging.info("\talpha_urban = {}".format(self.cfg.alpha_urban))
+        logging.info("\talpha_rural = {}".format(self.cfg.alpha_rural))
+        logging.info("\tbeta_urban = {}".format(self.cfg.beta_urban))
+        logging.info("\tbeta_rural = {}".format(self.cfg.beta_rural))
 
     def build_step_generator(self):
         """Build step generator."""

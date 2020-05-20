@@ -126,6 +126,8 @@ class ReadConfig:
                                                 extension to a raster containing rural population counts for each 1 km
                                                 grid cell for year two of the  calibration.
 
+    :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -134,7 +136,8 @@ class ReadConfig:
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
-                 calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None):
+                 calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
+                 kernel_distance_meters=None):
 
         if config_file is None:
 
@@ -157,6 +160,7 @@ class ReadConfig:
             self.time_step = time_step
             self.rural_pop_proj_n = rural_pop_proj_n
             self.urban_pop_proj_n = urban_pop_proj_n
+            self.kernel_distance_meters = kernel_distance_meters
 
             # specific to calibration run
             self.calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -188,6 +192,7 @@ class ReadConfig:
             self.time_step = self.validate_key(cfg, 'time_step')
             self.rural_pop_proj_n = self.validate_key(cfg, 'rural_pop_proj_n')
             self.urban_pop_proj_n = self.validate_key(cfg, 'urban_pop_proj_n')
+            self.kernel_distance_meters = self.validate_key(cfg, 'kernel_distance_meters')
 
             # specific to calibration run
             self.calibration_urban_year_one_raster = self.validate_key(cfg, 'calibration_urban_year_one_raster')
