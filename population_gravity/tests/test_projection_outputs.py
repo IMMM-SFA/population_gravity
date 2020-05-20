@@ -22,12 +22,12 @@ class TestProjectedOutputs(unittest.TestCase):
     STATE_NAME = 'vermont'
     SCENARIO = 'SSP2'
 
-    COMP_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_rural_2030.tif'.format(STATE_NAME, SCENARIO))
-    COMP_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_rural_2020.tif'.format(STATE_NAME, SCENARIO))
-    COMP_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_urban_2030.tif'.format(STATE_NAME, SCENARIO))
-    COMP_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_urban_2020.tif'.format(STATE_NAME, SCENARIO))
-    COMP_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_total_2030.tif'.format(STATE_NAME, SCENARIO))
-    COMP_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_total_2020.tif'.format(STATE_NAME, SCENARIO))
+    COMP_RURAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Rural_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_RURAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Rural_2020.tif'.format(STATE_NAME, SCENARIO))
+    COMP_URBAN_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Urban_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_URBAN_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Urban_2020.tif'.format(STATE_NAME, SCENARIO))
+    COMP_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Total_2030.tif'.format(STATE_NAME, SCENARIO))
+    COMP_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', 'tests/data/comp_data/{}_1km_{}_Total_2020.tif'.format(STATE_NAME, SCENARIO))
 
     GRID_COORD_FILE = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_coordinates.csv'.format(STATE_NAME))
     HIST_RURAL_RASTER = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_rural_2010_1km.tif'.format(STATE_NAME))
