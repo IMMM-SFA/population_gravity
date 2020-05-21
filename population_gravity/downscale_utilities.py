@@ -118,7 +118,7 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
 
 
-def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv):
+def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv=None):
     """Join non-NODATA CSV raster value outputs to their corresponding X, Y coordinates.
 
     :param vaild_coordinates_csv:               Full path with file name and extension to the input CSV file containing
@@ -139,13 +139,13 @@ def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv
 
     Example:
 
-        >>> import population_gravity
+        >>> import population_gravity as pgr
         >>>
         >>> vaild_coordinates_csv = "<path to file>"
         >>> valid_raster_values_csv = "<path to file>"
         >>> out_csv = "<path to file>"
         >>>
-        >>> df = join_coords_to_value(out_valid_csv, value_csv, out_csv)
+        >>> df = pgr.join_coords_to_value(out_valid_csv, value_csv, out_csv)
 
     """
 
@@ -163,8 +163,9 @@ def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv
     # drop key
     df_join.drop(columns=['key'], inplace=True)
 
-    # save to CSV
-    df_join.to_csv(out_csv, index=False)
+    # save to CSV if desired
+    if out_csv is not None:
+        df_join.to_csv(out_csv, index=False)
 
     return df_join
 
