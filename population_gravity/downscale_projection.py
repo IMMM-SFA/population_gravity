@@ -181,6 +181,10 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
         utils.array_to_raster(cfg.historical_suitability_raster, pop_estimates, cfg.one_dimension_indices, output)
 
+        # write csv if user desires
+        if cfg.raster_to_csv:
+            utils.raster_to_csv(output, cfg.grid_coordinates_array)
+
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
 
@@ -188,3 +192,6 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     logging.info("Saving total population raster to:  {}".format(final_raster))
 
     utils.array_to_raster(cfg.historical_suitability_raster, total_array, cfg.one_dimension_indices, final_raster)
+
+    if cfg.raster_to_csv:
+        utils.raster_to_csv(final_raster, cfg.grid_coordinates_array)

@@ -102,6 +102,8 @@ class ProcessStep:
         with rasterio.open(file_name, 'w', **self.cfg.metadata) as dest:
             dest.write(masked, indexes=1)
 
+        return masked
+
     def get_neighboring_states_list(self):
         """Get a list of all states within a 100 km distance from the target state border, including the target state,
         as a list.
