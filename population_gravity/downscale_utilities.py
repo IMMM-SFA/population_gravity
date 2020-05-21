@@ -118,8 +118,59 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
 
 
-def raster_to_csv(input_raster, grid_coordinates_array, compress=True):
-    """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster
+def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv):
+    """Join non-NODATA CSV raster value outputs to their corresponding X, Y coordinates.
+
+    :param vaild_coordinates_csv:               Full path with file name and extension to the input CSV file containing
+                                                non-NODATA grid cell coordinates where fields are [`x_coord`, `y_coord`]
+                                                and represent the X, Y coordinates of the projected coordinate system.
+                                                The key of this file for joining purposes is the order position (index).
+
+    :param valid_raster_values_csv:             Full path with file name and extension to the input CSV file containing
+                                                non-NODATA grid cell values from the output raster where fields are
+                                                [`value`].  The key of this file for joining purposes is the order
+                                                position (index).
+
+    :param out_csv:                             Full path with file name and extension to write the output CSV file to.
+                                                Output fields are [`x_coord`, `y_coord`, `value`].
+
+    :return:                                    Joined Pandas DataFrame
+
+
+    Example:
+
+        >>> import population_gravity
+        >>>
+        >>> vaild_coordinates_csv = "<path to file>"
+        >>> valid_raster_values_csv = "<path to file>"
+        >>> out_csv = "<path to file>"
+        >>>
+        >>> df = join_coords_to_value(out_valid_csv, value_csv, out_csv)
+
+    """
+
+    # read in data
+    df_coords = pd.read_csv(vaild_coordinates_csv)
+    df_values = pd.read_csv(valid_raster_values_csv)
+
+    # create key from index
+    df_coords['key'] = df_coords.index
+    df_values['key'] = df_values.index
+
+    # conduct left join
+    df_join = pd.merge(left=df_coords, right=df_values, how='left', on='key')
+
+    # drop key
+    df_join.drop(columns=['key'], inplace=True)
+
+    # save to CSV
+    df_join.to_csv(out_csv, index=False)
+
+    return df_join
+
+
+def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_value_only=True):
+    """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster omitting cells with NODATA.
 
     :param input_raster:                        Full path with file name and extension to input raster
 
@@ -133,6 +184,8 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True):
 
     :param compress:                            Boolean.  Compress CSV using GNU zip (gzip) compression; Default True
 
+    :param export_value_only:                   Boolean.  Export only the value column; Default True
+
     """
 
     # read in raster
@@ -144,8 +197,13 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True):
     # just get x, y from array; match dtype of input raster
     coordinate_array = grid_coordinates_array[:, :2]
 
-    # build data frame and remove nodata points
-    df = pd.DataFrame({'x_coord': coordinate_array[:, 0], 'y_coord': coordinate_array[:, 1], 'value': arr})
+    # build data frame
+    if export_value_only:
+        df = pd.DataFrame({'value': arr})
+    else:
+        df = pd.DataFrame({'x_coord': coordinate_array[:, 0], 'y_coord': coordinate_array[:, 1], 'value': arr})
+
+    # remove nodata points
     dfx = df.loc[df['value'] != r.nodata]
 
     # generate output file name
