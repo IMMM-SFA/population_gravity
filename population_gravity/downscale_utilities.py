@@ -145,7 +145,7 @@ def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv
         >>> valid_raster_values_csv = "<path to file>"
         >>> out_csv = "<path to file>"
         >>>
-        >>> df = pgr.join_coords_to_value(out_valid_csv, value_csv, out_csv)
+        >>> df = pgr.join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv)
 
     """
 

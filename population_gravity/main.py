@@ -128,7 +128,9 @@ class Model:
 
     :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
 
-    :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
+    :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values;
+                                                option set to compress CSV using gzip.  Exports values for non-NODATA
+                                                grid cells as field name `value`.
 
     """
 

@@ -64,6 +64,7 @@ See examples below for how to pass into the `Model` class
 | `calibration_rural_year_one_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year one of the calibration. |
 | `calibration_rural_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year two of the calibration. |
 | `kernel_distance_meters` | float | Distance kernel in meters; default 100,000 meters. |
+| `raster_to_csv` | boolean | Optionally export raster as a CSV file without nodata values;option set to compress CSV using gzip.  Exports values for non-NODATA grid cells as field name `value`. |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -98,6 +99,7 @@ historic_base_year: 2010
 projection_start_year: 2020
 projection_end_year: 2050
 time_step: 10
+raster_to_csv: False
 
 # calibration specific entries
 calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
@@ -146,7 +148,8 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             historic_base_year=2010,
             projection_start_year=2020,
             projection_end_year=2050,
-            time_step=10)
+            time_step=10,
+            raster_to_csv=False)
 
 run.downscale()
 ```
@@ -172,7 +175,8 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             historic_base_year=2010,
             projection_start_year=2020,
             projection_end_year=2050,
-            time_step=10)
+            time_step=10,
+            raster_to_csv=False)
 
 # initialize model
 run.initialize()
@@ -197,4 +201,17 @@ from population_gravity import Model
 run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
 
 run.calibrate()
+```
+
+### Example 5: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates
+```python
+
+import population_gravity as pgr
+
+vaild_coordinates_csv = "<path to file>"
+valid_raster_values_csv = "<path to file>"
+out_csv = "<path to file>"
+
+# optionally choose not to write CSV and just return the data frame by `out_csv=None`
+df = pgr.join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv)
 ```
