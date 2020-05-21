@@ -118,7 +118,7 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
 
 
-def raster_to_csv(input_raster, grid_coordinates_array):
+def raster_to_csv(input_raster, grid_coordinates_array, compress=True):
     """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster
 
     :param input_raster:                        Full path with file name and extension to input raster
@@ -131,6 +131,8 @@ def raster_to_csv(input_raster, grid_coordinates_array):
                                                 (YCoord, float, Y coordinate in meters),
                                                 (FID, int, Unique feature id)
 
+    :param compress:                            Boolean.  Compress CSV using GNU zip (gzip) compression; Default True
+
     """
 
     # read in raster
@@ -139,7 +141,7 @@ def raster_to_csv(input_raster, grid_coordinates_array):
     # convert to 1D array
     arr = r.read(1).flatten()
 
-    # just get x, y from array
+    # just get x, y from array; match dtype of input raster
     coordinate_array = grid_coordinates_array[:, :2]
 
     # build data frame and remove nodata points
@@ -147,10 +149,15 @@ def raster_to_csv(input_raster, grid_coordinates_array):
     dfx = df.loc[df['value'] != r.nodata]
 
     # generate output file name
-    out_csv = f"{os.path.splitext(input_raster)[0]}.csv"
+    if compress:
+        file_extension = 'csv.gz'
+    else:
+        file_extension = 'csv'
+
+    out_csv = f"{os.path.splitext(input_raster)[0]}.{file_extension}"
 
     # write output
-    dfx.to_csv(out_csv, index=False)
+    dfx.to_csv(out_csv, index=False, compression='infer')
     
 
 def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
