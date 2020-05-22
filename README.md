@@ -65,6 +65,14 @@ See examples below for how to pass into the `Model` class
 | `calibration_rural_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year two of the calibration. |
 | `kernel_distance_meters` | float | Distance kernel in meters; default 100,000 meters. |
 | `raster_to_csv` | boolean | Optionally export raster as a CSV file without nodata values;option set to compress CSV using gzip.  Exports values for non-NODATA grid cells as field name `value`. |
+| `param urban_alpha_lower_bound` | float | For use in calibration.  Lower alpha boundary for urban. |
+| `param urban_alpha_upper_bound` | float | For use in calibration.  Upper alpha boundary for urban. |
+| `param urban_beta_lower_bound` | float | For use in calibration.  Lower beta boundary for urban. |
+| `param urban_beta_upper_bound` | float | For use in calibration.  Upper beta boundary for urban. |
+| `param rural_alpha_lower_bound` | float | For use in calibration.  Lower alpha boundary for rural. |
+| `param rural_alpha_upper_bound` | float | For use in calibration.  Upper alpha boundary for rural. |
+| `param rural_beta_lower_bound` | float | For use in calibration.  Lower beta boundary for rural. |
+| `param rural_beta_upper_bound` | float | For use in calibration.  Upper beta boundary for rural. |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -88,16 +96,16 @@ historical_suitability_raster: '<Full path with file name and extension to the f
 projected_population_file: '<Full path with file name and extension to the file>'
 one_dimension_indices_file: '<Full path with file name and extension to the file>'
 output_directory: '<Full path with file name and extension to the file>'
-alpha_urban: 2.0
-alpha_rural: 0.08
-beta_urban: 1.78
-beta_rural: 1.42
+alpha_urban: 1.99999999995073
+alpha_rural: 0.0750326293181678
+beta_urban: 1.77529986067379
+beta_rural: 1.42410799449511
 kernel_distance_meters: 100000
 scenario: 'SSP2'
 state_name: 'vermont'
 historic_base_year: 2010
 projection_start_year: 2020
-projection_end_year: 2050
+projection_end_year: 2030
 time_step: 10
 raster_to_csv: False
 
@@ -106,6 +114,14 @@ calibration_urban_year_one_raster: '<Full path with file name and extension to t
 calibration_urban_year_two_raster: '<Full path with file name and extension to the file>'
 calibration_rural_year_one_raster: '<Full path with file name and extension to the file>'
 calibration_rural_year_two_raster: '<Full path with file name and extension to the file>'
+urban_alpha_lower_bound: -2.0,
+urban_alpha_upper_bound: 2.0,
+urban_beta_upper_bound: 2.0,
+urban_beta_lower_bound: -0.5,
+rural_alpha_lower_bound: -2.0,
+rural_alpha_upper_bound: 2.0,
+rural_beta_upper_bound: 2.0,
+rural_beta_lower_bound: -0.5
 ```
 
 ### Generate calibration parameters
@@ -138,16 +154,16 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=2.0,
-            alpha_rural=0.08,
-            beta_urban=1.78,
-            beta_rural=1.42,
+            alpha_urban=1.99999999995073,
+            alpha_rural=0.0750326293181678,
+            beta_urban=1.77529986067379,
+            beta_rural=1.42410799449511,
             kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
-            projection_end_year=2050,
+            projection_end_year=2030,
             time_step=10,
             raster_to_csv=False)
 
@@ -165,16 +181,16 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=2.0,
-            alpha_rural=0.08,
-            beta_urban=1.78,
-            beta_rural=1.42,
+            alpha_urban=1.99999999995073,
+            alpha_rural=0.0750326293181678,
+            beta_urban=1.77529986067379,
+            beta_rural=1.42410799449511,
             kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
-            projection_end_year=2050,
+            projection_end_year=2030,
             time_step=10,
             raster_to_csv=False)
 
@@ -194,13 +210,32 @@ run.advance_step()
 run.close()
 ```
 
-### Example 4:  Calibrate downscaling parameters for a target state using a configuration file
+### Example 4:  Calibrate downscaling parameters for a target state by passing argument values
 ```python
 from population_gravity import Model
 
-run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
+run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
+            historical_suitability_raster='<Full path with file name and extension to the file>',
+            projected_population_file='<Full path with file name and extension to the file>',
+            one_dimension_indices_file='<Full path with file name and extension to the file>',
+            output_directory='<Full path with file name and extension to the file>',
+            calibration_urban_year_one_raster='<Full path with file name and extension to the file>',
+            calibration_urban_year_two_raster='<Full path with file name and extension to the file>',
+            calibration_rural_year_one_raster='<Full path with file name and extension to the file>',
+            calibration_rural_year_two_raster='<Full path with file name and extension to the file>',
+            kernel_distance_meters=100000,
+            scenario='SSP2', # shared socioeconomic pathway abbreviation
+            state_name='vermont',
+            urban_alpha_lower_bound=-2.0,
+            urban_alpha_upper_bound=2.0,
+            urban_beta_upper_bound=2.0,
+            urban_beta_lower_bound=-0.5,
+            rural_alpha_lower_bound=-2.0,
+            rural_alpha_upper_bound=2.0,
+            rural_beta_upper_bound=2.0,
+            rural_beta_lower_bound=-0.5)
 
-run.calibrate()
+alpha_urban, alpha_rural, beta_urban, beta_rural = run.calibrate()
 ```
 
 ### Example 5: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates
