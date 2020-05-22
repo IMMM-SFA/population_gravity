@@ -186,10 +186,9 @@ def calibration(cfg):
 
         parameters_dict[setting] = parameters["x"]
 
-    out_string = f"{cfg.state_name},{cfg.scenario},{parameters_dict['Rural'][0]},{parameters_dict['Rural'][1]},{parameters_dict['Urban'][0]},{parameters_dict['Urban'][1]}"
-    logging.info(f"Final optimization:  {out_string}")
-
     # Write the parameters to the designated csv file
+    out_string = f"{cfg.state_name},{cfg.scenario},{parameters_dict['Rural'][0]},{parameters_dict['Rural'][1]},{parameters_dict['Urban'][0]},{parameters_dict['Urban'][1]}"
+
     with open(out_cal, 'w') as out:
         out.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban,Comments\n")
         out.write(f"{out_string}\n")
