@@ -129,6 +129,22 @@ class ReadConfig:
 
     :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
 
+    :param urban_alpha_lower_bound:             float. For use in calibration.  Lower alpha boundary for urban.
+
+    :param urban_alpha_upper_bound:             float. For use in calibration.  Upper alpha boundary for urban.
+
+    :param urban_beta_lower_bound:              float. For use in calibration.  Lower beta boundary for urban.
+
+    :param urban_beta_upper_bound:              float. For use in calibration.  Upper beta boundary for urban.
+
+    :param rural_alpha_lower_bound:             float. For use in calibration.  Lower alpha boundary for rural.
+
+    :param rural_alpha_upper_bound:             float. For use in calibration.  Upper alpha boundary for rural.
+
+    :param rural_beta_lower_bound:              float. For use in calibration.  Lower beta boundary for rural.
+
+    :param rural_beta_upper_bound:              float. For use in calibration.  Upper beta boundary for rural.
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -138,7 +154,10 @@ class ReadConfig:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False):
+                 kernel_distance_meters=None, raster_to_csv=False, urban_alpha_lower_bound=None,
+                 urban_alpha_upper_bound=None, urban_beta_upper_bound=None, urban_beta_lower_bound=None,
+                 rural_alpha_lower_bound=None, rural_alpha_upper_bound=None, rural_beta_upper_bound=None,
+                 rural_beta_lower_bound=None):
 
         if config_file is None:
 
@@ -169,6 +188,14 @@ class ReadConfig:
             self.calibration_urban_year_two_raster = calibration_urban_year_two_raster
             self.calibration_rural_year_one_raster = calibration_rural_year_one_raster
             self.calibration_rural_year_two_raster = calibration_rural_year_two_raster
+            self.urban_alpha_lower_bound = urban_alpha_lower_bound
+            self.urban_alpha_upper_bound = urban_alpha_upper_bound
+            self.urban_beta_upper_bound = urban_beta_upper_bound
+            self.urban_beta_lower_bound = urban_beta_lower_bound
+            self.rural_alpha_lower_bound = rural_alpha_lower_bound
+            self.rural_alpha_upper_bound = rural_alpha_upper_bound
+            self.rural_beta_upper_bound = rural_beta_upper_bound
+            self.rural_beta_lower_bound = rural_beta_lower_bound
 
         else:
 
@@ -202,9 +229,14 @@ class ReadConfig:
             self.calibration_urban_year_two_raster = self.validate_key(cfg, 'calibration_urban_year_two_raster')
             self.calibration_rural_year_one_raster = self.validate_key(cfg, 'calibration_rural_year_one_raster')
             self.calibration_rural_year_two_raster = self.validate_key(cfg, 'calibration_rural_year_two_raster')
-
-        # list of time steps in projection
-        self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
+            self.urban_alpha_lower_bound = self.validate_key(cfg, 'urban_alpha_lower_bound')
+            self.urban_alpha_upper_bound = self.validate_key(cfg, 'urban_alpha_upper_bound')
+            self.urban_beta_upper_bound = self.validate_key(cfg, 'urban_beta_upper_bound')
+            self.urban_beta_lower_bound = self.validate_key(cfg, 'urban_beta_lower_bound')
+            self.rural_alpha_lower_bound = self.validate_key(cfg, 'rural_alpha_lower_bound')
+            self.rural_alpha_upper_bound = self.validate_key(cfg, 'rural_alpha_upper_bound')
+            self.rural_beta_upper_bound = self.validate_key(cfg, 'rural_beta_upper_bound')
+            self.rural_beta_lower_bound = self.validate_key(cfg, 'rural_beta_lower_bound')
 
         # read in historical suitability mask as an array
         historical_suitability_2darray = utils.raster_to_array(self.historical_suitability_raster)
@@ -235,6 +267,13 @@ class ReadConfig:
 
         # get a bounding box from the historical raster
         self.bbox = utils.create_bbox(self.template_raster_object)
+
+    @property
+    def steps(self):
+        """Generate a list of time steps in projection."""
+
+        if self.projection_start_year is not None:
+            return range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
 
     @staticmethod
     def get_state_neighbors(state_name):

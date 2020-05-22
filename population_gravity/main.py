@@ -132,6 +132,22 @@ class Model:
                                                 option set to compress CSV using gzip.  Exports values for non-NODATA
                                                 grid cells as field name `value`.
 
+    :param urban_alpha_lower_bound:             float. For use in calibration.  Lower alpha boundary for urban.
+
+    :param urban_alpha_upper_bound:             float. For use in calibration.  Upper alpha boundary for urban.
+
+    :param urban_beta_lower_bound:              float. For use in calibration.  Lower beta boundary for urban.
+
+    :param urban_beta_upper_bound:              float. For use in calibration.  Upper beta boundary for urban.
+
+    :param rural_alpha_lower_bound:             float. For use in calibration.  Lower alpha boundary for rural.
+
+    :param rural_alpha_upper_bound:             float. For use in calibration.  Upper alpha boundary for rural.
+
+    :param rural_beta_lower_bound:              float. For use in calibration.  Lower beta boundary for rural.
+
+    :param rural_beta_upper_bound:              float. For use in calibration.  Upper beta boundary for rural.
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -141,7 +157,10 @@ class Model:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False):
+                 kernel_distance_meters=None, raster_to_csv=False, urban_alpha_lower_bound=None,
+                 urban_alpha_upper_bound=None, urban_beta_upper_bound=None, urban_beta_lower_bound=None,
+                 rural_alpha_lower_bound=None, rural_alpha_upper_bound=None, rural_beta_upper_bound=None,
+                 rural_beta_lower_bound=None):
 
         # get current time
         self.date_time_string = datetime.datetime.now().strftime('%Y-%m-%d_%Hh%Mm%Ss')
@@ -172,7 +191,15 @@ class Model:
                               calibration_rural_year_one_raster=calibration_rural_year_one_raster,
                               calibration_rural_year_two_raster=calibration_rural_year_two_raster,
                               kernel_distance_meters=kernel_distance_meters,
-                              raster_to_csv=raster_to_csv)
+                              raster_to_csv=raster_to_csv,
+                              urban_alpha_lower_bound=urban_alpha_lower_bound,
+                              urban_alpha_upper_bound=urban_alpha_upper_bound,
+                              urban_beta_upper_bound=urban_beta_upper_bound,
+                              urban_beta_lower_bound=urban_beta_lower_bound,
+                              rural_alpha_lower_bound=rural_alpha_lower_bound,
+                              rural_alpha_upper_bound=rural_alpha_upper_bound,
+                              rural_beta_upper_bound=rural_beta_upper_bound,
+                              rural_beta_lower_bound=rural_beta_lower_bound)
 
         # expose key variables that we want the user to have non-nested access to
         self.alpha_urban = self.cfg.alpha_urban
