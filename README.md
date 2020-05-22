@@ -235,7 +235,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             rural_beta_upper_bound=2.0,
             rural_beta_lower_bound=-0.5)
 
-alpha_urban, alpha_rural, beta_urban, beta_rural = run.calibrate()
+run.calibrate()
 ```
 
 ### Example 5: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates

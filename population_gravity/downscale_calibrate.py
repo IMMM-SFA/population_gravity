@@ -11,7 +11,7 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 import os
 import logging
 import simplejson
-import pickle
+import time
 
 import numpy as np
 import pandas as pd
@@ -118,7 +118,7 @@ def calibration(cfg):
     total_population_1st = population_1st["Rural"] + population_1st["Urban"]
 
     # A csv file to write the parameters into
-    out_cal = cfg.output_directory + cfg.state_name + "_" + cfg.scenario + "_Params.csv"
+    out_cal = os.path.join(cfg.output_directory, f"{cfg.state_name}_{cfg.scenario.lower()}_parameters.csv")
 
     # All indices
     arr_upop_2d = pdm.raster_to_array(cfg.calibration_urban_year_two_raster)
@@ -161,12 +161,14 @@ def calibration(cfg):
         params = (arr_1st.flatten(), arr_2nd.flatten(), total_population_1st.flatten(), points_mask.flatten(), dist_matrix, within_indices)
 
         # Run brute force to calculate optimization per grid point
+        t0 = time.time()
         i = 0
         for a in a_list:
             for b in b_list:
                 local_result = pdm.pop_min_function((a, b), *params)
                 fst_results.loc[(fst_results["alpha_param"] == a) & (fst_results["beta_param"] == b), "estimate"] = local_result
                 i += 1
+        logging.info(f"First optimization for {cfg.scenario} completed in {(time.time() - t0) / 60} minutes")
 
         # Pickle the current optimization file
         pickle_file = os.path.join(cfg.output_directory, f"local_optimization_{cfg.state_name.lower()}_{setting.lower()}.pkl")
@@ -176,9 +178,11 @@ def calibration(cfg):
         (a0, b0) = fst_results.loc[fst_results["estimate"].idxmin(), ["alpha_param", "beta_param"]]
 
         # Final optimization
+        t0 = time.time()
         rranges = ((a_lower, a_upper), (b_lower, b_upper))
-        parameters = scipy.optimize.minimize(pdm.pop_min_function, x0=(a0, b0), args=params, method="SLSQP",
-                                             tol=0.001, options={"disp": True}, bounds=rranges)
+        parameters = scipy.optimize.minimize(pdm.pop_min_function, x0=(a0, b0), args=params, method="SLSQP", tol=0.001, options={"disp": True}, bounds=rranges)
+
+        logging.info(f"Final optimization for {cfg.scenario} completed in {(time.time() - t0) / 60} minutes")
 
         parameters_dict[setting] = parameters["x"]
 
@@ -189,5 +193,3 @@ def calibration(cfg):
     with open(out_cal, 'w') as out:
         out.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban,Comments\n")
         out.write(f"{out_string}\n")
-
-    return parameters_dict['Urban'][0], parameters_dict['Rural'][0], parameters_dict['Urban'][1], parameters_dict['Rural'][1]
