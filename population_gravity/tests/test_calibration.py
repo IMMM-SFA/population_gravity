@@ -45,5 +45,5 @@ class TestCalibration(unittest.TestCase):
         run.calibrate()
 
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()
