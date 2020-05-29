@@ -168,6 +168,7 @@ def calibration(cfg):
                 local_result = pdm.pop_min_function((a, b), *params)
                 fst_results.loc[(fst_results["alpha_param"] == a) & (fst_results["beta_param"] == b), "estimate"] = local_result
                 i += 1
+
         logging.info(f"First optimization for {cfg.scenario} completed in {(time.time() - t0) / 60} minutes")
 
         # Pickle the current optimization file

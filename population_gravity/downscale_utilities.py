@@ -400,7 +400,7 @@ def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
     else:
         # adjust suitability values by applying mask values
         suitability_estimates = points_mask * suitability_estimates
-    
+
     # total suitability for the whole area, which is the summation of all individual suitability values
     tot_suitability = suitability_estimates.sum()
     
