@@ -8,6 +8,8 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 """
 
+import datetime
+import os
 import pkg_resources
 import simplejson
 
@@ -131,6 +133,21 @@ class ReadConfig:
 
     """
 
+    # format for datetime string
+    DATETIME_FORMAT = '%Y-%m-%d_%Hh%Mm%Ss'
+
+    # key names from YAML config file
+    OUT_DIR_KEY = 'output_directory'
+    START_STEP_KEY = 'start_step'
+    THROUGH_STEP_KEY = 'through_step'
+    TIME_STEP_KEY = 'time_step'
+    ALPHA_KEY = 'alpha_param'
+    BETA_KEY = 'beta_param'
+
+    # definition of acceptable range of values for parameters
+    MAX_PARAM_VALUE = 2.0
+    MIN_PARAM_VALUE = -2.0
+
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
                  historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
@@ -140,101 +157,407 @@ class ReadConfig:
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, raster_to_csv=False):
 
-        if config_file is None:
+        self._config_file = config_file
+        self._alpha_urban = alpha_urban
+        self._alpha_rural = alpha_rural
+        self._beta_urban = beta_urban
+        self._beta_rural = beta_rural
+        self._output_directory = output_directory
+        self._grid_coordinates_file = grid_coordinates_file
+        self._historical_suitability_raster = historical_suitability_raster
+        self._historical_rural_pop_raster = historical_rural_pop_raster
+        self._historical_urban_pop_raster = historical_urban_pop_raster
+        self._projected_population_file = projected_population_file
+        self._one_dimension_indices_file = one_dimension_indices_file
+        self._scenario = scenario
+        self._state_name = state_name.lower()
+        self._historic_base_year = historic_base_year
+        self._projection_start_year = projection_start_year
+        self._projection_end_year = projection_end_year
+        self._time_step = time_step
+        self._rural_pop_proj_n = rural_pop_proj_n
+        self._urban_pop_proj_n = urban_pop_proj_n
+        self._kernel_distance_meters = kernel_distance_meters
+        self._raster_to_csv = raster_to_csv
 
-            self.grid_coordinates_file = grid_coordinates_file
-            self.historical_suitability_raster = historical_suitability_raster
-            self.historical_rural_pop_raster = historical_rural_pop_raster
-            self.historical_urban_pop_raster = historical_urban_pop_raster
-            self.projected_population_file = projected_population_file
-            self.one_dimension_indices_file = one_dimension_indices_file
-            self.output_directory = output_directory
-            self.alpha_urban = alpha_urban
-            self.beta_urban = beta_urban
-            self.alpha_rural = alpha_rural
-            self.beta_rural = beta_rural
-            self.scenario = scenario
-            self.state_name = state_name.lower()
-            self.historic_base_year = historic_base_year
-            self.projection_start_year = projection_start_year
-            self.projection_end_year = projection_end_year
-            self.time_step = time_step
-            self.rural_pop_proj_n = rural_pop_proj_n
-            self.urban_pop_proj_n = urban_pop_proj_n
-            self.kernel_distance_meters = kernel_distance_meters
-            self.raster_to_csv = raster_to_csv
-
-            # specific to calibration run
-            self.calibration_urban_year_one_raster = calibration_urban_year_one_raster
-            self.calibration_urban_year_two_raster = calibration_urban_year_two_raster
-            self.calibration_rural_year_one_raster = calibration_rural_year_one_raster
-            self.calibration_rural_year_two_raster = calibration_rural_year_two_raster
-
-        else:
-
-            # extract config file to YAML object
-            cfg = self.get_yaml(config_file)
-
-            self.grid_coordinates_file = self.validate_key(cfg, 'grid_coordinates_file')
-            self.historical_suitability_raster = self.validate_key(cfg, 'historical_suitability_raster')
-            self.historical_rural_pop_raster = self.validate_key(cfg, 'historical_rural_pop_raster')
-            self.historical_urban_pop_raster = self.validate_key(cfg, 'historical_urban_pop_raster')
-            self.projected_population_file = self.validate_key(cfg, 'projected_population_file')
-            self.one_dimension_indices_file = self.validate_key(cfg, 'one_dimension_indices_file')
-            self.output_directory = self.validate_key(cfg, 'output_directory')
-            self.alpha_urban = self.validate_key(cfg, 'alpha_urban')
-            self.beta_urban = self.validate_key(cfg, 'beta_urban')
-            self.alpha_rural = self.validate_key(cfg, 'alpha_rural')
-            self.beta_rural = self.validate_key(cfg, 'beta_rural')
-            self.scenario = self.validate_key(cfg, 'scenario')
-            self.state_name = self.validate_key(cfg, 'state_name').lower()
-            self.historic_base_year = self.validate_key(cfg, 'historic_base_year')
-            self.projection_start_year = self.validate_key(cfg, 'projection_start_year')
-            self.projection_end_year = self.validate_key(cfg, 'projection_end_year')
-            self.time_step = self.validate_key(cfg, 'time_step')
-            self.rural_pop_proj_n = self.validate_key(cfg, 'rural_pop_proj_n')
-            self.urban_pop_proj_n = self.validate_key(cfg, 'urban_pop_proj_n')
-            self.kernel_distance_meters = self.validate_key(cfg, 'kernel_distance_meters')
-            self.raster_to_csv = self.validate_key(cfg, 'raster_to_csv')
-
-            # specific to calibration run
-            self.calibration_urban_year_one_raster = self.validate_key(cfg, 'calibration_urban_year_one_raster')
-            self.calibration_urban_year_two_raster = self.validate_key(cfg, 'calibration_urban_year_two_raster')
-            self.calibration_rural_year_one_raster = self.validate_key(cfg, 'calibration_rural_year_one_raster')
-            self.calibration_rural_year_two_raster = self.validate_key(cfg, 'calibration_rural_year_two_raster')
-
-        # list of time steps in projection
-        self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
-
-        # read in historical suitability mask as an array
-        historical_suitability_2darray = utils.raster_to_array(self.historical_suitability_raster)
-        self.historical_suitability_array = historical_suitability_2darray.flatten()
-
-        # build data frame in the shape of the raster array
-        self.df_indicies = utils.all_index_retriever(historical_suitability_2darray, ["row", "column"])
-
-        # read grid indices of points that fall within the state boundary
-        with open(self.one_dimension_indices_file, 'r') as r:
-            self.one_dimension_indices = simplejson.load(r)
-
-        # read in grid coordinates and feature ids
-        self.grid_coordinates_array = np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
-
-        # if the user wants to pass in the projections by file then use it, if not get params from user
-        if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
-            self.df_projected = pd.read_csv(self.projected_population_file)
-
-        else:
-            self.projected_population_file = None
-
-        # get all neighboring states including the target state as a list
-        self.neighbors = self.get_state_neighbors(state_name)
+        # specific to calibration run
+        self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
+        self._calibration_urban_year_two_raster = calibration_urban_year_two_raster
+        self._calibration_rural_year_one_raster = calibration_rural_year_one_raster
+        self._calibration_rural_year_two_raster = calibration_rural_year_two_raster
 
         # get a copy of the raster metadata from a states input raster
-        self.template_raster_object, self.metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+        self._template_raster_object = None
+        self._metadata = None
 
-        # get a bounding box from the historical raster
-        self.bbox = utils.create_bbox(self.template_raster_object)
+    @property
+    def bbox(self):
+        """Get a bounding box from the historical raster."""
+
+        return utils.create_bbox(self.template_raster_object)
+
+    @property
+    def neighbors(self):
+        """Get all neighboring states including the target state as a list."""
+
+        return self.get_state_neighbors(self.state_name)
+
+    @property
+    def metadata(self):
+        """Get a copy of the raster metadata from a states input raster."""
+
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        """Get a copy of the raster metadata from a states input raster."""
+
+        self._metadata = value
+
+    @property
+    def template_raster_object(self):
+        """Get a copy of the raster metadata from a states input raster."""
+
+        return self._template_raster_object
+
+    @template_raster_object.setter
+    def template_raster_object(self, value):
+        """Get a copy of the raster metadata from a states input raster."""
+
+        self._template_raster_object = value
+
+    def process_template_raster(self):
+        """Get template raster and metadata."""
+
+        template_raster_object, metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+
+        self.template_raster_object = template_raster_object
+        self.metadata = metadata
+
+    @property
+    def df_projected(self):
+        """From population projection file if exists."""
+        if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
+            return pd.read_csv(self.projected_population_file)
+        else:
+            return None
+
+    @property
+    def date_time_string(self):
+        """Get a current time in a string matching the specified datetime format."""
+
+        return datetime.datetime.now().strftime(self.DATETIME_FORMAT)
+
+    @property
+    def datetime_format(self):
+        """Convenience wrapper for the DATETIME_FORMAT class attribute."""
+
+        return self.DATETIME_FORMAT
+
+    @property
+    def output_directory(self):
+        """Validate output directory."""
+
+        if self.config is None:
+            return self.validate_directory(self._output_directory)
+        else:
+            key = self.validate_key(self.config, self.OUT_DIR_KEY)
+            return self.validate_directory(key)
+
+    @property
+    def scenario(self):
+        """Target scenario name."""
+
+        return self.validate_key(self._scenario, 'scenario')
+
+    @property
+    def state_name(self):
+        """Target state name."""
+
+        return  self.validate_key(self._state_name, 'state_name')
+
+    @property
+    def logfile(self):
+        """Full path with file name and extension to the logfile."""
+
+        return os.path.join(self.output_directory, 'logfile_{}_{}_{}.log'.format(self.scenario,
+                                                                                 self.state_name,
+                                                                                 self.date_time_string))
+    @property
+    def time_step(self):
+        """Number of time steps."""
+
+        return self.validate_step(self._time_step, self.TIME_STEP_KEY)
+
+    @property
+    def projection_start_year(self):
+        """Four digit first year to process for the projection."""
+
+        return self.validate_step(self._projection_start_year, 'projection_start_year')
+
+    @property
+    def projection_end_year(self):
+        """Four digit last year to process for the projection."""
+
+        return self.validate_step(self._projection_end_year, 'projection_end_year')
+
+    @property
+    def historic_base_year(self):
+        """Four digit historic base year."""
+
+        return self.validate_step(self._historic_base_year, 'historic_base_year')
+
+
+    @property
+    def steps(self):
+        """Create a list of time steps from the start and through steps by the step interval."""
+
+        return range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
+
+    @property
+    def historical_suitability_raster(self):
+        """Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
+        for each 1 km grid cell representing suitability depending on topographic and land use and land cover
+        characteristics within the target state.
+
+        """
+
+        return self.validate_file(self._historical_suitability_raster)
+
+    @property
+    def historical_suitability_2darray(self):
+        """Read in historical suitability mask as an array"""
+
+        return utils.raster_to_array(self.historical_suitability_raster)
+
+    @property
+    def historical_suitability_array(self):
+        """Flatten historical suitability array."""
+
+        return self.historical_suitability_2darray.flatten()
+
+    @property
+    def df_indicies(self):
+        """Build data frame in the shape of the raster array."""
+
+        return utils.all_index_retriever(self.historical_suitability_2darray, ["row", "column"])
+
+    @property
+    def one_dimension_indices_file(self):
+        """File that describe grid indices of points that fall within the state boundary."""
+
+        return self.validate_file(self._one_dimension_indices_file)
+
+    @property
+    def one_dimension_indices(self):
+        """Grid indices for the state to an array."""
+
+        with open(self.one_dimension_indices_file, 'r') as r:
+            return simplejson.load(r)
+
+    @property
+    def grid_coordinates_file(self):
+        """File with grid coordinates and feature ids."""
+
+        return self.validate_file(self._grid_coordinates_file)
+
+    @property
+    def grid_coordinates_array(self):
+        """Grid coordinates to array."""
+
+        return np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+
+    @property
+    def urban_pop_proj_n(self):
+        """Urban population projection count for the projected year being calculated.  These can be read from
+        the `projected_population_file` instead.
+
+        """
+
+        return self.validate_float(self._urban_pop_proj_n)
+
+    @property
+    def rural_pop_proj_n(self):
+        """Rural population projection count for the projected year being calculated.  These can be read from
+        the `projected_population_file` instead.
+
+        """
+
+        return self.validate_float(self._rural_pop_proj_n)
+
+    @property
+    def projected_population_file(self):
+        """Full path with file name and extension to a CSV file containing population projections per year
+        separated into urban and rural categories.
+
+        """
+
+        return self.validate_file(self._projected_population_file)
+
+    @property
+    def config(self):
+        """Read the YAML config file object"""
+
+        if self._config_file is None:
+            return None
+
+        else:
+            with open(self._config_file, 'r') as yml:
+                return yaml.load(yml)
+
+    @property
+    def alpha_urban(self):
+        """Alpha urban parameter for model."""
+
+        return self.validate_parameter(self._alpha_urban, 'alpha_urban')
+
+    @alpha_urban.setter
+    def alpha_urban(self, value):
+        """Setter for alpha urban parameter."""
+
+        self._alpha_urban = self.validate_parameter(value, 'alpha_urban')
+
+    @property
+    def alpha_rural(self):
+        """Alpha rural parameter for model."""
+
+        return self.validate_parameter(self._alpha_rural, 'alpha_rural')
+
+    @alpha_rural.setter
+    def alpha_rural(self, value):
+        """Setter for alpha rural parameter."""
+
+        self._alpha_rural = self.validate_parameter(value, 'alpha_rural')
+
+    @property
+    def beta_urban(self):
+        """Beta urban parameter for model."""
+
+        return self.validate_parameter(self._beta_urban, 'beta_urban')
+
+    @beta_urban.setter
+    def beta_urban(self, value):
+        """Setter for beta urban parameter."""
+
+        self._beta_urban = self.validate_parameter(value, 'beta_urban')
+
+    @property
+    def beta_rural(self):
+        """Beta rural parameter for model."""
+
+        return self.validate_parameter(self._beta_rural, 'beta_rural')
+
+    @beta_rural.setter
+    def beta_rural(self, value):
+        """Setter for beta rural parameter."""
+
+        self._beta_rural = self.validate_parameter(value, 'beta_rural')
+
+    def validate_parameter(self, param, key):
+        """Validate parameter existence and range.
+
+        :param param:               Parameter value
+        :type param:                float
+
+        :param key:                 Configuration key from YAML file
+        :type key:                  str
+
+        :return:                    int; parameter
+
+        """
+
+        if self.config is None:
+            is_float = self.validate_float(param)
+            return self.validate_range(is_float)
+        else:
+            is_key = self.validate_key(self.config, key)
+            is_float = self.validate_float(is_key)
+            return self.validate_range(is_float)
+
+    def validate_range(self, value):
+        """Ensure value falls within an acceptable range."""
+
+        if (value >= self.MIN_PARAM_VALUE) and (value <= self.MAX_PARAM_VALUE):
+            return value
+        else:
+            raise ValueError(f"Parameter value '{value}' is not within the valid range of {self.MIN_PARAM_VALUE} - {self.MAX_PARAM_VALUE}.")
+
+    @staticmethod
+    def validate_float(val):
+        """Ensure parameter value is type float"""
+
+        if val is not None:
+            try:
+                return float(val)
+            except TypeError:
+                raise TypeError(f"Parameter value '{val}' is not a float.")
+        else:
+            return None
+
+    @staticmethod
+    def validate_directory(directory):
+        """Validate directory to ensure it exists.
+
+        :param directory:                       Full path to the target directory.
+        :type directory:                        str
+
+        :return:                                Full path of a valid directory
+
+        """
+        if (directory is not None) and (os.path.isdir(directory)):
+            return directory
+        elif (directory is not None) and (os.path.isdir(directory is False)):
+            raise NotADirectoryError(f"Directory: {directory} does not exist.")
+        else:
+            return None
+
+    @staticmethod
+    def validate_file(file):
+        """Validate file to ensure it exists.
+
+        :param file:                            Full path to the target file.
+        :type file:                             str
+
+        :return:                                Full path of a valid file
+
+        """
+        if (file is not None) and (os.path.isfile(file)):
+            return file
+        elif (file is not None) and (os.path.isfile(file) is False):
+            raise FileNotFoundError(f"File: {file} does not exist.")
+        else:
+            return None
+
+    def validate_step(self, step, key):
+        """Validate step existence and value.
+
+        :param step:                Time step value
+        :type step:                 int
+
+        :param key:                 Configuration key from YAML file
+        :type key:                  str
+
+        :return:                    int; time step
+
+        """
+
+        if self.config is None:
+            return self.validate_int(step)
+        else:
+            is_key = self.validate_key(self.config, key)
+            return self.validate_int(is_key)
+
+    @staticmethod
+    def validate_int(n):
+        """Ensure time step is type int"""
+
+        if n is not None:
+            try:
+                return int(n)
+            except TypeError:
+                raise TypeError(f"Value '{n}' is not an integer.")
+        else:
+            return None
 
     @staticmethod
     def get_state_neighbors(state_name):
@@ -256,7 +579,16 @@ class ReadConfig:
 
     @staticmethod
     def validate_key(yaml_object, key):
-        """Check to see if key is in YAML file, if not return None"""
+        """Check to see if key is in YAML file, if not return None.
+
+        :param yaml_object:                     YAML object for the configuration file
+
+        :param key:                             Target key name from the configuration file.
+        :type key:                              str
+
+        :return:                                Value from configuration file matching the key. If no key present,
+                                                return None.
+        """
         try:
             return yaml_object[key]
         except KeyError:
