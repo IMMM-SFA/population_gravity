@@ -28,8 +28,7 @@ class ProcessStep:
 
     """
 
-    def __init__(self, cfg, yr, alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n,
-                 kernel_distance_meters):
+    def __init__(self, cfg, yr):
 
         # start time
         td = time.time()
@@ -46,8 +45,9 @@ class ProcessStep:
 
             # run downscaling
             pop_projection(self.cfg, self.cfg.historical_urban_pop_raster, self.cfg.historical_rural_pop_raster,
-                           alpha_urban, beta_urban, alpha_rural, beta_rural, rural_pop_proj_n, urban_pop_proj_n,
-                           self.yr, kernel_distance_meters)
+                           self.cfg.alpha_urban, self.cfg.beta_urban, self.cfg.alpha_rural, self.cfg.beta_rural,
+                           self.cfg.rural_pop_proj_n, self.cfg.urban_pop_proj_n, self.yr,
+                           self.cfg.kernel_distance_meters)
 
         else:
 
@@ -78,8 +78,9 @@ class ProcessStep:
             # write the urban masked mosiac raster to file
             self.mask_raster(rural_mask_file, rural_mosaic, target_window)
 
-            pop_projection(self.cfg, urban_mask_file, rural_mask_file, alpha_urban, beta_urban, alpha_rural, beta_rural,
-                           rural_pop_proj_n, urban_pop_proj_n, self.yr, kernel_distance_meters)
+            pop_projection(self.cfg, urban_mask_file, rural_mask_file, self.cfg.alpha_urban, self.cfg.beta_urban,
+                           self.cfg.alpha_rural, self.cfg.beta_rural, self.cfg.rural_pop_proj_n,
+                           self.cfg.urban_pop_proj_n, self.yr, self.cfg.kernel_distance_meters)
 
         logging.info("Downscaling for year {} completed in {} minutes.".format(yr, (time.time() - td) / 60))
 
