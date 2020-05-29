@@ -131,6 +131,8 @@ class ReadConfig:
 
     :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
 
+    :param run_number:                          int. Add on for the file name when running sensitivity analysis
+
     """
 
     # format for datetime string
@@ -155,7 +157,7 @@ class ReadConfig:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False):
+                 kernel_distance_meters=None, raster_to_csv=False, run_number=''):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -179,6 +181,7 @@ class ReadConfig:
         self._urban_pop_proj_n = urban_pop_proj_n
         self._kernel_distance_meters = kernel_distance_meters
         self._raster_to_csv = raster_to_csv
+        self._run_number = run_number
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -187,8 +190,52 @@ class ReadConfig:
         self._calibration_rural_year_two_raster = calibration_rural_year_two_raster
 
         # get a copy of the raster metadata from a states input raster
-        self._template_raster_object = None
-        self._metadata = None
+        self._template_raster_object, self._metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+
+    @property
+    def run_number(self):
+        """An integer add on for the file name when running sensitivity analysis."""
+
+        return self._run_number
+
+    @property
+    def raster_to_csv(self):
+        """Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
+        Exports values for non-NODATA grid cells as field name `value`.
+
+        """
+
+        return self._raster_to_csv
+
+    @property
+    def historical_urban_pop_raster(self):
+        """Full path with file name and extension to a raster containing urban population counts for each 1 km
+        grid cell for the historical base time step.
+
+        """
+
+        return self.validate_file(self._historical_urban_pop_raster)
+
+    @property
+    def historical_rural_pop_raster(self):
+        """Full path with file name and extension to a raster containing rural population counts for each 1 km
+        grid cell for the historical base time step.
+
+        """
+
+        return self.validate_file(self._historical_rural_pop_raster)
+
+    @property
+    def kernel_distance_meters(self):
+        """Distance kernel in meters; default 100,000 meters."""
+
+        return self.validate_float(self._kernel_distance_meters)
+
+    @kernel_distance_meters.setter
+    def kernel_distance_meters(self, value):
+        """Setter for kernel_distance_meters."""
+
+        self._kernel_distance_meters = value
 
     @property
     def bbox(self):
@@ -208,31 +255,11 @@ class ReadConfig:
 
         return self._metadata
 
-    @metadata.setter
-    def metadata(self, value):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        self._metadata = value
-
     @property
     def template_raster_object(self):
         """Get a copy of the raster metadata from a states input raster."""
 
         return self._template_raster_object
-
-    @template_raster_object.setter
-    def template_raster_object(self, value):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        self._template_raster_object = value
-
-    def process_template_raster(self):
-        """Get template raster and metadata."""
-
-        template_raster_object, metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
-
-        self.template_raster_object = template_raster_object
-        self.metadata = metadata
 
     @property
     def df_projected(self):
@@ -268,13 +295,13 @@ class ReadConfig:
     def scenario(self):
         """Target scenario name."""
 
-        return self.validate_key(self._scenario, 'scenario')
+        return self._scenario
 
     @property
     def state_name(self):
         """Target state name."""
 
-        return  self.validate_key(self._state_name, 'state_name')
+        return self._state_name
 
     @property
     def logfile(self):
