@@ -42,7 +42,13 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     time_one_data['Rural'] = rural_raster  # Rural
     time_one_data['Urban'] = urban_raster  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
-    final_raster = os.path.join(cfg.output_directory, "{}_1km_{}_Total_{}.tif".format(cfg.state_name, cfg.scenario, yr))
+
+    if type(cfg.run_number) == int:
+        delim = '_'
+    else:
+        delim = ''
+
+    final_raster = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_Total_{yr}{delim}{cfg.run_number}.tif")
 
     # Calculate a distance matrix that serves as a template
     dist_matrix = utils.dist_matrix_calculator(cfg.one_dimension_indices[0], cut_off_meters, cfg.df_indicies, cfg.grid_coordinates_array)
@@ -71,7 +77,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     for setting in time_one_data:
 
         # output raster path and file name with extension
-        output = os.path.join(cfg.output_directory, "{}_1km_{}_{}_{}.tif".format(cfg.state_name, cfg.scenario, setting, yr))
+        output = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}{delim}{cfg.run_number}.tif")
 
         # calculate aggregate urban/rural population at time 1
         pop_first_year = population_1st[setting][cfg.one_dimension_indices]
