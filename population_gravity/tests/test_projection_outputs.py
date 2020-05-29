@@ -73,7 +73,8 @@ class TestProjectedOutputs(unittest.TestCase):
                     projection_start_year=2020,
                     projection_end_year=2030,
                     time_step=10,
-                    raster_to_csv=False)
+                    raster_to_csv=False,
+                    run_number='')
 
         run.downscale()
 
