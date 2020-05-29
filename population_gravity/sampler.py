@@ -66,5 +66,3 @@ def equal_interval(alpha_lower, alpha_upper, beta_lower, beta_upper, alpha_inter
     beta_range = np.linspace(beta_lower, beta_upper, beta_intervals)
 
     return alpha_range, beta_range, SampleDataFrame(alpha_range, beta_range).sample_df
-
-
