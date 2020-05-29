@@ -217,27 +217,24 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_va
 
     # write output
     dfx.to_csv(out_csv, index=False, compression='infer')
-    
+
 
 def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
     """Build data frame in the shape of the input array.
-
     :param array:                   Input 2D array from input raster
     :param columns:                 list; Target columns
     :param row_col:                 Name of row column
     :param column_col:              Name of column column
     :param all_index_col:           Name of `all_index` column
-
     :return:                        Typed data frame of indicies
-
     """
-    
+
     # put the row, column and linear indices of all elements in a dataframe
     shape = array.shape
-    index = pd.MultiIndex.from_product([range(s)for s in shape], names=columns)
+    index = pd.MultiIndex.from_product([range(s) for s in shape], names=columns)
     df = pd.DataFrame({all_index_col: array.flatten()}, index=index).reset_index()
     df[all_index_col] = df.index
-    
+
     return df.astype({row_col: np.int32, column_col: np.int32, all_index_col: np.int32})
 
 
@@ -329,19 +326,20 @@ def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
                      dist_matrix, within_indices, ind_diff_col='ind_diff', dist_col='dis'):
     """TODO: fill in description
 
-    :param z:                       ?
+    :param z:                       tuple of alpha and beta parameter estimate (a, b)
     :param arr_pop_1st:
     :param arr_pop_2nd:
     :param arr_tot_pop_1st:
     :param points_mask:             Mask values of points
     :param dist_matrix:             Template distance matrix
-    :param within_indices:         Indices of points within the state boundary (subset of the above)
+    :param within_indices:          Indices of points within the state boundary (subset of the above)
     :param ind_diff_col:            Column name for index difference between focal and nearby points
     :param dist_col:                Column containing distance
 
     :return:                        ?
 
     """
+
     # unpack z tuple
     a, b = z
 
@@ -402,7 +400,7 @@ def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
     else:
         # adjust suitability values by applying mask values
         suitability_estimates = points_mask * suitability_estimates
-    
+
     # total suitability for the whole area, which is the summation of all individual suitability values
     tot_suitability = suitability_estimates.sum()
     
