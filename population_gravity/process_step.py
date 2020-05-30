@@ -141,6 +141,18 @@ class ProcessStep:
         :returns:                           Full file path for an output raster
 
         """
-        fle = f"{state_name}_1km_{self.cfg.scenario}_{designation}_{prev_step}{suffix}.{extension}"
+
+        if (len(suffix) > 0) or (self.cfg.state_name != state_name):
+
+            fle = f"{state_name}_1km_{self.cfg.scenario}_{designation}_{prev_step}{suffix}.{extension}"
+
+        else:
+
+            if type(self.cfg.run_number) == int:
+                delim = '_'
+            else:
+                delim = ''
+
+            fle = f"{state_name}_1km_{self.cfg.scenario}_{designation}_{prev_step}{delim}{self.cfg.run_number}{suffix}.{extension}"
 
         return os.path.join(self.cfg.output_directory, fle)
