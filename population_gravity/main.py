@@ -132,6 +132,8 @@ class Model(Logger):
                                                 option set to compress CSV using gzip.  Exports values for non-NODATA
                                                 grid cells as field name `value`.
 
+    :param save_array:                          boolean. Optionally export a NumPy array for each output
+
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
 
     """
@@ -143,7 +145,7 @@ class Model(Logger):
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False, run_number=None):
+                 kernel_distance_meters=None, raster_to_csv=False, save_array=False, run_number=None):
 
         super(Logger, self).__init__(config_file, grid_coordinates_file, historical_suitability_raster,
                                      historical_rural_pop_raster, historical_urban_pop_raster,
@@ -153,7 +155,7 @@ class Model(Logger):
                                      rural_pop_proj_n, urban_pop_proj_n, calibration_urban_year_one_raster,
                                      calibration_urban_year_two_raster, calibration_rural_year_one_raster,
                                      calibration_rural_year_two_raster, kernel_distance_meters, raster_to_csv,
-                                     run_number)
+                                     save_array, run_number)
 
         # initialize time step generator
         self._timestep_generator = self.build_step_generator()

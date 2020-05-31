@@ -131,6 +131,8 @@ class ReadConfig:
 
     :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
 
+    :param save_array:                          boolean. Optionally export a NumPy array for each output
+
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
 
     """
@@ -157,7 +159,7 @@ class ReadConfig:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False, run_number=''):
+                 kernel_distance_meters=None, raster_to_csv=False, save_array=False, run_number=''):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -181,6 +183,7 @@ class ReadConfig:
         self._urban_pop_proj_n = urban_pop_proj_n
         self._kernel_distance_meters = kernel_distance_meters
         self._raster_to_csv = raster_to_csv
+        self._save_array = save_array
         self._run_number = run_number
 
         # specific to calibration run
@@ -197,6 +200,12 @@ class ReadConfig:
         """An integer add on for the file name when running sensitivity analysis."""
 
         return self._run_number
+
+    @property
+    def save_array(self):
+        """Optionally save outputs to an array."""
+
+        return self._save_array
 
     @property
     def raster_to_csv(self):
