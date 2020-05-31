@@ -136,6 +136,8 @@ class Model(Logger):
 
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
 
+    :param write_logfile:                       boolean.  Optionally write log to file.; Default True
+
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
@@ -145,7 +147,8 @@ class Model(Logger):
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False, save_array=False, run_number=None):
+                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array=False, run_number='',
+                 write_logfile=True):
 
         super(Logger, self).__init__(config_file, grid_coordinates_file, historical_suitability_raster,
                                      historical_rural_pop_raster, historical_urban_pop_raster,
@@ -154,8 +157,8 @@ class Model(Logger):
                                      historic_base_year, projection_start_year,  projection_end_year, time_step,
                                      rural_pop_proj_n, urban_pop_proj_n, calibration_urban_year_one_raster,
                                      calibration_urban_year_two_raster, calibration_rural_year_one_raster,
-                                     calibration_rural_year_two_raster, kernel_distance_meters, raster_to_csv,
-                                     save_array, run_number)
+                                     calibration_rural_year_two_raster, kernel_distance_meters, write_raster, write_csv,
+                                     write_array, run_number, write_logfile)
 
         # initialize time step generator
         self._timestep_generator = self.build_step_generator()

@@ -43,21 +43,16 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     time_one_data['Urban'] = urban_raster  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
 
-    if type(cfg.run_number) == int:
-        delim = '_'
-    else:
-        delim = ''
-
-    final_raster = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_Total_{yr}{delim}{cfg.run_number}.tif")
-    final_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_Total_{yr}{delim}{cfg.run_number}.npy")
-
     # Calculate a distance matrix that serves as a template
     dist_matrix = utils.dist_matrix_calculator(cfg.one_dimension_indices[0], cut_off_meters, cfg.df_indicies, cfg.grid_coordinates_array)
 
     # Read historical urban and rural population grids into arrays
     for setting in time_one_data:
 
-        rast_array = utils.raster_to_array(time_one_data[setting]).flatten()
+        if type(time_one_data[setting]) == str:
+            rast_array = utils.raster_to_array(time_one_data[setting]).flatten()
+        else:
+            rast_array = time_one_data[setting].read().flatten()
 
         # this ensures that the no data value is filtered out otherwise the array will overflow on add
         rast_array = np.where(rast_array < 0.0, 0.0, rast_array)
@@ -76,10 +71,6 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
     # downscale population projection
     for setting in time_one_data:
-
-        # output raster path and file name with extension
-        output = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}{delim}{cfg.run_number}.tif")
-        output_arr = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}{delim}{cfg.run_number}.npy")
 
         # calculate aggregate urban/rural population at time 1
         pop_first_year = population_1st[setting][cfg.one_dimension_indices]
@@ -184,28 +175,55 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         # save the projection array of the current setting
         final_arrays[setting] = pop_estimates
 
-        # save the final urban, rural raster
-        logging.info("Saving {} raster to:  {}".format(setting, output))
-        utils.array_to_raster(cfg.historical_suitability_raster, pop_estimates, cfg.one_dimension_indices, output)
-
-        # write to array if desired
-        if cfg.save_array:
-            np.save(output_arr, pop_estimates)
-
-        # write csv if user desires
-        if cfg.raster_to_csv:
-            utils.raster_to_csv(output, cfg.grid_coordinates_array)
+        # save the urban, rural outfiles
+        write_outputs(cfg, setting, yr, pop_estimates)
 
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
 
-    # save the final total raster
-    logging.info("Saving total population raster to:  {}".format(final_raster))
+    # write the total population outfiles if desired
+    write_outputs(cfg, 'Total', yr, total_array)
 
-    utils.array_to_raster(cfg.historical_suitability_raster, total_array, cfg.one_dimension_indices, final_raster)
 
-    if cfg.save_array:
-        np.save(final_array, total_array)
+def write_outputs(cfg, setting, yr, data):
+    """Write user selected outputs to file.
 
-    if cfg.raster_to_csv:
-        utils.raster_to_csv(final_raster, cfg.grid_coordinates_array)
+    :param cfg:                             Configuration object
+
+    """
+
+    # save the final urban, rural raster
+    if cfg.write_raster:
+        output_raster = construct_filename(cfg, setting, '.tif', yr)
+        logging.info(f"Saving {setting} raster to:  {output_raster}")
+        utils.array_to_raster(cfg.historical_suitability_raster, data, cfg.one_dimension_indices, output_raster)
+
+    # write to array if desired
+    if cfg.write_array:
+        output_array = construct_filename(cfg, setting, '.npy', yr)
+        logging.info(f"Saving {setting} array to:  {output_array}")
+        np.save(output_array, data)
+
+    # write csv if user desires
+    if cfg.write_csv:
+        output_csv = construct_filename(cfg, setting, '.csv', yr)
+        logging.info(f"Saving {setting} CSV to:  {output_csv}")
+        utils.raster_to_csv(data, cfg.grid_coordinates_array, output_csv)
+
+
+def construct_filename(cfg, setting, extension, yr):
+    """Construct a full path with file name and extension to an output file.
+
+    :param cfg:                             Configuration object
+    :param setting:                         str. Either Urban, Rural, or Total
+    :param extension:                       str. File extension with dot
+    :param yr:                              int. Target year
+
+    """
+
+    if type(cfg.run_number) == int:
+        delim = '_'
+    else:
+        delim = ''
+
+    return os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}{delim}{cfg.run_number}{extension}")

@@ -129,11 +129,15 @@ class ReadConfig:
 
     :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
 
-    :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values
+    :param write_raster:                        boolean. Optionally export raster output; Default True
 
-    :param save_array:                          boolean. Optionally export a NumPy array for each output
+    :param write_csv:                           boolean. Optionally export raster as a CSV file without nodata values
+
+    :param write_array:                         boolean. Optionally export a NumPy array for each output
 
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
+
+    :param write_logfile:                       boolean.  Optionally write log to file.; Default True
 
     """
 
@@ -159,7 +163,8 @@ class ReadConfig:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, raster_to_csv=False, save_array=False, run_number=''):
+                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array=False, run_number='',
+                 write_logfile=True):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -182,9 +187,11 @@ class ReadConfig:
         self._rural_pop_proj_n = rural_pop_proj_n
         self._urban_pop_proj_n = urban_pop_proj_n
         self._kernel_distance_meters = kernel_distance_meters
-        self._raster_to_csv = raster_to_csv
-        self._save_array = save_array
+        self._write_raster = write_raster
+        self._write_csv = write_csv
+        self._write_array = write_array
         self._run_number = run_number
+        self._write_logfile = write_logfile
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -202,19 +209,31 @@ class ReadConfig:
         return self._run_number
 
     @property
-    def save_array(self):
-        """Optionally save outputs to an array."""
+    def write_logfile(self):
+        """Optionally write log outputs to a file."""
 
-        return self._save_array
+        return self._write_logfile
 
     @property
-    def raster_to_csv(self):
+    def write_raster(self):
+        """Optionally save outputs to a raster."""
+
+        return self._write_raster
+
+    @property
+    def write_array(self):
+        """Optionally save outputs to an array."""
+
+        return self._write_array
+
+    @property
+    def write_csv(self):
         """Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
         Exports values for non-NODATA grid cells as field name `value`.
 
         """
 
-        return self._raster_to_csv
+        return self._write_csv
 
     @property
     def historical_urban_pop_raster(self):

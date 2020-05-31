@@ -1,12 +1,8 @@
 """
 Helper functions for population downscaling.
 
-@author: Hamidreza Zoraghein
+@author: Hamidreza Zoraghein, Chris R. Vernon
 @date: Created on Mon Dec 11 11:24:13 2017
-
-@history:
-SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
-SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
 
 """
 
@@ -18,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from rasterio.merge import merge
+from rasterio.io import MemoryFile
 from collections import deque
 from pathos.multiprocessing import ProcessingPool as Pool
 from scipy.spatial import cKDTree
@@ -62,6 +59,31 @@ def mosaic(raster_list, out_raster, source_metadata):
 
     # open output object with updated metadata
     return rasterio.open(out_raster)
+
+
+def mosaic_memory(raster_objects, source_metadata):
+    """Create a raster mosiac from multiple rasters and save to file.
+
+    :param raster_list:             List of raster objects
+    :param source_metadata:         Metadata rasterio object from the target states init raster
+
+    :return:                        Mosaicked rasterio object
+
+    """
+
+    # create mosaic
+    mosaic, out_transform = merge(raster_objects)
+
+    # update metadata with mosiac values
+    source_metadata.update({"height": mosaic.shape[1], "width": mosaic.shape[2], "transform": out_transform})
+
+    # write output to memory
+    with MemoryFile() as memfile:
+
+        dataset = memfile.open(**source_metadata)
+        dataset.write(mosaic)
+
+        return dataset
 
 
 def create_bbox(raster_object):
@@ -118,6 +140,36 @@ def array_to_raster(input_raster, input_array, within_indices, output_raster):
         dst.write_band(1, array)
 
 
+def array_to_raster_memory(input_raster, input_array, within_indices):
+    """Save NumPy array to a raster
+
+    :param input_raster:            ?
+    :param input_array:             ?
+    :param within_indices:          ?
+
+    """
+    # read the template raster to be filled by output array values later
+    with rasterio.open(input_raster) as src_raster:
+        band = src_raster.read(1)
+        src_profile = src_raster.profile
+        row_count = band.shape[0]
+        col_count = band.shape[1]
+        flat_array = band.flatten()
+
+    # replace initial array values with those from the input array
+    flat_array[within_indices] = input_array
+
+    array = flat_array.reshape(row_count, col_count)
+
+    # write output to memory
+    with MemoryFile() as memfile:
+
+        dataset = memfile.open(**src_profile)
+        dataset.write_band(1, array)
+
+        return dataset
+
+
 def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv=None):
     """Join non-NODATA CSV raster value outputs to their corresponding X, Y coordinates.
 
@@ -170,7 +222,7 @@ def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv
     return df_join
 
 
-def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_value_only=True):
+def raster_to_csv(input_raster, grid_coordinates_array, out_csv, compress=True, export_value_only=True):
     """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster omitting cells with NODATA.
 
     :param input_raster:                        Full path with file name and extension to input raster
@@ -182,6 +234,8 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_va
                                                 (XCoord, float, X coordinate in meters),
                                                 (YCoord, float, Y coordinate in meters),
                                                 (FID, int, Unique feature id)
+
+    :param out_csv:                             str.  Full path with file name and extension to the output CSV file.
 
     :param compress:                            Boolean.  Compress CSV using GNU zip (gzip) compression; Default True
 
@@ -212,8 +266,6 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_va
         file_extension = 'csv.gz'
     else:
         file_extension = 'csv'
-
-    out_csv = f"{os.path.splitext(input_raster)[0]}.{file_extension}"
 
     # write output
     dfx.to_csv(out_csv, index=False, compression='infer')
