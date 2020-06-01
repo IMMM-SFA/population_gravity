@@ -57,7 +57,8 @@ class ProcessStep:
             prev_step = self.yr - self.cfg.time_step
 
             # build raster list for all neighboring raster outputs from the previous time step
-            urban_file_list, rural_file_list = self.construct_file_list(prev_step)
+            urban_file_list = self.construct_file_list(prev_step, 'Urban')
+            rural_file_list = self.construct_file_list(prev_step, 'Rural')
 
             # build mosaics
             urban_mosaic = utils.mosaic_memory(urban_file_list, self.cfg.metadata.copy())
@@ -176,45 +177,41 @@ class ProcessStep:
 
         return os.path.join(self.cfg.output_directory, fle)
 
-    def construct_file_list(self, prev_step):
+    def construct_file_list(self, prev_step, setting):
         """Construct a list of arrays from rasters or arrays.
 
         :param prev_step:                       int.  Previous time step; e.g., year
 
         #TODO:  load prev years CSV files
-        #TODO:  create outputs for neighbors in NPY or CSV files, or set a chooser to find any file type
 
         """
 
-        urban_file_list = []
-        rural_file_list = []
+        out_list = []
 
         for i in self.cfg.neighbors:
 
-            if self.cfg.write_raster:
+            # check for either the 'tif', 'npy', or 'csv' files in the output directory, use 'tif' first
+            tif = self.construct_file_name(i, prev_step, setting, extension='tif')
+            npy = self.construct_file_name(i, prev_step, setting, extension='npy')
+            csv = self.construct_file_name(i, prev_step, setting, extension='csv')
 
-                # build list of raster objects
-                urban_raster = rasterio.open(self.construct_file_name(i, prev_step, 'Urban', extension='tif'))
-                rural_raster = rasterio.open(self.construct_file_name(i, prev_step, 'Rural', extension='tif'))
+            if os.path.isfile(tif):
+                logging.info(f"Using file '{tif}' for previous time step data.")
+                out_list.append(rasterio.open(tif))
 
-                urban_file_list.append(urban_raster)
-                rural_file_list.append(rural_raster)
+            elif os.path.isfile(npy):
+                logging.info(f"Using file '{npy}' for previous time step data.")
 
-            elif self.cfg.write_array:
+                # load npy file to array
+                urban_array = np.load(npy)
 
-                urban_array = np.load(self.construct_file_name(i, prev_step, 'Urban', extension='npy'))
-                urban_raster = utils.array_to_raster_memory(self.cfg.historical_suitability_raster, urban_array,
-                                                            self.cfg.one_dimension_indices)
+                # convert to raster object
+                out_list.append(utils.array_to_raster_memory(self.cfg.historical_suitability_raster, urban_array,
+                                                             self.cfg.one_dimension_indices))
 
-                rural_array = np.load(self.construct_file_name(i, prev_step, 'Rural', extension='npy'))
-                rural_raster = utils.array_to_raster_memory(self.cfg.historical_suitability_raster, rural_array,
-                                                            self.cfg.one_dimension_indices)
+            elif os.path.isfile(csv):
+                logging.info(f"Using file '{csv}' for previous time step data.")
 
-                urban_file_list.append(urban_raster)
-                rural_file_list.append(rural_raster)
+                out_list.append(csv)
 
-            else:
-                urban_file_list.append(self.construct_file_name(i, prev_step, 'Urban', extension='csv'))
-                rural_file_list.append(self.construct_file_name(i, prev_step, 'Rural', extension='csv'))
-
-        return urban_file_list, rural_file_list
+        return out_list
