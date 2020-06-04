@@ -146,6 +146,8 @@ class ReadConfig:
 
     :param compress_csv:                        boolean.  Optionally compress CSV file to GZIP if outputting in CSV
 
+    :param output_total:                        boolean.  Choice to output total (urban + rural) dataset; Defualt True
+
     """
 
     # format for datetime string
@@ -171,7 +173,7 @@ class ReadConfig:
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
-                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True):
+                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -201,6 +203,7 @@ class ReadConfig:
         self._run_number = run_number
         self._write_logfile = write_logfile
         self._compress_csv = compress_csv
+        self._output_total = output_total
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -210,6 +213,12 @@ class ReadConfig:
 
         # get a copy of the raster metadata from a states input raster
         self._template_raster_object, self._metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+
+    @property
+    def output_total(self):
+        """Choice to output total dataset (urban + rural)."""
+
+        return self._output_total
 
     @property
     def run_number(self):
