@@ -152,7 +152,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         # total suitability for the whole area, which is the summation of all individual suitability values
         tot_suitability = suitability_estimates.sum()
 
-        # tinal population estimates if negative mode is off
+        # final population estimates if negative mode is off
         pop_estimates = suitability_estimates / tot_suitability * pop_change + pop_first_year
 
         # adjust the projection so that no cell can have less than 0 individuals.
@@ -182,7 +182,8 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
 
     # write the total population outfile if desired
-    write_outputs(cfg, 'Total', yr, total_array)
+    if cfg.output_total:
+        write_outputs(cfg, 'Total', yr, total_array)
 
     # write outputs in memory and return
     urban_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Urban'], cfg.one_dimension_indices)
@@ -226,7 +227,6 @@ def write_outputs(cfg, setting, yr, data):
             logging.info(f"Saving {setting} CSV to:  {output_csv}")
 
         utils.raster_to_csv(data, cfg.grid_coordinates_array, output_csv, compress=cfg.compress_csv)
-
 
 
 def construct_filename(cfg, setting, extension, yr):
