@@ -272,4 +272,6 @@ delta_run = DeltaMomentIndependent(problem_dict=x.problem_dict,
                                    setting='Urban', # either 'Urban' or 'Rural'
                                    file_extension='.npy', # file extension matching the output format from run files
                                    output_file='<Full path with file name and extension to the output CSV file.>')
+
+output_list = delta_run.run_analysis()
 ```

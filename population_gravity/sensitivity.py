@@ -469,6 +469,9 @@ class DeltaMomentIndependent:
         # derive suitability estimates
         results = pool.map(self.delta_gridcell, [i for i in range(self.n_gridcells)])
 
+        # write results to file
+        self.write_output(results)
+
         return results
 
     def delta_gridcell(self, i):
@@ -499,7 +502,7 @@ class DeltaMomentIndependent:
 
         return out_list
 
-    def write_output(self):
+    def write_output(self, result_list):
         """Write output to file."""
 
         with open(self.output_file, 'w') as out:
@@ -507,16 +510,5 @@ class DeltaMomentIndependent:
             # write header for output file
             out.write('param,delta,delta_conf,S1,S1_conf,gridcell\n')
 
-            for i in range(self.n_gridcells):
-
-                print(i)
-
-                # evaluate
-                y = self.data_array[:, i]
-
-                # generate the sensitivity indices
-                si = delta.analyze(self.problem_dict, self.sample, y, print_to_console=False)
-
-                # write evaluated parameters
-                for idx, key in enumerate(self.problem_dict['names']):
-                    out.write(f"{key},{si['delta'][idx]},{si['delta_conf'][idx]},{si['S1'][idx]},{si['S1_conf'][idx]},{i}\n")
+            for i in result_list:
+                out.write(i)
