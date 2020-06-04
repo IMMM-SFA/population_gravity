@@ -64,7 +64,13 @@ See examples below for how to pass into the `Model` class
 | `calibration_rural_year_one_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year one of the calibration. |
 | `calibration_rural_year_two_raster` | string | Only used for running calibration.  Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for year two of the calibration. |
 | `kernel_distance_meters` | float | Distance kernel in meters; default 100,000 meters. |
-| `raster_to_csv` | boolean | Optionally export raster as a CSV file without nodata values;option set to compress CSV using gzip.  Exports values for non-NODATA grid cells as field name `value`. |
+| `write_csv` | boolean | Optionally export raster as a CSV file without nodata values; option set to compress CSV using gzip.  Exports values for non-NODATA grid cells as field name `value`. |
+| `compress_csv` | boolean | Optionally compress CSV file to GZIP if outputting in CSV; Default True |
+| `write_raster` | boolean | Optionally export raster output; Default True |
+| `write_array2d` | boolean | Optionally export a NumPy 2D array for each output in the shape of the template raster |
+| `write_array1d` | boolean | Optionally export a Numpy 1D flattened array of only grid cells within the target state |
+| `run_number` | int | Add on for the file name when running sensitivity analysis |
+| `output_total` | boolean | Choice to output total (urban + rural) dataset; Defualt True |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -99,7 +105,8 @@ historic_base_year: 2010
 projection_start_year: 2020
 projection_end_year: 2050
 time_step: 10
-raster_to_csv: False
+write_raster: True
+output_total: True
 
 # calibration specific entries
 calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
@@ -138,18 +145,18 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=2.0,
-            alpha_rural=0.08,
-            beta_urban=1.78,
-            beta_rural=1.42,
+            alpha_urban=1.99999999995073,
+            alpha_rural=0.0750326293181678,
+            beta_urban=1.77529986067379,
+            beta_rural=1.42410799449511,
             kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
-            projection_end_year=2050,
+            projection_end_year=2030,
             time_step=10,
-            raster_to_csv=False)
+            write_raster=True)
 
 run.downscale()
 ```
@@ -165,18 +172,18 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
             output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=2.0,
-            alpha_rural=0.08,
-            beta_urban=1.78,
-            beta_rural=1.42,
+            alpha_urban=1.99999999995073,
+            alpha_rural=0.0750326293181678,
+            beta_urban=1.77529986067379,
+            beta_rural=1.42410799449511,
             kernel_distance_meters=100000,
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
             projection_start_year=2020,
-            projection_end_year=2050,
+            projection_end_year=2030,
             time_step=10,
-            raster_to_csv=False)
+            write_raster=True)
 
 # initialize model
 run.initialize()
@@ -214,4 +221,55 @@ out_csv = "<path to file>"
 
 # optionally choose not to write CSV and just return the data frame by `out_csv=None`
 df = pgr.join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv)
+```
+
+### Example 6: Run sensitivity analysis with Latin Hypercube Sampling and Delta Moment-Independent Measure
+```python
+from population_gravity import LhsBatchModelRun
+from population_gravity import DeltaMomentIndependent
+
+x = LhsBatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
+                     historical_rural_pop_raster='<Full path with file name and extension to the file>',
+                     historical_urban_pop_raster='<Full path with file name and extension to the file>',
+                     historical_suitability_raster='<Full path with file name and extension to the file>',
+                     projected_population_file='<Full path with file name and extension to the file>',
+                     one_dimension_indices_file='<Full path with file name and extension to the file>',
+                     output_directory='<Full path with file name and extension to the file>',
+                     alpha_urban=1.99999999995073, # these are default values that will be overridden by samples
+                     alpha_rural=0.0750326293181678,
+                     beta_urban=1.77529986067379,
+                     beta_rural=1.42410799449511,
+                     kernel_distance_meters=100000,
+                     scenario='SSP2', # shared socioeconomic pathway abbreviation
+                     state_name='vermont',
+                     historic_base_year=2010,
+                     projection_start_year=2020,
+                     projection_end_year=2020,
+                     time_step=1,
+                     write_raster=False,
+                     write_csv=False,
+                     compress_csv=True,
+                     write_array1d=True,
+                     write_logfile=False,
+                     alpha_urban_bounds=[-2.0, 2.0],
+                     alpha_rural_bounds=[-2.0, 2.0],
+                     beta_urban_bounds=[-2.0, 2.0],
+                     beta_rural_bounds=[-2.0, 2.0],
+                     kernel_distance_meters_bounds=[90000, 100000],
+                     n_samples=1000,
+                     output_total=False,
+                     problem_dict_outfile='<Full path with file name and extension to the pickle file>',
+                     sample_outfile='<Full path with file name and extension to the numpy file>')
+
+# generate runs using LHS parameter values
+x.run_batch()
+
+# instantiate delta model
+delta_run = DeltaMomentIndependent(problem_dict=x.problem_dict,
+                                   file_directory='<Full path with file name and extension to where the run files are>',
+                                   state_name=x.state_name,
+                                   sample=x.sample,
+                                   setting='Urban', # either 'Urban' or 'Rural'
+                                   file_extension='.npy', # file extension matching the output format from run files
+                                   output_file='<Full path with file name and extension to the output CSV file.>')
 ```

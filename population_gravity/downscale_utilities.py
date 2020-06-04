@@ -1,16 +1,13 @@
 """
 Helper functions for population downscaling.
 
-@author: Hamidreza Zoraghein
+@author: Hamidreza Zoraghein, Chris R. Vernon
 @date: Created on Mon Dec 11 11:24:13 2017
-
-@history:
-SVN: $Id: pop_downscaling_module.py 224 2018-04-06 22:57:02Z kauff $
-SVN: $URL: https://svn-iam-thesis.cgd.ucar.edu/population_spatial/trunk/src/pop_downscaling_module.py $
 
 """
 
-import os
+import gzip
+
 import multiprocessing
 import rasterio
 
@@ -18,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 from rasterio.merge import merge
+from rasterio.io import MemoryFile
 from collections import deque
 from pathos.multiprocessing import ProcessingPool as Pool
 from scipy.spatial import cKDTree
@@ -64,6 +62,31 @@ def mosaic(raster_list, out_raster, source_metadata):
     return rasterio.open(out_raster)
 
 
+def mosaic_memory(raster_objects, source_metadata):
+    """Create a raster mosiac from multiple rasters and save to file.
+
+    :param raster_list:             List of raster objects
+    :param source_metadata:         Metadata rasterio object from the target states init raster
+
+    :return:                        Mosaicked rasterio object
+
+    """
+
+    # create mosaic
+    mosaic, out_transform = merge(raster_objects)
+
+    # update metadata with mosiac values
+    source_metadata.update({"height": mosaic.shape[1], "width": mosaic.shape[2], "transform": out_transform})
+
+    # write output to memory
+    with MemoryFile() as memfile:
+
+        dataset = memfile.open(**source_metadata)
+        dataset.write(mosaic)
+
+        return dataset
+
+
 def create_bbox(raster_object):
     """Create a bounding box array from a rasterio object.
 
@@ -92,30 +115,107 @@ def raster_to_array(raster):
         return src_raster.read(1)
     
 
-def array_to_raster(input_raster, input_array, within_indices, output_raster):
-    """Save NumPy array to a raster
+def array_to_raster(template_raster_object, input_array, within_indices, output_raster):
+    """Save NumPy array to a raster.
 
-    :param input_raster:            ?
-    :param input_array:             ?
-    :param within_indices:          ?
-    :param output_raster:           ?
+    :param template_raster_object:          Object containing [2D array, 1D array, row count, column count, profile]
+    :param input_array:                     1D numpy array from run
+    :param within_indices:                  Full path with file name and extension to the text file
+                                            containing a file structured as a Python list (e.g. [0, 1]) that
+                                            contains the index of each grid cell when flattened from a 2D array to
+                                            a 1D array for the target state.
+    :param output_raster:                   Full path with file name and extension to the output raster
 
     """
-    # read the template raster to be filled by output array values later
-    with rasterio.open(input_raster) as src_raster:
-        band = src_raster.read(1)
-        src_profile = src_raster.profile
-        row_count = band.shape[0]
-        col_count = band.shape[1]
-        flat_array = band.flatten()
-    
+
+    flat_array = template_raster_object[1].copy()
+
     # replace initial array values with those from the input array
     flat_array[within_indices] = input_array
+
+    # reshape array to raster size
+    array = flat_array.reshape(template_raster_object[2], template_raster_object[3])
     
-    array = flat_array.reshape(row_count, col_count)
-    
-    with rasterio.open(output_raster, "w", **src_profile) as dst:
+    with rasterio.open(output_raster, "w", **template_raster_object[4]) as dst:
         dst.write_band(1, array)
+
+
+def reshape_array_to_raster(template_raster_object, input_array, within_indices, output_array):
+    """Reshape and save a flattened array to the shape of an input raster.
+
+    :param template_raster_object:          Object containing [2D array, 1D array, row count, column count, profile]
+    :param input_array:                     1D numpy array from run
+    :param within_indices:                  Full path with file name and extension to the text file
+                                            containing a file structured as a Python list (e.g. [0, 1]) that
+                                            contains the index of each grid cell when flattened from a 2D array to
+                                            a 1D array for the target state.
+
+    :param output_array:                    Full path with file name and extension to the output array
+
+    """
+
+    flat_array = template_raster_object[1].copy()
+
+    # replace initial array values with those from the input array
+    flat_array[within_indices] = input_array
+
+    # reshape array to raster size
+    array = flat_array.reshape(template_raster_object[2], template_raster_object[3])
+
+    # set in raster grid space
+    with MemoryFile() as memfile:
+
+        with memfile.open(**template_raster_object[4]) as dataset:
+            dataset.write_band(1, array)
+
+            np.save(output_array, dataset.read(1))
+
+
+def array_to_raster_memory(template_raster_object, input_array, within_indices):
+    """Save NumPy array to a raster in memory.
+
+    :param template_raster_object:          Object containing [2D array, 1D array, row count, column count, profile]
+    :param input_array:                     1D numpy array from run
+    :param within_indices:                  Full path with file name and extension to the text file
+                                            containing a file structured as a Python list (e.g. [0, 1]) that
+                                            contains the index of each grid cell when flattened from a 2D array to
+                                            a 1D array for the target state.
+
+    """
+
+    flat_array = template_raster_object[1].copy()
+
+    # replace initial array values with those from the input array
+    flat_array[within_indices] = input_array
+
+    # reshape array to raster size
+    array = flat_array.reshape(template_raster_object[2], template_raster_object[3])
+
+    # write output to memory
+    with MemoryFile() as memfile:
+
+        dataset = memfile.open(**template_raster_object[4])
+        dataset.write_band(1, array)
+
+        return dataset
+
+
+def array2d_to_raster_memory(array, raster_profile):
+    """Write 2D array to raster in memory.
+
+    :param array:                   2D numpy array
+    :param raster_profile:          Profile from template raster.
+
+    :return:                        rasterio dataset in memory
+
+    """
+
+    with MemoryFile() as memfile:
+
+        dataset = memfile.open(**raster_profile)
+        dataset.write_band(1, array)
+
+        return dataset
 
 
 def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv=None):
@@ -170,10 +270,10 @@ def join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv
     return df_join
 
 
-def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_value_only=True):
+def raster_to_csv(input_array, grid_coordinates_array, out_csv, compress=True, export_value_only=True):
     """Create a CSV file with ['x_coord', 'y_coord', 'value'] from an input raster omitting cells with NODATA.
 
-    :param input_raster:                        Full path with file name and extension to input raster
+    :param input_array:                         Input 1D array of valid grid cells
 
     :param grid_coordinates_array:              Numpy Array containing the coordinates for each 1 km grid cell
                                                 within the target state. File includes a header with the fields
@@ -183,41 +283,44 @@ def raster_to_csv(input_raster, grid_coordinates_array, compress=True, export_va
                                                 (YCoord, float, Y coordinate in meters),
                                                 (FID, int, Unique feature id)
 
+    :param out_csv:                             str.  Full path with file name and extension to the output CSV file.
+
     :param compress:                            Boolean.  Compress CSV using GNU zip (gzip) compression; Default True
 
     :param export_value_only:                   Boolean.  Export only the value column; Default True
 
     """
 
-    # read in raster
-    r = rasterio.open(input_raster)
-
-    # convert to 1D array
-    arr = r.read(1).flatten()
-
     # just get x, y from array; match dtype of input raster
     coordinate_array = grid_coordinates_array[:, :2]
 
     # build data frame
     if export_value_only:
-        df = pd.DataFrame({'value': arr})
+        df = pd.DataFrame({'value': input_array})
     else:
-        df = pd.DataFrame({'x_coord': coordinate_array[:, 0], 'y_coord': coordinate_array[:, 1], 'value': arr})
-
-    # remove nodata points
-    dfx = df.loc[df['value'] != r.nodata]
+        df = pd.DataFrame({'x_coord': coordinate_array[:, 0], 'y_coord': coordinate_array[:, 1], 'value': input_array})
 
     # generate output file name
     if compress:
-        file_extension = 'csv.gz'
-    else:
-        file_extension = 'csv'
-
-    out_csv = f"{os.path.splitext(input_raster)[0]}.{file_extension}"
+        out_csv = f'{out_csv}.gz'
 
     # write output
-    dfx.to_csv(out_csv, index=False, compression='infer')
-    
+    df.to_csv(out_csv, index=False, compression='infer')
+
+
+def gzip_csv_to_array(gzip_csv_file, header_rows_to_skip=1):
+    """Read GZIP CSV file to a NumPy array.
+
+    :param gzip_csv_file:                       str.  Full path with file name and extension to an GZIP CSV file.
+    :param header_rows_to_skip:                 int.  The number of header rows to skip.
+
+    :return:                                    NumPy array
+
+    """
+
+    with gzip.open(gzip_csv_file, mode='rt') as f:
+        return np.genfromtxt(f, delimiter=',', skip_header=header_rows_to_skip)
+
 
 def all_index_retriever(array, columns, row_col='row', column_col='column', all_index_col='all_index'):
     """Build data frame in the shape of the input array.
