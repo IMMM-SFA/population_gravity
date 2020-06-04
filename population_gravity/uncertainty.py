@@ -34,31 +34,31 @@ problem = {
 
 param_values = latin.sample(problem, 100)
 
-# for index, i in enumerate(param_values):
-#
-#     run = Model(grid_coordinates_file=GRID_COORD_FILE,
-#                 historical_rural_pop_raster=HIST_RURAL_RASTER,
-#                 historical_urban_pop_raster=HIST_URBAN_RASTER,
-#                 historical_suitability_raster=HIST_SUITABILITY,
-#                 projected_population_file=PROJ_POP_FILE,
-#                 one_dimension_indices_file=ONE_D_IND_FILE,
-#                 output_directory=OUTPUT_DIRECTORY,
-#                 alpha_urban=i[0],
-#                 alpha_rural=i[1],
-#                 beta_urban=i[2],
-#                 beta_rural=i[3],
-#                 kernel_distance_meters=i[4],
-#                 scenario=SCENARIO,
-#                 state_name=STATE_NAME,
-#                 historic_base_year=2010,
-#                 projection_start_year=2020,
-#                 projection_end_year=2020,
-#                 time_step=10,
-#                 raster_to_csv=False,
-#                 run_number=index)
-#
-#     run.downscale()
-#
+for index, i in enumerate(param_values):
+
+    run = Model(grid_coordinates_file=GRID_COORD_FILE,
+                historical_rural_pop_raster=HIST_RURAL_RASTER,
+                historical_urban_pop_raster=HIST_URBAN_RASTER,
+                historical_suitability_raster=HIST_SUITABILITY,
+                projected_population_file=PROJ_POP_FILE,
+                one_dimension_indices_file=ONE_D_IND_FILE,
+                output_directory=OUTPUT_DIRECTORY,
+                alpha_urban=i[0],
+                alpha_rural=i[1],
+                beta_urban=i[2],
+                beta_rural=i[3],
+                kernel_distance_meters=i[4],
+                scenario=SCENARIO,
+                state_name=STATE_NAME,
+                time_step=10,
+                write_raster=False,
+                write_array1d=True,
+                write_csv=False,
+                write_logfile=False,
+                run_number=index)
+
+    run.downscale()
+
 # get urban
 outputs = [os.path.join(OUTPUT_DIRECTORY, i) for i in os.listdir(OUTPUT_DIRECTORY) if (i.split('_')[0] == 'vermont') and (os.path.splitext(i)[-1] == '.npy') and ('Urban' in i)]
 
