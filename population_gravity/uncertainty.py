@@ -1,14 +1,12 @@
 import os
 import pkg_resources
 
+import numpy as np
 from SALib.sample import latin
 from SALib.analyze import delta
-import numpy as np
 
 from population_gravity import Model
-import os
 
-from population_gravity.downscale_utilities import raster_to_array
 
 STATE_NAME = 'vermont'
 SCENARIO = 'SSP2'
@@ -19,6 +17,157 @@ PROJ_POP_FILE = pkg_resources.resource_filename('population_gravity', 'tests/dat
 ONE_D_IND_FILE = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_within_indices.txt'.format(STATE_NAME))
 HIST_SUITABILITY = pkg_resources.resource_filename('population_gravity', 'tests/data/inputs/{}_mask_short_term.tif'.format(STATE_NAME))
 OUTPUT_DIRECTORY = pkg_resources.resource_filename('population_gravity', 'tests/data/outputs')
+
+
+
+
+d = {'alpha_urban': [-2.0, 2.0],
+     'alpha_rural': [-2.0, 2.0],
+     'beta_urban': [-2.0, 2.0],
+     'beta_rural': [-2.0, 2.0],
+     'kernel_distance_meters': [90000, 100000]}
+
+class LhsMoment:
+
+    # parameter value limits
+    LOWER_ALPHA_LIMIT = -2.0
+    UPPER_ALPHA_LIMIT = 2.0
+    LOWER_BETA_LIMIT = -2.0
+    UPPER_BETA_LIMIT = 2.0
+
+    # kernel distance in meters
+    LOWER_KD_LIMIT = 100
+    UPPER_KD_LIMIT = 100000
+
+    def __init__(self, alpha_urban_bounds=None, alpha_rural_bounds=None, beta_urban_bounds=None, beta_rural_bounds=None,
+                 kernel_distance_meters_bounds=None):
+
+        self._alpha_urban_bounds = alpha_urban_bounds
+        self._alpha_rural_bounds = alpha_rural_bounds
+        self._beta_urban_bounds = beta_urban_bounds
+        self._beta_rural_bounds = beta_rural_bounds
+        self._kernel_distance_meters_bounds = kernel_distance_meters_bounds
+
+
+    @property
+    def alpha_urban_bounds(self):
+        """Ensure values are within acceptable bounds."""
+
+        if self._alpha_urban_bounds is not None:
+
+            # ensure lower is not >= upper
+            valid_lower, valid_upper = self.validate_min_max(self._alpha_urban_bounds, 'alpha_urban')
+
+            return self.validate_limits(valid_upper, valid_lower, self.UPPER_ALPHA_LIMIT, self.LOWER_ALPHA_LIMIT, 'alpha_urban')
+
+        else:
+            return self._alpha_urban_bounds
+
+    @property
+    def alpha_rural_bounds(self):
+        """Ensure values are within acceptable bounds."""
+
+        if self._alpha_rural_bounds is not None:
+
+            # ensure lower is not >= upper
+            valid_lower, valid_upper = self.validate_min_max(self._alpha_rural_bounds, 'alpha_rural')
+
+            return self.validate_limits(valid_upper, valid_lower, self.UPPER_ALPHA_LIMIT, self.LOWER_ALPHA_LIMIT, 'alpha_rural')
+
+        else:
+            return self._alpha_rural_bounds
+
+    @property
+    def beta_urban_bounds(self):
+        """Ensure values are within acceptable bounds."""
+
+        if self._beta_urban_bounds is not None:
+
+            # ensure lower is not >= upper
+            valid_lower, valid_upper = self.validate_min_max(self._beta_urban_bounds, 'beta_urban')
+
+            return self.validate_limits(valid_upper, valid_lower, self.UPPER_BETA_LIMIT, self.LOWER_BETA_LIMIT, 'beta_urban')
+
+        else:
+            return self._beta_urban_bounds
+
+    @property
+    def beta_rural_bounds(self):
+        """Ensure values are within acceptable bounds."""
+
+        if self._beta_rural_bounds is not None:
+
+            # ensure lower is not >= upper
+            valid_lower, valid_upper = self.validate_min_max(self._beta_rural_bounds, 'beta_rural')
+
+            return self.validate_limits(valid_upper, valid_lower, self.UPPER_BETA_LIMIT, self.LOWER_BETA_LIMIT, 'beta_rural')
+
+        else:
+            return self._beta_rural_bounds
+
+    @property
+    def kernel_distance_meters_bounds(self):
+        """Ensure values are withing acceptable bounds."""
+
+        if self._kernel_distance_meters_bounds is not None:
+
+            # ensure lower is not >= upper
+            valid_lower, valid_upper = self.validate_min_max(self._beta_rural_bounds, 'kernel_distance_meters')
+
+            return self.validate_limits(valid_upper, valid_lower, self.UPPER_KD_LIMIT, self.LOWER_KD_LIMIT, 'kernel_distance_meters')
+
+        else:
+            return self._kernel_distance_meters_bounds
+
+    @staticmethod
+    def validate_limits(upper_value, lower_value, upper_limit, lower_limit, variable):
+        """Ensure the values for bounds are not outside of the acceptable limits.
+
+        :param upper_value:                     upper value for a parameter
+        :type:                                  int; float
+
+        :param lower_value:                     lower value for a parameter
+        :type:                                  int; float
+
+        :param upper_limit:                     upper acceptable value for a parameter
+        :type:                                  int; float
+
+        :param lower_limit:                     lower acceptable value for a parameter
+        :type:                                  int; float
+
+        """
+
+        if lower_value < lower_limit:
+            raise ValueError(f"Lower limit '{lower_value}'' for '{variable}' cannot be less than '{lower_limit}'")
+
+        elif upper_value > upper_limit:
+            raise ValueError(f"Upper limit '{upper_value}'' for '{variable}' cannot be less than '{upper_limit}'")
+
+        return lower_value, upper_value
+
+    @staticmethod
+    def validate_min_max(bounds, variable):
+        """Check to make sure min is not >= max
+
+        :param bounds:                      [min_value, max_value]
+        :type bounds:                       list
+
+        :param variable:                    variable name
+        :type variable:                     str
+
+        """
+
+        min_bound, max_bound = bounds
+
+        if min_bound >= max_bound:
+            raise ValueError(f"Minimum bound '{min_bound}' for '{variable}' is >= '{max_bound}'")
+        else:
+            return bounds
+
+
+
+
+
 
 # Define the model inputs
 problem = {
@@ -31,8 +180,8 @@ problem = {
                [90000, 100000]]
 }
 
-
-param_values = latin.sample(problem, 100)
+# create a latin hypercube for the problem
+param_values = latin.sample(problem, 10)
 
 for index, i in enumerate(param_values):
 
