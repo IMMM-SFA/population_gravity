@@ -12,5 +12,8 @@ from population_gravity.main import Model
 from population_gravity.process_step import ProcessStep
 from population_gravity.read_config import ReadConfig
 from population_gravity.downscale_utilities import join_coords_to_value
+from population_gravity.sensitivity import LhsBatchModelRun
+from population_gravity.sensitivity import DeltaMomentIndependent
 
-__all__ = ['Model', 'ProcessStep', 'ReadConfig', 'join_coords_to_value']
+
+__all__ = ['Model', 'ProcessStep', 'ReadConfig', 'join_coords_to_value', 'LhsBatchModelRun', 'DeltaMomentIndependent']
