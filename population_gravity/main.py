@@ -128,15 +128,21 @@ class Model(Logger):
 
     :param kernel_distance_meters:              float. Distance kernel in meters; default 100,000 meters.
 
-    :param raster_to_csv:                       boolean. Optionally export raster as a CSV file without nodata values;
-                                                option set to compress CSV using gzip.  Exports values for non-NODATA
-                                                grid cells as field name `value`.
+    :param write_raster:                        boolean. Optionally export raster output; Default True
 
-    :param save_array:                          boolean. Optionally export a NumPy array for each output
+    :param write_csv:                           boolean. Optionally export raster as a CSV file without nodata values
+
+    :param write_array2d:                       boolean. Optionally export a NumPy 2D array for each output in the shape
+                                                of the template raster
+
+    :param write_array1d:                       boolean. Optionally export a Numpy 1D flattened array of only grid cells
+                                                within the target state
 
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
 
     :param write_logfile:                       boolean.  Optionally write log to file.; Default True
+
+    :param compress_csv:                        boolean.  Optionally compress CSV file to GZIP if outputting in CSV
 
     """
 
@@ -147,8 +153,8 @@ class Model(Logger):
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array=False, run_number='',
-                 write_logfile=True):
+                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
+                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True):
 
         super(Logger, self).__init__(config_file, grid_coordinates_file, historical_suitability_raster,
                                      historical_rural_pop_raster, historical_urban_pop_raster,
@@ -158,7 +164,7 @@ class Model(Logger):
                                      rural_pop_proj_n, urban_pop_proj_n, calibration_urban_year_one_raster,
                                      calibration_urban_year_two_raster, calibration_rural_year_one_raster,
                                      calibration_rural_year_two_raster, kernel_distance_meters, write_raster, write_csv,
-                                     write_array, run_number, write_logfile)
+                                     write_array1d, write_array2d, run_number, write_logfile, compress_csv)
 
         # initialize time step generator
         self._timestep_generator = self.build_step_generator()

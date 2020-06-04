@@ -181,8 +181,14 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     # calculate the total population array
     total_array = final_arrays["Rural"] + final_arrays["Urban"]
 
-    # write the total population outfiles if desired
+    # write the total population outfile if desired
     write_outputs(cfg, 'Total', yr, total_array)
+
+    # write outputs in memory and return
+    urban_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Urban'], cfg.one_dimension_indices)
+    rural_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Rural'], cfg.one_dimension_indices)
+
+    return urban_output, rural_output
 
 
 def write_outputs(cfg, setting, yr, data):
@@ -196,19 +202,31 @@ def write_outputs(cfg, setting, yr, data):
     if cfg.write_raster:
         output_raster = construct_filename(cfg, setting, '.tif', yr)
         logging.info(f"Saving {setting} raster to:  {output_raster}")
-        utils.array_to_raster(cfg.historical_suitability_raster, data, cfg.one_dimension_indices, output_raster)
+        utils.array_to_raster(cfg.template_raster, data, cfg.one_dimension_indices, output_raster)
 
     # write to array if desired
-    if cfg.write_array:
-        output_array = construct_filename(cfg, setting, '.npy', yr)
+    if cfg.write_array2d:
+        output_array = construct_filename(cfg, setting, '_2d.npy', yr)
+        logging.info(f"Saving {setting} array to:  {output_array}")
+        utils.reshape_array_to_raster(cfg.template_raster, data, cfg.one_dimension_indices, output_array)
+
+    # write to array if desired
+    if cfg.write_array1d:
+        output_array = construct_filename(cfg, setting, '_1d.npy', yr)
         logging.info(f"Saving {setting} array to:  {output_array}")
         np.save(output_array, data)
 
     # write csv if user desires
     if cfg.write_csv:
         output_csv = construct_filename(cfg, setting, '.csv', yr)
-        logging.info(f"Saving {setting} CSV to:  {output_csv}")
-        utils.raster_to_csv(data, cfg.grid_coordinates_array, output_csv)
+
+        if cfg.compress_csv:
+            logging.info(f"Saving {setting} CSV to:  {output_csv}.gz")
+        else:
+            logging.info(f"Saving {setting} CSV to:  {output_csv}")
+
+        utils.raster_to_csv(data, cfg.grid_coordinates_array, output_csv, compress=cfg.compress_csv)
+
 
 
 def construct_filename(cfg, setting, extension, yr):

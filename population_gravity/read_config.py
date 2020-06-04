@@ -13,6 +13,7 @@ import os
 import pkg_resources
 import simplejson
 
+import rasterio
 import yaml
 
 import numpy as np
@@ -133,11 +134,17 @@ class ReadConfig:
 
     :param write_csv:                           boolean. Optionally export raster as a CSV file without nodata values
 
-    :param write_array:                         boolean. Optionally export a NumPy array for each output
+    :param write_array2d:                       boolean. Optionally export a NumPy 2D array for each output in the shape
+                                                of the template raster
+
+    :param write_array1d:                       boolean. Optionally export a Numpy 1D flattened array of only grid cells
+                                                within the target state
 
     :param run_number:                          int. Add on for the file name when running sensitivity analysis
 
     :param write_logfile:                       boolean.  Optionally write log to file.; Default True
+
+    :param compress_csv:                        boolean.  Optionally compress CSV file to GZIP if outputting in CSV
 
     """
 
@@ -163,8 +170,8 @@ class ReadConfig:
                  projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
-                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array=False, run_number='',
-                 write_logfile=True):
+                 kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
+                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -189,9 +196,11 @@ class ReadConfig:
         self._kernel_distance_meters = kernel_distance_meters
         self._write_raster = write_raster
         self._write_csv = write_csv
-        self._write_array = write_array
+        self._write_array1d = write_array1d
+        self._write_array2d = write_array2d
         self._run_number = run_number
         self._write_logfile = write_logfile
+        self._compress_csv = compress_csv
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -209,6 +218,12 @@ class ReadConfig:
         return self._run_number
 
     @property
+    def compress_csv(self):
+        """Compress CSV to GZIP option."""
+
+        return self._compress_csv
+
+    @property
     def write_logfile(self):
         """Optionally write log outputs to a file."""
 
@@ -221,10 +236,16 @@ class ReadConfig:
         return self._write_raster
 
     @property
-    def write_array(self):
-        """Optionally save outputs to an array."""
+    def write_array1d(self):
+        """Optionally save outputs to a 1D array for cells within the target state."""
 
-        return self._write_array
+        return self._write_array1d
+
+    @property
+    def write_array2d(self):
+        """Optionally save outputs to a 1D array for cells within the target state."""
+
+        return self._write_array2d
 
     @property
     def write_csv(self):
@@ -362,7 +383,6 @@ class ReadConfig:
 
         return self.validate_step(self._historic_base_year, 'historic_base_year')
 
-
     @property
     def steps(self):
         """Create a list of time steps from the start and through steps by the step interval."""
@@ -459,6 +479,27 @@ class ReadConfig:
         else:
             with open(self._config_file, 'r') as yml:
                 return yaml.load(yml)
+
+    @property
+    def template_raster(self):
+        """Generate template raster specifications.
+
+        :return:                        [0] 2D array of template raster values
+                                        [1] 1D flattened array
+                                        [2] row count
+                                        [3] column count
+                                        [4] profile
+
+        """
+
+        with rasterio.open(self.historical_suitability_raster) as src_raster:
+            profile = src_raster.profile
+            array2d = src_raster.read(1)
+            row_count = array2d.shape[0]
+            col_count = array2d.shape[1]
+            array1d = array2d.flatten()
+
+        return array2d, array1d, row_count, col_count, profile
 
     @property
     def alpha_urban(self):
