@@ -53,16 +53,6 @@ class Problem:
         self._problem_dict_outfile = problem_dict_outfile
 
     @property
-    def problem_dict_outfile(self):
-        """Optionally write problem_dict to pickled file."""
-
-        if self._problem_dict_outfile is not None:
-            with open(self._problem_dict_outfile, 'wb') as out:
-                pickle.dump(self.problem_dict, out)
-        else:
-            return self._problem_dict_outfile
-
-    @property
     def alpha_urban_bounds(self):
         """Ensure values are within acceptable bounds."""
 
@@ -163,7 +153,19 @@ class Problem:
             names.append(self.KD_NAME)
             bounds.append(self.kernel_distance_meters_bounds)
 
-        return {'num_vars': len(names), 'names': names, 'bounds': bounds}
+        d = {'num_vars': len(names), 'names': names, 'bounds': bounds}
+
+        # write dict to file
+        self.problem_dict_outfile(d)
+
+        return d
+
+    def problem_dict_outfile(self, problem_dict):
+        """Optionally write problem_dict to pickled file."""
+
+        if self._problem_dict_outfile is not None:
+            with open(self._problem_dict_outfile, 'wb') as out:
+                pickle.dump(problem_dict, out)
 
     @staticmethod
     def validate_limits(upper_value, lower_value, upper_limit, lower_limit, variable):
@@ -223,16 +225,7 @@ class Lhs(Problem):
 
         self._n_samples = n_samples
         self._sample_outfile = sample_outfile
-
-    @property
-    def sample_outfile(self):
-        """Optionally save sample as numpy array."""
-
-        if self._sample_outfile is not None:
-            np.save(self._sample_outfile, self.sample)
-
-        else:
-            return self._sample_outfile
+        self.sample = self.generate_sample()
 
     @property
     def n_samples(self):
@@ -244,15 +237,35 @@ class Lhs(Problem):
         except TypeError:
             raise TypeError(f"'n_samples' value '{self._n_samples} must be an integer.")
 
-    @property
-    def sample(self):
+    def generate_sample(self):
         """Generate a Latin Hypercube sample."""
 
-        return latin.sample(self.problem_dict, self.n_samples)
+        sample = latin.sample(self.problem_dict, self.n_samples)
+
+        # write sample to file
+        self.sample_outfile(sample)
+
+        return sample
+
+    def sample_outfile(self, sample):
+        """Optionally save sample as numpy array."""
+
+        if self._sample_outfile is not None:
+            np.save(self._sample_outfile, sample)
+
+        else:
+            return self._sample_outfile
 
 
-class LhsBatchModelRun(Lhs, ReadConfig):
+class BatchModelRun(ReadConfig):
     """Conduct a batch run of the model in parallel """
+
+    # variable names
+    ALPHA_URBAN_NAME = 'alpha_urban'
+    ALPHA_RURAL_NAME = 'alpha_rural'
+    BETA_URBAN_NAME = 'beta_urban'
+    BETA_RURAL_NAME = 'beta_rural'
+    KD_NAME = 'kernel_density_meters'
 
     def __init__(self, grid_coordinates_file=None, historical_suitability_raster=None, historical_rural_pop_raster=None,
                  historical_urban_pop_raster=None, projected_population_file=None, one_dimension_indices_file=None,
@@ -260,41 +273,37 @@ class LhsBatchModelRun(Lhs, ReadConfig):
                  scenario=None, state_name=None, historic_base_year=None, projection_start_year=None,
                  projection_end_year=None, time_step=None, kernel_distance_meters=None, write_raster=True,
                  write_csv=False, write_array1d=False, write_array2d=False, run_number='', write_logfile=True,
-                 compress_csv=True, alpha_urban_bounds=None,  alpha_rural_bounds=None, beta_urban_bounds=None,
-                 beta_rural_bounds=None, kernel_distance_meters_bounds=None, n_samples=None, output_total=True,
-                 problem_dict_outfile=None, sample_outfile=None):
+                 compress_csv=True, output_total=True, sample=None, problem_dict=None):
 
-        self._grid_coordinates_file = grid_coordinates_file
-        self._historical_rural_pop_raster = historical_rural_pop_raster
-        self._historical_urban_pop_raster = historical_urban_pop_raster
-        self._historical_suitability_raster = historical_suitability_raster
-        self._projected_population_file = projected_population_file
-        self._one_dimension_indices_file = one_dimension_indices_file
-        self._output_directory = output_directory
-        self._alpha_urban = alpha_urban
-        self._alpha_rural = alpha_rural
-        self._beta_urban = beta_urban
-        self._beta_rural = beta_rural
-        self._kernel_distance_meters = kernel_distance_meters
-        self._scenario = scenario
-        self._state_name = state_name
-        self._historic_base_year = historic_base_year
-        self._projection_start_year = projection_start_year
-        self._projection_end_year = projection_end_year
-        self._time_step = time_step
-        self._write_raster = write_raster
-        self._write_array1d = write_array1d
-        self._write_array2d = write_array2d
-        self._write_csv = write_csv
-        self._compress_csv = compress_csv
-        self._write_logfile = write_logfile
-        self._run_number = run_number
-        self._output_total = output_total
+        super(BatchModelRun, self).__init__(grid_coordinates_file=grid_coordinates_file,
+                                         historical_rural_pop_raster=historical_rural_pop_raster,
+                                         historical_urban_pop_raster=historical_urban_pop_raster,
+                                         historical_suitability_raster=historical_suitability_raster,
+                                         projected_population_file=projected_population_file,
+                                         one_dimension_indices_file=one_dimension_indices_file,
+                                         output_directory=output_directory,
+                                         alpha_urban=alpha_urban,
+                                         alpha_rural=alpha_rural,
+                                         beta_urban=beta_urban,
+                                         beta_rural=beta_rural,
+                                         kernel_distance_meters=kernel_distance_meters,
+                                         scenario=scenario,
+                                         state_name=state_name,
+                                         historic_base_year=historic_base_year,
+                                         projection_start_year=projection_start_year,
+                                         projection_end_year=projection_end_year,
+                                         time_step=time_step,
+                                         write_raster=write_raster,
+                                         write_array1d=write_array1d,
+                                         write_array2d=write_array2d,
+                                         write_csv=write_csv,
+                                         compress_csv=compress_csv,
+                                         write_logfile=write_logfile,
+                                         run_number=run_number,
+                                         output_total=output_total)
 
-        # initialize problem set
-        super(LhsBatchModelRun, self).__init__(alpha_urban_bounds, alpha_rural_bounds, beta_urban_bounds,
-                                               beta_rural_bounds, kernel_distance_meters_bounds, n_samples,
-                                               problem_dict_outfile, sample_outfile)
+        self.sample = sample
+        self.problem_dict = problem_dict
 
     def run_batch(self):
         """Run all model runs for the parameter set in parallel."""
@@ -304,32 +313,32 @@ class LhsBatchModelRun(Lhs, ReadConfig):
             print(f"Processing sample:  {index}")
 
             # instantiate model
-            run = Model(grid_coordinates_file=self._grid_coordinates_file,
-                        historical_rural_pop_raster=self._historical_rural_pop_raster,
-                        historical_urban_pop_raster=self._historical_urban_pop_raster,
-                        historical_suitability_raster=self._historical_suitability_raster,
-                        projected_population_file=self._projected_population_file,
-                        one_dimension_indices_file=self._one_dimension_indices_file,
-                        output_directory=self._output_directory,
-                        alpha_urban=self.set_param_value(self.ALPHA_URBAN_NAME, self._alpha_urban, i),
-                        alpha_rural=self.set_param_value(self.ALPHA_RURAL_NAME, self._alpha_rural, i),
-                        beta_urban=self.set_param_value(self.BETA_URBAN_NAME, self._beta_urban, i),
-                        beta_rural=self.set_param_value(self.BETA_RURAL_NAME, self._beta_rural, i),
-                        kernel_distance_meters=self.set_param_value(self.KD_NAME, self._kernel_distance_meters, i),
-                        scenario=self._scenario,
-                        state_name=self._state_name,
-                        historic_base_year=self._historic_base_year,
-                        projection_start_year=self._projection_start_year,
-                        projection_end_year=self._projection_end_year,
-                        time_step=self._time_step,
-                        write_raster=self._write_raster,
-                        write_array1d=self._write_array1d,
-                        write_array2d=self._write_array2d,
-                        write_csv=self._write_csv,
-                        compress_csv=self._compress_csv,
-                        write_logfile=self._write_logfile,
+            run = Model(grid_coordinates_file=self.grid_coordinates_file,
+                        historical_rural_pop_raster=self.historical_rural_pop_raster,
+                        historical_urban_pop_raster=self.historical_urban_pop_raster,
+                        historical_suitability_raster=self.historical_suitability_raster,
+                        projected_population_file=self.projected_population_file,
+                        one_dimension_indices_file=self.one_dimension_indices_file,
+                        output_directory=self.output_directory,
+                        alpha_urban=self.set_param_value(self.ALPHA_URBAN_NAME, self.alpha_urban, i),
+                        alpha_rural=self.set_param_value(self.ALPHA_RURAL_NAME, self.alpha_rural, i),
+                        beta_urban=self.set_param_value(self.BETA_URBAN_NAME, self.beta_urban, i),
+                        beta_rural=self.set_param_value(self.BETA_RURAL_NAME, self.beta_rural, i),
+                        kernel_distance_meters=self.set_param_value(self.KD_NAME, self.kernel_distance_meters, i),
+                        scenario=self.scenario,
+                        state_name=self.state_name,
+                        historic_base_year=self.historic_base_year,
+                        projection_start_year=self.projection_start_year,
+                        projection_end_year=self.projection_end_year,
+                        time_step=self.time_step,
+                        write_raster=self.write_raster,
+                        write_array1d=self.write_array1d,
+                        write_array2d=self.write_array2d,
+                        write_csv=self.write_csv,
+                        compress_csv=self.compress_csv,
+                        write_logfile=self.write_logfile,
                         run_number=index,
-                        output_total=self._output_total)
+                        output_total=self.output_total)
 
             run.downscale()
 
@@ -422,7 +431,7 @@ class DeltaMomentIndependent:
         """Get the number of grid cells in an input dataset."""
 
         # load the first file in the file list
-        return np.load(self.file_list[0]).shape[0]
+        return self.load_file(self.file_list[0]).shape[0]
 
     @property
     def data_array(self):
@@ -436,7 +445,7 @@ class DeltaMomentIndependent:
         arr = np.zeros(shape=(len(self.file_list), self.n_gridcells))
 
         for index, i in enumerate(self.file_list):
-            arr[index, :] = np.load(i)
+            arr[index, :] = self.load_file(i)
 
         return arr
 

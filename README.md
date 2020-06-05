@@ -225,10 +225,24 @@ df = pgr.join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, ou
 
 ### Example 6: Run sensitivity analysis with Latin Hypercube Sampling and Delta Moment-Independent Measure
 ```python
-from population_gravity import LhsBatchModelRun
+from population_gravity import Lhs
+from population_gravity import BatchModelRun
 from population_gravity import DeltaMomentIndependent
 
-x = LhsBatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
+
+# generate latin hypercube sample
+lhs = Lhs(alpha_urban_bounds=[-2.0, 2.0],
+          alpha_rural_bounds=[-2.0, 2.0],
+          beta_urban_bounds=[-2.0, 2.0],
+          beta_rural_bounds=[-2.0, 2.0],
+          kernel_distance_meters_bounds=[90000, 100000],
+          n_samples=1000,
+          problem_dict_outfile='<Full path with file name and extension to the pickle file>',
+          sample_outfile='<Full path with file name and extension to the numpy file>')
+          
+          
+# create batch model run
+x = BatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
                      historical_rural_pop_raster='<Full path with file name and extension to the file>',
                      historical_urban_pop_raster='<Full path with file name and extension to the file>',
                      historical_suitability_raster='<Full path with file name and extension to the file>',
@@ -251,27 +265,22 @@ x = LhsBatchModelRun(grid_coordinates_file='<Full path with file name and extens
                      compress_csv=True,
                      write_array1d=True,
                      write_logfile=False,
-                     alpha_urban_bounds=[-2.0, 2.0],
-                     alpha_rural_bounds=[-2.0, 2.0],
-                     beta_urban_bounds=[-2.0, 2.0],
-                     beta_rural_bounds=[-2.0, 2.0],
-                     kernel_distance_meters_bounds=[90000, 100000],
-                     n_samples=1000,
                      output_total=False,
-                     problem_dict_outfile='<Full path with file name and extension to the pickle file>',
-                     sample_outfile='<Full path with file name and extension to the numpy file>')
+                     sample=lhs.sample,
+                     problem_dict=lhs.problem_dict)
 
 # generate runs using LHS parameter values
 x.run_batch()
 
 # instantiate delta model
-delta_run = DeltaMomentIndependent(problem_dict=x.problem_dict,
+delta_run = DeltaMomentIndependent(problem_dict=lhs.problem_dict,
                                    file_directory='<Full path with file name and extension to where the run files are>',
                                    state_name=x.state_name,
-                                   sample=x.sample,
+                                   sample=lhs.sample,
                                    setting='Urban', # either 'Urban' or 'Rural'
                                    file_extension='.npy', # file extension matching the output format from run files
                                    output_file='<Full path with file name and extension to the output CSV file.>')
 
+# run analysis
 output_list = delta_run.run_analysis()
 ```
