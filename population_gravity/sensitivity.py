@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 from SALib.sample import latin
 from SALib.analyze import delta
+from SALib.sample import saltelli
+from SALib.analyze import sobol
 from pathos.multiprocessing import ProcessingPool as Pool
 
 from population_gravity.main import Model
@@ -213,8 +215,54 @@ class Problem:
             return bounds
 
 
+class Saltelli(Problem):
+    """Generate a Saltelli sample."""
+
+    def __init__(self, alpha_urban_bounds=None, alpha_rural_bounds=None, beta_urban_bounds=None, beta_rural_bounds=None,
+                 kernel_distance_meters_bounds=None, n_samples=None, sample_outfile=None, problem_dict_outfile=None,
+                 calc_second_order=False):
+
+        # initialize problem set
+        super(Saltelli, self).__init__(alpha_urban_bounds, alpha_rural_bounds, beta_urban_bounds, beta_rural_bounds,
+                                       kernel_distance_meters_bounds, problem_dict_outfile)
+
+        self._n_samples = n_samples
+        self._sample_outfile = sample_outfile
+        self.calc_second_order = calc_second_order
+        self.sample = self.generate_sample()
+
+    @property
+    def n_samples(self):
+        """Validate the number of samples."""
+
+        try:
+            return int(self._n_samples)
+
+        except TypeError:
+            raise TypeError(f"'n_samples' value '{self._n_samples} must be an integer.")
+
+    def generate_sample(self):
+        """Generate a Saltelli sample."""
+
+        sample = saltelli.sample(self.problem_dict, self.n_samples, self.calc_second_order)
+
+        # write sample to file
+        self.sample_outfile(sample)
+
+        return sample
+
+    def sample_outfile(self, sample):
+        """Optionally save sample as numpy array."""
+
+        if self._sample_outfile is not None:
+            np.save(self._sample_outfile, sample)
+
+        else:
+            return self._sample_outfile
+
+
 class Lhs(Problem):
-    """Generate model run outputs using Latin Hypercube Sampling."""
+    """Generate a Latin Hypercube sample."""
 
     def __init__(self, alpha_urban_bounds=None, alpha_rural_bounds=None, beta_urban_bounds=None, beta_rural_bounds=None,
                  kernel_distance_meters_bounds=None, n_samples=None, sample_outfile=None, problem_dict_outfile=None):
@@ -361,6 +409,168 @@ class BatchModelRun(ReadConfig):
             name_idx = param_name_list.index(param_name)
 
             return sample_list[name_idx]
+
+
+class Sobol:
+    """Conduct analysis with the Sobol Sensitivity Analysis method."""
+
+    SETTING_OPTIONS = ('Urban', 'Rural')
+    EXTENSION_OPTIONS = ('.tif', '.npy', '.csv', '.csv.gz')
+
+    def __init__(self, problem_dict, file_directory, setting, state_name, file_extension, output_file,
+                 calc_second_order=False):
+
+        self.problem_dict = problem_dict
+        self._file_directory = file_directory
+        self._setting = setting
+        self._state_name = state_name
+        self._file_extension = file_extension
+        self.output_file = output_file
+        self.calc_second_order = calc_second_order
+
+    @property
+    def file_extension(self):
+        """Validate file extension."""
+
+        if self._file_extension in self.EXTENSION_OPTIONS:
+            return self._file_extension
+
+        else:
+            raise ValueError(f"Provided `file_extension` '{self._file_extension} is not in the acceptable values:  {self.EXTENSION_OPTIONS}")
+
+    @property
+    def state_name(self):
+        """Target state name."""
+
+        return self._state_name.lower()
+
+    @property
+    def setting(self):
+        """Either 'Urban' or 'Rural'"""
+
+        if self._setting in self.SETTING_OPTIONS:
+            return self._setting
+
+        else:
+            raise ValueError(f"Provided `setting` '{self._setting}' is not in the acceptable values:  {self.SETTING_OPTIONS}")
+
+    @property
+    def file_directory(self):
+        """Validate directory of input files from the model run."""
+
+        if os.path.isdir(self._file_directory):
+            return self._file_directory
+
+        else:
+            raise NotADirectoryError(f"File directory '{self._file_directory} does not exist.")
+
+    @property
+    def file_list(self):
+        """Get a list of files to process."""
+
+        files = [os.path.join(self.file_directory, i) for i in os.listdir(self.file_directory) if
+                (i.split('_')[0] == self.state_name) and
+                (self.file_extension in i) and
+                (self.setting in i)]
+
+        return self.validate_list(files)
+
+    @property
+    def n_gridcells(self):
+        """Get the number of grid cells in an input dataset."""
+
+        # load the first file in the file list
+        return self.load_file(self.file_list[0]).shape[0]
+
+    @property
+    def data_array(self):
+        """Combine output files into a single array.
+
+        :return:                Array; shape = (n_runs, grid cells)
+
+        """
+
+        # shape (n_runs, grid cells)
+        arr = np.zeros(shape=(len(self.file_list), self.n_gridcells))
+
+        for index, i in enumerate(self.file_list):
+            arr[index, :] = self.load_file(i)
+
+        return arr
+
+    def load_file(self, file):
+        """Load data from file."""
+
+        if self.file_extension == '.npy':
+            return np.load(file)
+
+        elif self.file_extension == '.csv.gz':
+            return pd.read_csv(file, compression='gzip', sep=',')['value'].values
+
+        else:
+            raise ValueError(f"Loading '{self.file_extension}' is under development")
+
+    def validate_list(self, in_list):
+        """Ensure a list has a length > 0."""
+
+        if len(in_list) > 0:
+            return in_list
+
+        else:
+            raise ValueError(f"There are no files that match the search criteria of `state_name`='{self.state_name}', `file_extension`='{self.file_extension}', and `setting`='{self.setting}' in the file directory: '{self.file_directory}'")
+
+    def run_analysis(self):
+        """Run the sensitivity analysis and write the outputs to a file."""
+
+        pool = Pool(processes=multiprocessing.cpu_count()-1)
+
+        # derive suitability estimates
+        results = pool.map(self.sobol_gridcell, [i for i in range(self.n_gridcells)])
+
+        # write results to file
+        self.write_output(results)
+
+        return results
+
+    def sobol_gridcell(self, i):
+        """Generate statistics for a gridcell from a n-dim array."""
+
+        out_list = []
+
+        # evaluate
+        y = self.data_array[:, i]
+
+        # if all values are the same
+        unique_vals = np.unique(y).shape[0]
+
+        if unique_vals > 1:
+
+            # generate the sensitivity indices
+            si = sobol.analyze(self.problem_dict, y, print_to_console=False, calc_second_order=self.calc_second_order)
+
+            # write evaluated parameters
+            for idx, key in enumerate(self.problem_dict['names']):
+                out_list.append(f"{key},{si['S1'][idx]},{si['S1_conf'][idx]},{si['ST'][idx]},{si['ST_conf'][idx]},{i}\n")
+
+        else:
+
+            # write evaluated parameters
+            for idx, key in enumerate(self.problem_dict['names']):
+                out_list.append(f"{key},{np.nan},{np.nan},{np.nan},{np.nan},{i}\n")
+
+        return out_list
+
+    def write_output(self, result_list):
+        """Write output to file."""
+
+        with open(self.output_file, 'w') as out:
+
+            # write header for output file
+            out.write('param,S1,S1_conf,ST,ST_conf,gridcell\n')
+
+            for element in result_list:
+                for param in element:
+                    out.write(param)
 
 
 class DeltaMomentIndependent:

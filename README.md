@@ -284,3 +284,64 @@ delta_run = DeltaMomentIndependent(problem_dict=lhs.problem_dict,
 # run analysis
 output_list = delta_run.run_analysis()
 ```
+
+### Example 7: Run sensitivity analysis with Saltelli sampling and Sobol
+```python
+from population_gravity import Saltelli
+from population_gravity import BatchModelRun
+from population_gravity import Sobol
+
+
+# generate latin hypercube sample
+saltelli_sample = Saltelli(alpha_urban_bounds=[-2.0, 2.0],
+                           alpha_rural_bounds=[-2.0, 2.0],
+                           beta_urban_bounds=[-2.0, 2.0],
+                           beta_rural_bounds=[-2.0, 2.0],
+                           kernel_distance_meters_bounds=[90000, 100000],
+                           n_samples=1000,
+                           problem_dict_outfile='<Full path with file name and extension to the pickle file>',
+                           sample_outfile='<Full path with file name and extension to the numpy file>')
+          
+          
+# create batch model run
+x = BatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
+                     historical_rural_pop_raster='<Full path with file name and extension to the file>',
+                     historical_urban_pop_raster='<Full path with file name and extension to the file>',
+                     historical_suitability_raster='<Full path with file name and extension to the file>',
+                     projected_population_file='<Full path with file name and extension to the file>',
+                     one_dimension_indices_file='<Full path with file name and extension to the file>',
+                     output_directory='<Full path with file name and extension to the file>',
+                     alpha_urban=1.99999999995073, # these are default values that will be overridden by samples
+                     alpha_rural=0.0750326293181678,
+                     beta_urban=1.77529986067379,
+                     beta_rural=1.42410799449511,
+                     kernel_distance_meters=100000,
+                     scenario='SSP2', # shared socioeconomic pathway abbreviation
+                     state_name='vermont',
+                     historic_base_year=2010,
+                     projection_start_year=2020,
+                     projection_end_year=2020,
+                     time_step=1,
+                     write_raster=False,
+                     write_csv=False,
+                     compress_csv=True,
+                     write_array1d=True,
+                     write_logfile=False,
+                     output_total=False,
+                     sample=saltelli_sample.sample,
+                     problem_dict=saltelli_sample.problem_dict)
+
+# generate runs using LHS parameter values
+x.run_batch()
+
+# instantiate delta model
+sobol_run = Sobol(problem_dict=saltelli_sample.problem_dict,
+                  file_directory='<Full path with file name and extension to where the run files are>',
+                  state_name=x.state_name,
+                  setting='Urban', # either 'Urban' or 'Rural'
+                  file_extension='.npy', # file extension matching the output format from run files
+                  output_file='<Full path with file name and extension to the output CSV file.>')
+
+# run analysis
+output_list = sobol_run.run_analysis()
+```
