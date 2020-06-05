@@ -47,9 +47,9 @@ x = BatchModelRun(grid_coordinates_file=GRID_COORD_FILE,
                   projection_end_year=2020,
                   time_step=1,
                   write_raster=False,
-                  write_csv=False,
+                  write_csv=True,
                   compress_csv=True,
-                  write_array1d=True,
+                  write_array1d=False,
                   write_logfile=False,
                   output_total=False,
                   sample=lhs.sample,
@@ -64,7 +64,7 @@ delta_run = DeltaMomentIndependent(problem_dict=lhs.problem_dict,
                                    state_name=x.state_name,
                                    sample=lhs.sample,
                                    setting='Urban',  # either 'Urban' or 'Rural'
-                                   file_extension='.npy',  # file extension matching the output format from run files
+                                   file_extension='.csv.gz',  # file extension matching the output format from run files
                                    output_file=os.path.join(OUTPUT_DIRECTORY, 'output.csv'))
 
 # run analysis

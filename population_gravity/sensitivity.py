@@ -421,7 +421,7 @@ class DeltaMomentIndependent:
 
         files = [os.path.join(self.file_directory, i) for i in os.listdir(self.file_directory) if
                 (i.split('_')[0] == self.state_name) and
-                (os.path.splitext(i)[-1] == self.file_extension) and
+                (self.file_extension in i) and
                 (self.setting in i)]
 
         return self.validate_list(files)
@@ -519,5 +519,6 @@ class DeltaMomentIndependent:
             # write header for output file
             out.write('param,delta,delta_conf,S1,S1_conf,gridcell\n')
 
-            for i in result_list:
-                out.write(i)
+            for element in result_list:
+                for param in element:
+                    out.write(param)
