@@ -220,7 +220,7 @@ class Saltelli(Problem):
 
     def __init__(self, alpha_urban_bounds=None, alpha_rural_bounds=None, beta_urban_bounds=None, beta_rural_bounds=None,
                  kernel_distance_meters_bounds=None, n_samples=None, sample_outfile=None, problem_dict_outfile=None,
-                 calc_second_order=True):
+                 calc_second_order=False):
 
         # initialize problem set
         super(Saltelli, self).__init__(alpha_urban_bounds, alpha_rural_bounds, beta_urban_bounds, beta_rural_bounds,
@@ -418,7 +418,7 @@ class Sobol:
     EXTENSION_OPTIONS = ('.tif', '.npy', '.csv', '.csv.gz')
 
     def __init__(self, problem_dict, file_directory, setting, state_name, file_extension, output_file,
-                 calc_second_order=True):
+                 calc_second_order=False):
 
         self.problem_dict = problem_dict
         self._file_directory = file_directory
@@ -550,13 +550,13 @@ class Sobol:
 
             # write evaluated parameters
             for idx, key in enumerate(self.problem_dict['names']):
-                out_list.append(f"{key},{si['S1'][idx]},{si['S1_conf'][idx]},{si['ST'][idx]},{si['ST_conf'][idx]},{si['S2'][idx]},{si['S2_conf'][idx]},{i}\n")
+                out_list.append(f"{key},{si['S1'][idx]},{si['S1_conf'][idx]},{si['ST'][idx]},{si['ST_conf'][idx]},{i}\n")
 
         else:
 
             # write evaluated parameters
             for idx, key in enumerate(self.problem_dict['names']):
-                out_list.append(f"{key},{np.nan},{np.nan},{np.nan},{np.nan},{np.nan},{np.nan},{i}\n")
+                out_list.append(f"{key},{np.nan},{np.nan},{np.nan},{np.nan},{i}\n")
 
         return out_list
 
@@ -566,7 +566,7 @@ class Sobol:
         with open(self.output_file, 'w') as out:
 
             # write header for output file
-            out.write('param,delta,delta_conf,S1,S1_conf,gridcell\n')
+            out.write('param,S1,S1_conf,ST,ST_conf,gridcell\n')
 
             for element in result_list:
                 for param in element:
