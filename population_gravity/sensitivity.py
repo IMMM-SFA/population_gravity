@@ -122,8 +122,7 @@ class Problem:
         else:
             return self._kernel_distance_meters_bounds
 
-    @property
-    def problem_dict(self):
+    def build_problem_dict(self):
         """Construct a problem dictionary for SALib.
 
         :return:                    dictionary of problem set.
@@ -225,6 +224,8 @@ class Lhs(Problem):
 
         self._n_samples = n_samples
         self._sample_outfile = sample_outfile
+
+        self.problem_dict = self.build_problem_dict()
         self.sample = self.generate_sample()
 
     @property
