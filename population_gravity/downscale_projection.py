@@ -149,6 +149,10 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
             # adjust suitability values by applying its mask values
             suitability_estimates = cur_points_mask * suitability_estimates
 
+        # write suitability outputs if desired
+        if cfg.write_suitability:
+            write_suitability(cfg, setting, yr, suitability_estimates)
+
         # total suitability for the whole area, which is the summation of all individual suitability values
         tot_suitability = suitability_estimates.sum()
 
@@ -190,6 +194,15 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     rural_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Rural'], cfg.one_dimension_indices)
 
     return urban_output, rural_output
+
+
+def write_suitability(cfg, setting, yr, data):
+    """Write suitability data to a 1D numpy array."""
+
+    output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{cfg.run_number}suitability.npy")
+
+    logging.info(f"Saving {setting} suitability array to:  {output_array}")
+    np.save(output_array, data)
 
 
 def write_outputs(cfg, setting, yr, data):

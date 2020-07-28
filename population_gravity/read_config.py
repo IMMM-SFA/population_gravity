@@ -173,7 +173,8 @@ class ReadConfig:
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
-                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True):
+                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True,
+                 write_suitability=False):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -204,6 +205,7 @@ class ReadConfig:
         self._write_logfile = write_logfile
         self._compress_csv = compress_csv
         self._output_total = output_total
+        self.write_suitability = write_suitability
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
