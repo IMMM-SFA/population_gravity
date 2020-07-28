@@ -40,7 +40,7 @@ class Problem:
     ALPHA_RURAL_NAME = 'alpha_rural'
     BETA_URBAN_NAME = 'beta_urban'
     BETA_RURAL_NAME = 'beta_rural'
-    KD_NAME = 'kernel_density_meters'
+    KD_NAME = 'kernel_distance_meters'
 
     def __init__(self, alpha_urban_bounds=None, alpha_rural_bounds=None, beta_urban_bounds=None, beta_rural_bounds=None,
                  kernel_distance_meters_bounds=None, problem_dict_outfile=None):
@@ -266,7 +266,7 @@ class BatchModelRun(ReadConfig):
     ALPHA_RURAL_NAME = 'alpha_rural'
     BETA_URBAN_NAME = 'beta_urban'
     BETA_RURAL_NAME = 'beta_rural'
-    KD_NAME = 'kernel_density_meters'
+    KD_NAME = 'kernel_distance_meters'
 
     def __init__(self, grid_coordinates_file=None, historical_suitability_raster=None, historical_rural_pop_raster=None,
                  historical_urban_pop_raster=None, projected_population_file=None, one_dimension_indices_file=None,
@@ -474,7 +474,7 @@ class DeltaMomentIndependent:
     def run_analysis(self):
         """Run the sensitivity analysis and write the outputs to a file."""
 
-        pool = Pool(processes=multiprocessing.cpu_count()-1)
+        pool = Pool(processes=multiprocessing.cpu_count())
 
         # derive suitability estimates
         results = pool.map(self.delta_gridcell, [i for i in range(self.n_gridcells)])
