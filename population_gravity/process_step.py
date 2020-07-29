@@ -138,7 +138,7 @@ class ProcessStep:
 
         """
         # load neighboring state reference
-        near_states_file = pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv')
+        near_states_file = os.path.join(os.path.dirname(self.cfg.historical_rural_pop_raster), 'neighboring_states_100km.csv')
 
         # find which states to run based on the target state
         states_df = pd.read_csv(near_states_file).apply(lambda x: x.str.lower().str.replace(' ', '_'))

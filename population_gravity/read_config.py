@@ -173,7 +173,8 @@ class ReadConfig:
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
-                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True):
+                 write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True,
+                 write_suitability=False):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -204,6 +205,7 @@ class ReadConfig:
         self._write_logfile = write_logfile
         self._compress_csv = compress_csv
         self._output_total = output_total
+        self.write_suitability = write_suitability
 
         # specific to calibration run
         self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
@@ -305,7 +307,7 @@ class ReadConfig:
     def neighbors(self):
         """Get all neighboring states including the target state as a list."""
 
-        return self.get_state_neighbors(self.state_name)
+        return self.get_state_neighbors(self.state_name, os.path.dirname(self.historical_rural_pop_raster))
 
     @property
     def metadata(self):
@@ -665,10 +667,10 @@ class ReadConfig:
             return None
 
     @staticmethod
-    def get_state_neighbors(state_name):
+    def get_state_neighbors(state_name, indir):
         """Get all neighboring states and the target state from lookup file as a list"""
 
-        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
+        df = pd.read_csv(os.path.join(indir, 'neighboring_states_100km.csv'))
 
         # get the actual state name from the near states because they are not lower case like what is being passed
         state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]

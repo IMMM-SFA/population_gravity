@@ -25,10 +25,10 @@ setup(
     name='population_gravity',
     version='1.0.0',
     packages=find_packages(),
-    url='https://github.com/IMMM-SFA/spatial_population_downscaling_model',
+    url='https://github.com/IMMM-SFA/population_gravity',
     license='BSD 2-Clause',
     author='Hamidreza Zoraghein, Chris R. Vernon',
     author_email='hzoraghein@popcouncil.org, chris.vernon@pnnl.gov',
     description='A model to downscale state-level urban and rural populations to a 1 km grid',
-    python_requires='>=3.3.*, <4'
+    python_requires='>=3.6.*, <4'
 )

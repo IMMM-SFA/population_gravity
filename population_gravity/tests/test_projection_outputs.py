@@ -126,6 +126,7 @@ class TestProjectedOutputs(unittest.TestCase):
                     write_array1d=True,
                     write_array2d=False,
                     write_csv=False,
+                    write_suitability=False,
                     write_logfile=False)
 
         run.downscale()
