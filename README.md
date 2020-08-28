@@ -16,7 +16,7 @@ Shared Socioeconomic Pathways. *Privileged*.
 
 
 ## Getting Started
-The `population_gravity` package uses only **Python 3.3** and up.
+The `population_gravity` package uses only **Python 3.6** and up.
 
 ### Step 1:
 You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `pip` instance that matches your Python3 distribution):
