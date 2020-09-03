@@ -31,6 +31,5 @@ setup(
     author='Hamidreza Zoraghein, Chris R. Vernon',
     author_email='hzoraghein@popcouncil.org, chris.vernon@pnnl.gov',
     description='A model to downscale state-level urban and rural populations to a 1 km grid',
-    python_requires='>=3.6.*',
-    include_package_data=True
+    python_requires='>=3.6.*'
 )
