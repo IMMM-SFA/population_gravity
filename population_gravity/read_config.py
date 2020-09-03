@@ -670,7 +670,7 @@ class ReadConfig:
     def get_state_neighbors(state_name, indir):
         """Get all neighboring states and the target state from lookup file as a list"""
 
-        df = pd.read_csv(os.path.join(indir, 'neighboring_states_100km.csv'))
+        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
 
         # get the actual state name from the near states because they are not lower case like what is being passed
         state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]
