@@ -35,7 +35,7 @@ class Problem:
 
     # kernel distance in meters
     LOWER_KD_LIMIT = 100
-    UPPER_KD_LIMIT = 100000
+    UPPER_KD_LIMIT = 150000
 
     # variable names
     ALPHA_URBAN_NAME = 'alpha_urban'
@@ -187,10 +187,10 @@ class Problem:
         """
 
         if lower_value < lower_limit:
-            raise ValueError(f"Lower limit '{lower_value}'' for '{variable}' cannot be less than '{lower_limit}'")
+            raise ValueError(f"Lower limit '{lower_value}' for '{variable}' cannot be less than '{lower_limit}'")
 
         elif upper_value > upper_limit:
-            raise ValueError(f"Upper limit '{upper_value}'' for '{variable}' cannot be less than '{upper_limit}'")
+            raise ValueError(f"Upper limit '{upper_value}' for '{variable}' cannot be less than '{upper_limit}'")
 
         return lower_value, upper_value
 
