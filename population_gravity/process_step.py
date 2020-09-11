@@ -41,48 +41,41 @@ class ProcessStep:
         self.cfg = cfg
         self.yr = yr
 
-        # find which states to run based on the target state
-        self.states_list = self.get_neighboring_states_list()
-
         if self.yr == self.cfg.projection_start_year:
 
             # run downscaling
-            urban_output, rural_output = pop_projection(self.cfg, self.cfg.historical_urban_pop_raster,
-                                                        self.cfg.historical_rural_pop_raster,
-                                                        self.cfg.alpha_urban, self.cfg.beta_urban, self.cfg.alpha_rural,
-                                                        self.cfg.beta_rural,
-                                                        self.cfg.rural_pop_proj_n, self.cfg.urban_pop_proj_n, self.yr,
-                                                        self.cfg.kernel_distance_meters)
+            urban_output, rural_output = pop_projection(cfg=self.cfg,
+                                                        urban_raster=self.cfg.historical_urban_pop_raster,
+                                                        rural_raster=self.cfg.historical_rural_pop_raster,
+                                                        alpha_urban=self.cfg.alpha_urban,
+                                                        beta_urban=self.cfg.beta_urban,
+                                                        alpha_rural=self.cfg.alpha_rural,
+                                                        beta_rural=self.cfg.beta_rural,
+                                                        rural_pop_proj_n=self.cfg.rural_pop_proj_n,
+                                                        urban_pop_proj_n=self.cfg.urban_pop_proj_n,
+                                                        yr=self.yr,
+                                                        cut_off_meters=self.cfg.kernel_distance_meters)
 
         else:
 
             prev_step = self.yr - self.cfg.time_step
 
-            # build raster list for all neighboring raster outputs from the previous time step
-            urban_file_list = self.construct_file_list(prev_step, 'Urban')
-            rural_file_list = self.construct_file_list(prev_step, 'Rural')
+            print(f"prev_step:  {prev_step}")
 
-            # build mosaics
-            urban_mosaic = utils.mosaic_memory(urban_file_list, self.cfg.metadata.copy())
-            rural_mosaic = utils.mosaic_memory(rural_file_list, self.cfg.metadata.copy())
+            # create a mosaic of the target state and
+            urban_mask_file, rural_mask_file = self.mosaic_neighbors(prev_step)
 
-            # create a rasterio.windows.Window object from the bounding box of the target for the full mosaic
-            target_window = urban_mosaic.window(*self.cfg.bbox)
-
-            # write the urban masked mosiac raster to file
-            urban_mask_file = self.mask_raster_memory(urban_mosaic, target_window)
-            urban_mosaic.close()
-
-            # write the urban masked mosiac raster to file
-            rural_mask_file = self.mask_raster_memory(rural_mosaic, target_window)
-            rural_mosaic.close()
-
-            urban_output, rural_output = pop_projection(self.cfg, urban_mask_file, rural_mask_file,
-                                                        self.cfg.alpha_urban, self.cfg.beta_urban,
-                                                        self.cfg.alpha_rural, self.cfg.beta_rural,
-                                                        self.cfg.rural_pop_proj_n,
-                                                        self.cfg.urban_pop_proj_n, self.yr,
-                                                        self.cfg.kernel_distance_meters)
+            urban_output, rural_output = pop_projection(cfg=self.cfg,
+                                                        urban_raster=urban_mask_file,
+                                                        rural_raster=rural_mask_file,
+                                                        alpha_urban=self.cfg.alpha_urban,
+                                                        beta_urban=self.cfg.beta_urban,
+                                                        alpha_rural=self.cfg.alpha_rural,
+                                                        beta_rural=self.cfg.beta_rural,
+                                                        rural_pop_proj_n=self.cfg.rural_pop_proj_n,
+                                                        urban_pop_proj_n=self.cfg.urban_pop_proj_n,
+                                                        yr=self.yr,
+                                                        cut_off_meters=self.cfg.kernel_distance_meters)
 
             # close in memory mask objects
             urban_mask_file.close()
@@ -130,21 +123,6 @@ class ProcessStep:
 
             return dataset
 
-    def get_neighboring_states_list(self):
-        """Get a list of all states within a 100 km distance from the target state border, including the target state,
-        as a list.
-
-        :return:                            List of state names that are lower case and underscore separated
-
-        """
-        # load neighboring state reference
-        near_states_file = os.path.join(os.path.dirname(self.cfg.historical_rural_pop_raster), 'neighboring_states_100km.csv')
-
-        # find which states to run based on the target state
-        states_df = pd.read_csv(near_states_file).apply(lambda x: x.str.lower().str.replace(' ', '_'))
-
-        return states_df.groupby('target_state')['near_state'].apply(list).to_dict()[self.cfg.state_name]
-
     def construct_file_name(self, state_name, prev_step, designation, suffix='', extension='.tif'):
         """Construct output file name.
 
@@ -186,7 +164,7 @@ class ProcessStep:
         """Construct a list of arrays from rasters or arrays.
 
         :param prev_step:                       int.  Previous time step; e.g., year
-        :param setting:                         str.  Either 'Urban' or 'Rural'
+        :param setting:                         str.  Either 'urban' or 'rural'
 
         #TODO:  load prev years CSV files
 
@@ -203,27 +181,54 @@ class ProcessStep:
             csv_gz = self.construct_file_name(i, prev_step, setting, extension='.csv.gz')
 
             if os.path.isfile(tif):
-                logging.info(f"Using file '{tif}' for previous time step data.")
+                logging.info(f"Using file '{tif}' for previous time step mosaic of neighboring states.")
                 out_list.append(rasterio.open(tif))
 
             elif os.path.isfile(npy1d):
-                logging.info(f"Using file '{npy1d}' for previous time step data.")
+                logging.info(f"Using file '{npy1d}' for previous time step mosaic of neighboring states.")
 
                 # load npy file to array
                 array1d = np.load(npy1d)
                 out_list.append(utils.array_to_raster_memory(self.cfg.template_raster, array1d, self.cfg.one_dimension_indices))
 
             elif os.path.isfile(npy2d):
-                logging.info(f"Using file '{npy2d}' for previous time step data.")
+                logging.info(f"Using file '{npy2d}' for previous time step mosaic of neighboring states.")
 
                 # load npy file to array
                 array2d = np.load(npy2d)
                 out_list.append(utils.array2d_to_raster_memory(array2d, raster_profile=self.cfg.template_raster[4]))
 
             elif os.path.isfile(csv_gz):
-                logging.info(f"Using file '{csv_gz}' for previous time step data.")
+                logging.info(f"Using file '{csv_gz}' for previous time step mosaic of neighboring states.")
 
                 array1d = pd.read_csv(csv_gz, compression='gzip', sep=',')['value'].values
                 out_list.append(utils.array_to_raster_memory(self.cfg.template_raster, array1d, self.cfg.one_dimension_indices))
 
+            else:
+                raise FileNotFoundError(f"No spatial file found for '{i}' for setting '{setting}' and year '{prev_step}'")
+
         return out_list
+
+    def mosaic_neighbors(self, yr):
+        """asdf"""
+
+        # build raster list for all neighboring raster outputs from the previous time step
+        urban_file_list = self.construct_file_list(yr, 'urban')
+        rural_file_list = self.construct_file_list(yr, 'rural')
+
+        # build mosaics
+        urban_mosaic = utils.mosaic_memory(urban_file_list, self.cfg.metadata.copy())
+        rural_mosaic = utils.mosaic_memory(rural_file_list, self.cfg.metadata.copy())
+
+        # create a rasterio.windows.Window object from the bounding box of the target for the full mosaic
+        target_window = urban_mosaic.window(*self.cfg.bbox)
+
+        # write the urban masked mosiac raster to memory
+        urban_mask_file = self.mask_raster_memory(urban_mosaic, target_window)
+        urban_mosaic.close()
+
+        # write the urban masked mosiac raster to memory
+        rural_mask_file = self.mask_raster_memory(rural_mosaic, target_window)
+        rural_mosaic.close()
+
+        return urban_mask_file, rural_mask_file

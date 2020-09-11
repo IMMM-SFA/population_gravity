@@ -65,8 +65,8 @@ def calibration(cfg, cut_off_meters=100000):
     out_cal = os.path.join(cfg.output_directory, '{}_{}_cablibration_parameters.csv'.format(cfg.state_name, cfg.scenario))
 
     # Dictionary storing initial urban and rural population grids
-    all_rasters = {'Rural': [cfg.calibration_rural_year_one_raster, cfg.calibration_rural_year_two_raster],
-                   'Urban': [cfg.calibration_urban_year_one_raster, cfg.calibration_urban_year_two_raster]}
+    all_rasters = {'rural': [cfg.calibration_rural_year_one_raster, cfg.calibration_rural_year_two_raster],
+                   'urban': [cfg.calibration_urban_year_one_raster, cfg.calibration_urban_year_two_raster]}
 
     # define local variables
     parameters_dict = {}  # Dictionary storing urban and rural calibration parameters
@@ -109,7 +109,7 @@ def calibration(cfg, cut_off_meters=100000):
 
         logging.info("Processing: {}".format(setting))
 
-        if setting == 'Urban':
+        if setting == 'urban':
             arr_1st = arr_pop_urb_1st
             arr_2nd = arr_pop_urb_2nd
         else:
@@ -138,10 +138,10 @@ def calibration(cfg, cut_off_meters=100000):
     # write the parameters to the designated csv file
     logging.info("\tWriting parameterization file:  {}".format(out_cal))
 
-    alpha_urban = parameters_dict["Urban"][0]
-    alpha_rural = parameters_dict["Rural"][0]
-    beta_urban = parameters_dict["Urban"][1]
-    beta_rural = parameters_dict["Rural"][1]
+    alpha_urban = parameters_dict["urban"][0]
+    alpha_rural = parameters_dict["rural"][0]
+    beta_urban = parameters_dict["urban"][1]
+    beta_rural = parameters_dict["rural"][1]
 
     with open(out_cal, 'w') as out_csv:
         out_csv.write("Region,SSP,Alpha_Rural,Beta_Rural,Alpha_Urban,Beta_Urban\n")

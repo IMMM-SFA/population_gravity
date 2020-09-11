@@ -20,14 +20,14 @@ class TestProjectedOutputs(unittest.TestCase):
     """Test configuration integrity."""
 
     STATE_NAME = 'vermont'
-    SCENARIO = 'SSP2'
+    SCENARIO = 'ssp2'
 
-    COMP_RURAL_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Rural_2030.tif'))
-    COMP_RURAL_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Rural_2020.tif'))
-    COMP_URBAN_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Urban_2030.tif'))
-    COMP_URBAN_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Urban_2020.tif'))
-    COMP_TOTAL_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Total_2030.tif'))
-    COMP_TOTAL_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_Total_2020.tif'))
+    COMP_RURAL_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_rural_2030.tif'))
+    COMP_RURAL_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_rural_2020.tif'))
+    COMP_URBAN_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_urban_2030.tif'))
+    COMP_URBAN_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_urban_2020.tif'))
+    COMP_TOTAL_2030 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_total_2030.tif'))
+    COMP_TOTAL_2020 = utils.raster_to_array(pkg_resources.resource_filename('population_gravity', f'tests/data/comp_data/{STATE_NAME}_1km_{SCENARIO}_total_2020.tif'))
 
     GRID_COORD_FILE = pkg_resources.resource_filename('population_gravity', f'tests/data/inputs/{STATE_NAME}_coordinates.csv')
     HIST_RURAL_RASTER = pkg_resources.resource_filename('population_gravity', f'tests/data/inputs/{STATE_NAME}_rural_2010_1km.tif')
@@ -38,36 +38,36 @@ class TestProjectedOutputs(unittest.TestCase):
     OUTPUT_DIRECTORY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs')
 
     # output rasters
-    RUN_RURAL_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2030.tif')
-    RUN_RURAL_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2020.tif')
-    RUN_URBAN_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2030.tif')
-    RUN_URBAN_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2020.tif')
-    RUN_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2030.tif')
-    RUN_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2020.tif')
+    RUN_RURAL_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2030.tif')
+    RUN_RURAL_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2020.tif')
+    RUN_URBAN_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2030.tif')
+    RUN_URBAN_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2020.tif')
+    RUN_TOTAL_2030 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2030.tif')
+    RUN_TOTAL_2020 = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2020.tif')
 
     # output 2D arrays
-    RUN_RURAL_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2030_2d.npy')
-    RUN_RURAL_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2020_2d.npy')
-    RUN_URBAN_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2030_2d.npy')
-    RUN_URBAN_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2020_2d.npy')
-    RUN_TOTAL_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2030_2d.npy')
-    RUN_TOTAL_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2020_2d.npy')
+    RUN_RURAL_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2030_2d.npy')
+    RUN_RURAL_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2020_2d.npy')
+    RUN_URBAN_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2030_2d.npy')
+    RUN_URBAN_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2020_2d.npy')
+    RUN_TOTAL_2030_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2030_2d.npy')
+    RUN_TOTAL_2020_2NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2020_2d.npy')
 
     # output 1D arrays
-    RUN_RURAL_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2030_1d.npy')
-    RUN_RURAL_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2020_1d.npy')
-    RUN_URBAN_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2030_1d.npy')
-    RUN_URBAN_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2020_1d.npy')
-    RUN_TOTAL_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2030_1d.npy')
-    RUN_TOTAL_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2020_1d.npy')
+    RUN_RURAL_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2030_1d.npy')
+    RUN_RURAL_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2020_1d.npy')
+    RUN_URBAN_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2030_1d.npy')
+    RUN_URBAN_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2020_1d.npy')
+    RUN_TOTAL_2030_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2030_1d.npy')
+    RUN_TOTAL_2020_1NPY = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2020_1d.npy')
 
     # output CSV.GZ files
-    RUN_RURAL_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2030.csv.gz')
-    RUN_RURAL_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Rural_2020.csv.gz')
-    RUN_URBAN_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2030.csv.gz')
-    RUN_URBAN_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Urban_2020.csv.gz')
-    RUN_TOTAL_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2030.csv.gz')
-    RUN_TOTAL_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_Total_2020.csv.gz')
+    RUN_RURAL_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2030.csv.gz')
+    RUN_RURAL_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_rural_2020.csv.gz')
+    RUN_URBAN_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2030.csv.gz')
+    RUN_URBAN_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_urban_2020.csv.gz')
+    RUN_TOTAL_2030_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2030.csv.gz')
+    RUN_TOTAL_2020_CSV = pkg_resources.resource_filename('population_gravity', f'tests/data/outputs/{STATE_NAME}_1km_{SCENARIO}_total_2020.csv.gz')
 
     def test_raster_outputs(self):
         """Test for raster outputs."""
@@ -111,10 +111,10 @@ class TestProjectedOutputs(unittest.TestCase):
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
                     output_directory=TestProjectedOutputs.OUTPUT_DIRECTORY,
-                    alpha_urban=1.99999999995073,
-                    alpha_rural=0.0750326293181678,
-                    beta_urban=1.77529986067379,
-                    beta_rural=1.42410799449511,
+                    alpha_urban=1.9999999999507383,
+                    alpha_rural=0.07503262931816788,
+                    beta_urban=1.7752998606737922,
+                    beta_rural=1.4241079944951196,
                     kernel_distance_meters=100000,
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
@@ -240,12 +240,12 @@ class TestProjectedOutputs(unittest.TestCase):
             run_urban_2030 = utils.array_to_raster_memory(run_object.template_raster, arr_urban_2030, run_object.one_dimension_indices).read(1)
             run_total_2030 = utils.array_to_raster_memory(run_object.template_raster, arr_total_2030, run_object.one_dimension_indices).read(1)
 
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_URBAN_2020, run_urban_2020, decimal=5)
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_RURAL_2020, run_rural_2020, decimal=5)
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_TOTAL_2020, run_total_2020, decimal=5)
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_RURAL_2030, run_rural_2030, decimal=5)
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_URBAN_2030, run_urban_2030, decimal=5)
-        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_TOTAL_2030, run_total_2030, decimal=5)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_URBAN_2020, run_urban_2020, decimal=1)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_RURAL_2020, run_rural_2020, decimal=1)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_TOTAL_2020, run_total_2020, decimal=1)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_RURAL_2030, run_rural_2030, decimal=1)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_URBAN_2030, run_urban_2030, decimal=1)
+        np.testing.assert_array_almost_equal(TestProjectedOutputs.COMP_TOTAL_2030, run_total_2030, decimal=1)
 
 
 if __name__ == '__main__':

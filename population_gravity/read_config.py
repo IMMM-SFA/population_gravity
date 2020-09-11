@@ -181,30 +181,79 @@ class ReadConfig:
         self._alpha_rural = alpha_rural
         self._beta_urban = beta_urban
         self._beta_rural = beta_rural
+        self._kernel_distance_meters = kernel_distance_meters
+
+
         self._output_directory = output_directory
+
+
         self._grid_coordinates_file = grid_coordinates_file
-        self._historical_suitability_raster = historical_suitability_raster
-        self._historical_rural_pop_raster = historical_rural_pop_raster
-        self._historical_urban_pop_raster = historical_urban_pop_raster
+
+        # Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
+        #         for each 1 km grid cell representing suitability depending on topographic and land use and land cover
+        #         characteristics within the target state.
+        self.historical_suitability_raster = self.validate_file(historical_suitability_raster)
+
+        # Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step.
+        self.historical_rural_pop_raster = self.validate_file(historical_rural_pop_raster)
+
+
+        # Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step
+        self.historical_urban_pop_raster = self.validate_file(historical_urban_pop_raster)
+
+
         self._projected_population_file = projected_population_file
+
+
         self._one_dimension_indices_file = one_dimension_indices_file
-        self._scenario = scenario
-        self._state_name = state_name.lower()
-        self._historic_base_year = historic_base_year
-        self._projection_start_year = projection_start_year
-        self._projection_end_year = projection_end_year
-        self._time_step = time_step
+
+        # Target scenario name
+        self.scenario = scenario.lower()
+
+        # Target state name
+        self.state_name = state_name.lower()
+
+        # Four digit historic base year
+        self.historic_base_year = self.validate_step(self.historic_base_year, 'historic_base_year')
+
+        # Four digit first year to process for the projection
+        self.projection_start_year = self.validate_step(projection_start_year, 'projection_start_year')
+
+        # Four digit last year to process for the projection
+        self.projection_end_year = self.validate_step(self.projection_end_year, 'projection_end_year')
+
+        # Number of time steps
+        self.time_step = self.validate_step(time_step, self.TIME_STEP_KEY)
+
+
         self._rural_pop_proj_n = rural_pop_proj_n
         self._urban_pop_proj_n = urban_pop_proj_n
-        self._kernel_distance_meters = kernel_distance_meters
-        self._write_raster = write_raster
-        self._write_csv = write_csv
-        self._write_array1d = write_array1d
-        self._write_array2d = write_array2d
-        self._run_number = run_number
-        self._write_logfile = write_logfile
-        self._compress_csv = compress_csv
-        self._output_total = output_total
+
+        # Optionally save outputs to a raster
+        self.write_raster = write_raster
+
+        # Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
+        #         Exports values for non-NODATA grid cells as field name `value`
+        self.write_csv = write_csv
+
+        # Optionally save outputs to a 1D array for cells within the target state
+        self.write_array1d = write_array1d
+
+        # Optionally save outputs to a 1D array for cells within the target state
+        self.write_array2d = write_array2d
+
+        # An integer add on for the file name when running sensitivity analysis
+        self.run_number = run_number
+
+        # Optionally write log outputs to a file
+        self.write_logfile = write_logfile
+
+        # Compress CSV to GZIP option
+        self.compress_csv = compress_csv
+
+        # Choice to output total dataset (urban + rural)
+        self.output_total = output_total
+
         self.write_suitability = write_suitability
 
         # specific to calibration run
@@ -214,76 +263,32 @@ class ReadConfig:
         self._calibration_rural_year_two_raster = calibration_rural_year_two_raster
 
         # get a copy of the raster metadata from a states input raster
-        self._template_raster_object, self._metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+        self.template_raster_object, self.metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
 
-    @property
-    def output_total(self):
-        """Choice to output total dataset (urban + rural)."""
+        # import population projection file if exists
+        self.df_projected = self.process_df_projected()
 
-        return self._output_total
+        # Get a bounding box from the historical raster
+        self.bbox = utils.create_bbox(self.template_raster_object)
 
-    @property
-    def run_number(self):
-        """An integer add on for the file name when running sensitivity analysis."""
+        # Get all neighboring states including the target state as a list
+        self.neighbors = self.get_state_neighbors(self.state_name)
 
-        return self._run_number
+        # Get a current time in a string matching the specified datetime format
+        self.date_time_string = datetime.datetime.now().strftime(self.DATETIME_FORMAT)
 
-    @property
-    def compress_csv(self):
-        """Compress CSV to GZIP option."""
+        # Convenience wrapper for the DATETIME_FORMAT class attribute
+        self.datetime_format = self.DATETIME_FORMAT
 
-        return self._compress_csv
+        # Validate output directory
+        self.output_directory = self.set_output_directory()
 
-    @property
-    def write_logfile(self):
-        """Optionally write log outputs to a file."""
+        # Full path with file name and extension to the logfile
+        self.logfile = os.path.join(self.output_directory, f'logfile_{self.scenario}_{self.state_name}_{self.date_time_string}.log')
 
-        return self._write_logfile
+        # Create a list of time steps from the start and through steps by the step interval
+        self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
 
-    @property
-    def write_raster(self):
-        """Optionally save outputs to a raster."""
-
-        return self._write_raster
-
-    @property
-    def write_array1d(self):
-        """Optionally save outputs to a 1D array for cells within the target state."""
-
-        return self._write_array1d
-
-    @property
-    def write_array2d(self):
-        """Optionally save outputs to a 1D array for cells within the target state."""
-
-        return self._write_array2d
-
-    @property
-    def write_csv(self):
-        """Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
-        Exports values for non-NODATA grid cells as field name `value`.
-
-        """
-
-        return self._write_csv
-
-    @property
-    def historical_urban_pop_raster(self):
-        """Full path with file name and extension to a raster containing urban population counts for each 1 km
-        grid cell for the historical base time step.
-
-        """
-
-        return self.validate_file(self._historical_urban_pop_raster)
-
-    @property
-    def historical_rural_pop_raster(self):
-        """Full path with file name and extension to a raster containing rural population counts for each 1 km
-        grid cell for the historical base time step.
-
-        """
-
-        return self.validate_file(self._historical_rural_pop_raster)
 
     @property
     def kernel_distance_meters(self):
@@ -297,52 +302,23 @@ class ReadConfig:
 
         self._kernel_distance_meters = value
 
-    @property
-    def bbox(self):
-        """Get a bounding box from the historical raster."""
-
-        return utils.create_bbox(self.template_raster_object)
-
-    @property
-    def neighbors(self):
-        """Get all neighboring states including the target state as a list."""
-
-        return self.get_state_neighbors(self.state_name, os.path.dirname(self.historical_rural_pop_raster))
-
-    @property
-    def metadata(self):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        return self._metadata
-
-    @property
-    def template_raster_object(self):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        return self._template_raster_object
-
-    @property
-    def df_projected(self):
+    def process_df_projected(self):
         """From population projection file if exists."""
         if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
-            return pd.read_csv(self.projected_population_file)
+            df = pd.read_csv(self.projected_population_file)
+
+            # make header lower case
+            df.columns = [i.lower() for i in df.columns]
+
+            # make scenario column lower case
+            df['scenario'] = df['scenario'].str.lower()
+
+            return df
+
         else:
             return None
 
-    @property
-    def date_time_string(self):
-        """Get a current time in a string matching the specified datetime format."""
-
-        return datetime.datetime.now().strftime(self.DATETIME_FORMAT)
-
-    @property
-    def datetime_format(self):
-        """Convenience wrapper for the DATETIME_FORMAT class attribute."""
-
-        return self.DATETIME_FORMAT
-
-    @property
-    def output_directory(self):
+    def set_output_directory(self):
         """Validate output directory."""
 
         if self.config is None:
@@ -350,65 +326,6 @@ class ReadConfig:
         else:
             key = self.validate_key(self.config, self.OUT_DIR_KEY)
             return self.validate_directory(key)
-
-    @property
-    def scenario(self):
-        """Target scenario name."""
-
-        return self._scenario
-
-    @property
-    def state_name(self):
-        """Target state name."""
-
-        return self._state_name
-
-    @property
-    def logfile(self):
-        """Full path with file name and extension to the logfile."""
-
-        return os.path.join(self.output_directory, 'logfile_{}_{}_{}.log'.format(self.scenario,
-                                                                                 self.state_name,
-                                                                                 self.date_time_string))
-    @property
-    def time_step(self):
-        """Number of time steps."""
-
-        return self.validate_step(self._time_step, self.TIME_STEP_KEY)
-
-    @property
-    def projection_start_year(self):
-        """Four digit first year to process for the projection."""
-
-        return self.validate_step(self._projection_start_year, 'projection_start_year')
-
-    @property
-    def projection_end_year(self):
-        """Four digit last year to process for the projection."""
-
-        return self.validate_step(self._projection_end_year, 'projection_end_year')
-
-    @property
-    def historic_base_year(self):
-        """Four digit historic base year."""
-
-        return self.validate_step(self._historic_base_year, 'historic_base_year')
-
-    @property
-    def steps(self):
-        """Create a list of time steps from the start and through steps by the step interval."""
-
-        return range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
-
-    @property
-    def historical_suitability_raster(self):
-        """Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
-        for each 1 km grid cell representing suitability depending on topographic and land use and land cover
-        characteristics within the target state.
-
-        """
-
-        return self.validate_file(self._historical_suitability_raster)
 
     @property
     def historical_suitability_2darray(self):
@@ -667,10 +584,10 @@ class ReadConfig:
             return None
 
     @staticmethod
-    def get_state_neighbors(state_name, indir):
+    def get_state_neighbors(state_name):
         """Get all neighboring states and the target state from lookup file as a list"""
 
-        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
+        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_150km.csv'))
 
         # get the actual state name from the near states because they are not lower case like what is being passed
         state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]
