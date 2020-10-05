@@ -10,7 +10,6 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import logging
 import os
-import time
 
 import numpy as np
 import multiprocessing
@@ -199,7 +198,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 def write_suitability(cfg, setting, yr, data):
     """Write suitability data to a 1D numpy array."""
 
-    output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{cfg.run_number}_suitability.npy")
+    if len(cfg.run_number) == 0:
+        run_num = ''
+    else:
+        run_num = f"{cfg.run_number}_"
+
+    output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{run_num}suitability.npy")
 
     logging.info(f"Saving {setting} suitability array to:  {output_array}")
     np.save(output_array, data)
