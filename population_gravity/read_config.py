@@ -182,12 +182,10 @@ class ReadConfig:
         self._beta_urban = beta_urban
         self._beta_rural = beta_rural
         self._kernel_distance_meters = kernel_distance_meters
-
-
         self._output_directory = output_directory
 
-
-        self._grid_coordinates_file = grid_coordinates_file
+        self.grid_coordinates_file = self.validate_file(grid_coordinates_file)
+        self.grid_coordinates_array = self.get_grid_coordinates_array()
 
         # Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
         #         for each 1 km grid cell representing suitability depending on topographic and land use and land cover
@@ -197,13 +195,10 @@ class ReadConfig:
         # Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step.
         self.historical_rural_pop_raster = self.validate_file(historical_rural_pop_raster)
 
-
         # Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step
         self.historical_urban_pop_raster = self.validate_file(historical_urban_pop_raster)
 
-
         self._projected_population_file = projected_population_file
-
 
         self._one_dimension_indices_file = one_dimension_indices_file
 
@@ -214,13 +209,13 @@ class ReadConfig:
         self.state_name = state_name.lower()
 
         # Four digit historic base year
-        self.historic_base_year = self.validate_step(self.historic_base_year, 'historic_base_year')
+        self.historic_base_year = self.validate_step(historic_base_year, 'historic_base_year')
 
         # Four digit first year to process for the projection
         self.projection_start_year = self.validate_step(projection_start_year, 'projection_start_year')
 
         # Four digit last year to process for the projection
-        self.projection_end_year = self.validate_step(self.projection_end_year, 'projection_end_year')
+        self.projection_end_year = self.validate_step(projection_end_year, 'projection_end_year')
 
         # Number of time steps
         self.time_step = self.validate_step(time_step, self.TIME_STEP_KEY)
@@ -289,6 +284,53 @@ class ReadConfig:
         # Create a list of time steps from the start and through steps by the step interval
         self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
 
+    @property
+    def alpha_urban(self):
+        """Alpha urban parameter for model."""
+
+        return self.validate_parameter(self._alpha_urban, 'alpha_urban')
+
+    @alpha_urban.setter
+    def alpha_urban(self, value):
+        """Setter for alpha urban parameter."""
+
+        self._alpha_urban = self.validate_parameter(value, 'alpha_urban')
+
+    @property
+    def alpha_rural(self):
+        """Alpha rural parameter for model."""
+
+        return self.validate_parameter(self._alpha_rural, 'alpha_rural')
+
+    @alpha_rural.setter
+    def alpha_rural(self, value):
+        """Setter for alpha rural parameter."""
+
+        self._alpha_rural = self.validate_parameter(value, 'alpha_rural')
+
+    @property
+    def beta_urban(self):
+        """Beta urban parameter for model."""
+
+        return self.validate_parameter(self._beta_urban, 'beta_urban')
+
+    @beta_urban.setter
+    def beta_urban(self, value):
+        """Setter for beta urban parameter."""
+
+        self._beta_urban = self.validate_parameter(value, 'beta_urban')
+
+    @property
+    def beta_rural(self):
+        """Beta rural parameter for model."""
+
+        return self.validate_parameter(self._beta_rural, 'beta_rural')
+
+    @beta_rural.setter
+    def beta_rural(self, value):
+        """Setter for beta rural parameter."""
+
+        self._beta_rural = self.validate_parameter(value, 'beta_rural')
 
     @property
     def kernel_distance_meters(self):
@@ -358,17 +400,18 @@ class ReadConfig:
         with open(self.one_dimension_indices_file, 'r') as r:
             return simplejson.load(r)
 
-    @property
-    def grid_coordinates_file(self):
-        """File with grid coordinates and feature ids."""
-
-        return self.validate_file(self._grid_coordinates_file)
-
-    @property
-    def grid_coordinates_array(self):
+    def get_grid_coordinates_array(self):
         """Grid coordinates to array."""
 
-        return np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+        # return np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+        df = pd.read_csv(self.grid_coordinates_file)
+        df.sort_values('FID', inplace=True)
+        df.set_index('FID', drop=False, inplace=True)
+        df.index.name = None
+        df = df[['XCoord', 'YCoord', 'FID']].copy()
+
+        return df.values
+
 
     @property
     def urban_pop_proj_n(self):
@@ -428,54 +471,6 @@ class ReadConfig:
             array1d = array2d.flatten()
 
         return array2d, array1d, row_count, col_count, profile
-
-    @property
-    def alpha_urban(self):
-        """Alpha urban parameter for model."""
-
-        return self.validate_parameter(self._alpha_urban, 'alpha_urban')
-
-    @alpha_urban.setter
-    def alpha_urban(self, value):
-        """Setter for alpha urban parameter."""
-
-        self._alpha_urban = self.validate_parameter(value, 'alpha_urban')
-
-    @property
-    def alpha_rural(self):
-        """Alpha rural parameter for model."""
-
-        return self.validate_parameter(self._alpha_rural, 'alpha_rural')
-
-    @alpha_rural.setter
-    def alpha_rural(self, value):
-        """Setter for alpha rural parameter."""
-
-        self._alpha_rural = self.validate_parameter(value, 'alpha_rural')
-
-    @property
-    def beta_urban(self):
-        """Beta urban parameter for model."""
-
-        return self.validate_parameter(self._beta_urban, 'beta_urban')
-
-    @beta_urban.setter
-    def beta_urban(self, value):
-        """Setter for beta urban parameter."""
-
-        self._beta_urban = self.validate_parameter(value, 'beta_urban')
-
-    @property
-    def beta_rural(self):
-        """Beta rural parameter for model."""
-
-        return self.validate_parameter(self._beta_rural, 'beta_rural')
-
-    @beta_rural.setter
-    def beta_rural(self, value):
-        """Setter for beta rural parameter."""
-
-        self._beta_rural = self.validate_parameter(value, 'beta_rural')
 
     def validate_parameter(self, param, key):
         """Validate parameter existence and range.

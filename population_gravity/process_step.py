@@ -60,8 +60,6 @@ class ProcessStep:
 
             prev_step = self.yr - self.cfg.time_step
 
-            print(f"prev_step:  {prev_step}")
-
             # create a mosaic of the target state and
             urban_mask_file, rural_mask_file = self.mosaic_neighbors(prev_step)
 

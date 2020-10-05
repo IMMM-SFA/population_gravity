@@ -10,6 +10,7 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import logging
 import os
+import time
 
 import numpy as np
 import multiprocessing
@@ -51,6 +52,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
         if type(time_one_data[setting]) == str:
             rast_array = utils.raster_to_array(time_one_data[setting]).flatten()
+
         else:
             rast_array = time_one_data[setting].read().flatten()
 
@@ -66,7 +68,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     # number of columns of population grid required to derive linear indices
     ind_diffs = dist_matrix["ind_diff"].values
 
-    # distances between current point and its close points
+    # distances between current point and its close points; converted to km from meters
     ini_dist = dist_matrix["dis"].values / 1000.0
 
     # downscale population projection
@@ -214,6 +216,8 @@ def write_outputs(cfg, setting, yr, data):
     if cfg.write_raster:
         output_raster = construct_filename(cfg, setting, '.tif', yr)
         logging.info(f"Saving {setting} raster to:  {output_raster}")
+
+
         utils.array_to_raster(cfg.template_raster, data, cfg.one_dimension_indices, output_raster)
 
     # write to array if desired

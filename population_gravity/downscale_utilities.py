@@ -137,7 +137,7 @@ def array_to_raster(template_raster_object, input_array, within_indices, output_
     array = flat_array.reshape(template_raster_object[2], template_raster_object[3])
     
     with rasterio.open(output_raster, "w", **template_raster_object[4]) as dst:
-        dst.write_band(1, array)
+        dst.write(array, 1)
 
 
 def reshape_array_to_raster(template_raster_object, input_array, within_indices, output_array):
@@ -354,13 +354,15 @@ def suitability_estimator(pop_dist_params):
                                             [4] exp_xx_inv_beta_dist
 
     """
+
     # the id of the current focal point
     element = pop_dist_params[0]
-    
+
     # construct nearby indices
     neigh_indices = element + pop_dist_params[1]
 
     # population of close points
+    # try:
     pop = pop_dist_params[2][neigh_indices]
 
     # if 0.0 then inf will be generated which will raise a divide by zero runtime warning for np.power()
@@ -374,7 +376,7 @@ def suitability_estimator(pop_dist_params):
     pop_xx_alpha = np.where(np.isinf(pop_xx_alpha), 0.0, pop_xx_alpha)
 
     pop_dist_factor = pop_xx_alpha * pop_dist_params[4]
-    
+
     return np.sum(pop_dist_factor)
 
 
@@ -399,11 +401,16 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_
     :return:                        ?
 
     """
-    # calculate distances between the first point and all other points within a 100km neighborhood
+    # first_index = 502287
+
+    # calculate distances between the first point and all other points within the user-defined neighborhood
     cut_off_metres = cut_off_meters + 1
     tree_1 = cKDTree(coordinate_array[first_index:first_index + 1, [0, 1]])
+
     tree_2 = cKDTree(coordinate_array[:, [0, 1]])
     tree_dist = cKDTree.sparse_distance_matrix(tree_1, tree_2, cut_off_metres, output_type='dict', p=2)
+
+    tree_dist = {k: tree_dist[k] for k in sorted(tree_dist)}
     
     # put distances and indices of neighboring in a data frame
     dist_df = pd.DataFrame(columns=["near_id", dis_col])
@@ -411,12 +418,12 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_
     # add list for zip to accommodate Python 3
     dist_df["near_id"] = coordinate_array[list(zip(*tree_dist))[1], 2].astype(np.int32)
     dist_df[dis_col] = tree_dist.values()
-    dist_df = dist_df.loc[dist_df.loc[:, dis_col] != 0, :] # Remove the distance to itself
+    dist_df = dist_df.loc[dist_df.loc[:, dis_col] != 0, :]  # Remove the distance to itself
     
     # bring row and column indices of neighboring points by a join
     dist_df = dist_df.join(all_indices, on="near_id")
-    
-    # add to columns holding the relative difference in rows and colums beween focal point and its neighbors
+
+    # add to columns holding the relative difference in rows and columns between focal point and its neighbors
     foc_indices = all_indices.loc[first_index, [row_col, column_col]].values
     dist_df[ind_diff_col] = dist_df["near_id"] - first_index
     dist_df[row_diff_col] = dist_df[row_col] - foc_indices[0]
