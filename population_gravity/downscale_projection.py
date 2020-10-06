@@ -198,10 +198,10 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 def write_suitability(cfg, setting, yr, data):
     """Write suitability data to a 1D numpy array."""
 
-    if len(cfg.run_number) == 0:
-        run_num = ''
-    else:
+    if type(cfg.run_number) == int:
         run_num = f"{cfg.run_number}_"
+    else:
+        run_num = ''
 
     output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{run_num}suitability.npy")
 
@@ -220,7 +220,6 @@ def write_outputs(cfg, setting, yr, data):
     if cfg.write_raster:
         output_raster = construct_filename(cfg, setting, '.tif', yr)
         logging.info(f"Saving {setting} raster to:  {output_raster}")
-
 
         utils.array_to_raster(cfg.template_raster, data, cfg.one_dimension_indices, output_raster)
 
