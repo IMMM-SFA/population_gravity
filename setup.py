@@ -23,7 +23,7 @@ def get_requirements():
 
 setup(
     name='population_gravity',
-    version='1.0.2',
+    version='1.0.3',
     packages=find_packages(),
     url='https://github.com/IMMM-SFA/population_gravity',
     include_package_data=True,
