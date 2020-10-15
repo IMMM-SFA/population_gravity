@@ -93,9 +93,7 @@ def calibration(cfg, cut_off_meters=100000):
 
     # initial beta values
     b_lower = -2.0
-
-    # TODO:  should this not be 2.0 as a max?
-    b_upper = 4.0
+    b_upper = 2.0
 
     bounds = ((a_lower, a_upper), (b_lower, b_upper))
 
