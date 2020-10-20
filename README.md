@@ -241,6 +241,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             output_directory='<Full path with file name and extension to the file>',
             kernel_distance_meters=100000,
             state_name='vermont',
+            scenario='SSP2',
 
             # calibration specific entries
             calibration_urban_year_one_raster='<Full path with file name and extension to the file>',
