@@ -33,13 +33,13 @@ def final_optimization(df, params, parameters_dict, bounds, setting):
     TODO: Fill in docs
 
     """
-
     # use the point with the minimum value as an initial guess for the second optimizer
     (a0, b0) = df.loc[df["estimate"].idxmin(), ["a", "b"]]
 
     # final optimization
     parameters = scipy.optimize.minimize(utils.pop_min_function, x0=(a0, b0), args=params, method="SLSQP",
-                                         tol=0.001, options={"disp": True}, bounds=bounds)
+                                         tol=0.001, options={"disp": True, 'eps': 0.01, 'ftol': 0.01},
+                                         bounds=bounds)
 
     logging.info("\tOptimization Outcomes for {}: {}, {}".format(setting, parameters["x"], parameters["fun"]))
 
@@ -48,11 +48,10 @@ def final_optimization(df, params, parameters_dict, bounds, setting):
     return parameters_dict
 
 
-def calibration(cfg, cut_off_meters=100000):
+def calibration(cfg):
     """Calibrate alpha and beta parameters for the gravity model for a target state.
 
     :param cfg:                             Configuration object
-    :param cut_off_meters:                  Distance kernel in meters; default 100,000 meters
 
     :returns:                               [0] alpha_urban
                                             [1] alpha_rural
@@ -68,15 +67,15 @@ def calibration(cfg, cut_off_meters=100000):
     all_rasters = {'Rural': [cfg.calibration_rural_year_one_raster, cfg.calibration_rural_year_two_raster],
                    'Urban': [cfg.calibration_urban_year_one_raster, cfg.calibration_urban_year_two_raster]}
 
-    # define local variables
-    parameters_dict = {}  # Dictionary storing urban and rural calibration parameters
+    # dictionary storing urban and rural calibration parameters
+    parameters_dict = {}
 
     # Create an array containing total population values in the first historical year
     arr_pop_rur_1st = utils.raster_to_array(cfg.calibration_rural_year_one_raster).flatten()
     arr_pop_rur_2nd = utils.raster_to_array(cfg.calibration_rural_year_two_raster).flatten()
     arr_pop_urb_1st = utils.raster_to_array(cfg.calibration_urban_year_one_raster).flatten()
 
-    arr_pop_urb_2nd_2D = utils.raster_to_array(cfg.calibration_rural_year_two_raster)
+    arr_pop_urb_2nd_2D = utils.raster_to_array(cfg.calibration_urban_year_two_raster)
     arr_pop_urb_2nd = arr_pop_urb_2nd_2D.flatten()
 
     arr_pop_tot_1st = arr_pop_rur_1st + arr_pop_urb_1st
@@ -84,22 +83,20 @@ def calibration(cfg, cut_off_meters=100000):
     # All indices
     df_all_indices = utils.all_index_retriever(arr_pop_urb_2nd_2D, ["row", "column"])
 
-    dist_matrix = utils.dist_matrix_calculator(cfg.one_dimension_indices[0], cut_off_meters, df_all_indices,
+    dist_matrix = utils.dist_matrix_calculator(cfg.one_dimension_indices[0], cfg.kernel_distance_meters, df_all_indices,
                                                cfg.grid_coordinates_array)
 
     # initial alpha values
-    a_lower = -2.0
-    a_upper = 2.0
+    a_lower = cfg.pass_one_alpha_lower
+    a_upper = cfg.pass_one_alpha_upper
 
     # initial beta values
-    b_lower = -2.0
-    b_upper = 2.0
-
-    bounds = ((a_lower, a_upper), (b_lower, b_upper))
+    b_lower = cfg.pass_one_beta_lower
+    b_upper = cfg.pass_one_beta_upper
 
     # parameters to be used in optimization evenly distributed from lower to upper bound
-    a_list = np.linspace(a_lower, a_upper, 8)
-    b_list = np.linspace(b_lower, b_upper, 10)
+    a_list = np.linspace(a_lower, a_upper, cfg.brute_n_alphas)
+    b_list = np.linspace(b_lower, b_upper, cfg.brute_n_betas)
     ab_iter = build_iterator(a_list, b_list)
 
     # Parameter calculation for rural and urban
@@ -118,9 +115,9 @@ def calibration(cfg, cut_off_meters=100000):
                   cfg.one_dimension_indices)
 
         # initialize the data frame that will hold values of the brute force
-        fst_results = pd.DataFrame(data={"a": np.repeat(a_list, 10).astype(np.float32),
-                                         "b": np.tile(b_list, 8).astype(np.float32),
-                                         "estimate": np.full(80, np.nan, dtype=np.float64)
+        fst_results = pd.DataFrame(data={"a": np.repeat(a_list, cfg.brute_n_betas).astype(np.float32),
+                                         "b": np.tile(b_list, cfg.brute_n_alphas).astype(np.float32),
+                                         "estimate": np.full((cfg.brute_n_alphas * cfg.brute_n_betas), np.nan, dtype=np.float64)
                                          })
 
         # run brute force to calculate optimization per grid point
@@ -131,6 +128,7 @@ def calibration(cfg, cut_off_meters=100000):
 
             fst_results.loc[(fst_results["a"] == a_b[0]) & (fst_results["b"] == a_b[1]), "estimate"] = estimate
 
+        bounds = ((cfg.pass_two_alpha_lower, cfg.pass_two_alpha_upper), (cfg.pass_two_beta_lower, cfg.pass_two_beta_upper))
         parameters_dict = final_optimization(fst_results, params[1:], parameters_dict, bounds, setting)
 
     # write the parameters to the designated csv file
