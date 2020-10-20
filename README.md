@@ -71,6 +71,16 @@ See examples below for how to pass into the `Model` class
 | `write_array1d` | boolean | Optionally export a Numpy 1D flattened array of only grid cells within the target state |
 | `run_number` | int | Add on for the file name when running sensitivity analysis |
 | `output_total` | boolean | Choice to output total (urban + rural) dataset; Defualt True |
+| `brute_n_alphas` | int | Number of samples for alphas over the line space when using brute force for pass one |
+| `brute_n_betas` | int | Number of samples for betas over the line space when using brute force for pass one |
+| `pass_one_alpha_upper` | float | Parameter bounds for the first optimization pass |
+| `pass_one_alpha_lower` | float | Parameter bounds for the first optimization pass |
+| `pass_one_beta_upper` | float | Parameter bounds for the first optimization pass |
+| `pass_one_beta_lower` | float | Parameter bounds for the first optimization pass |
+| `pass_two_alpha_upper` | float | Parameter bounds for the seconds optimization pass |
+| `pass_two_alpha_lower` | float | Parameter bounds for the seconds optimization pass |
+| `pass_two_beta_upper` | float | Parameter bounds for the seconds optimization pass |
+| `pass_two_beta_lower` | float | Parameter bounds for the seconds optimization pass |
 
 ### Variable arguments
 Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
@@ -108,11 +118,30 @@ time_step: 10
 write_raster: True
 output_total: True
 
-# calibration specific entries
+# --- start calibration specific entries ---
 calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
 calibration_urban_year_two_raster: '<Full path with file name and extension to the file>'
 calibration_rural_year_one_raster: '<Full path with file name and extension to the file>'
 calibration_rural_year_two_raster: '<Full path with file name and extension to the file>'
+
+# number of samples for alphas and betas over the line space when using brute force for pass one
+brute_n_alphas: 10
+brute_n_betas: 5
+
+# parameter bounds for the first optimization pass
+pass_one_alpha_upper: 1.0
+pass_one_alpha_lower: -1.0
+pass_one_beta_upper: 1.0
+pass_one_beta_lower: 0.0
+
+# parameter bounds for the seconds optimization pass
+pass_two_alpha_upper: 2.0
+pass_two_alpha_lower: -2.0
+pass_two_beta_upper: 2.0
+pass_two_beta_lower: -0.5
+
+# --- end calibration specific entries ---
+
 ```
 
 ### Generate calibration parameters
@@ -201,11 +230,39 @@ run.advance_step()
 run.close()
 ```
 
-### Example 4:  Calibrate downscaling parameters for a target state using a configuration file
+### Example 4:  Calibrate downscaling parameters for a target state via script
 ```python
 from population_gravity import Model
 
-run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
+
+run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
+            historical_suitability_raster='<Full path with file name and extension to the file>',
+            one_dimension_indices_file='<Full path with file name and extension to the file>',
+            output_directory='<Full path with file name and extension to the file>',
+            kernel_distance_meters=100000,
+            state_name='vermont',
+
+            # calibration specific entries
+            calibration_urban_year_one_raster='<Full path with file name and extension to the file>',
+            calibration_urban_year_two_raster='<Full path with file name and extension to the file>',
+            calibration_rural_year_one_raster='<Full path with file name and extension to the file>',
+            calibration_rural_year_two_raster='<Full path with file name and extension to the file>',
+
+            # number of samples for alphas and betas over the line space when using brute force for pass one
+            brute_n_alphas=10,
+            brute_n_betas=5,
+
+            # parameter bounds for the first optimization pass
+            pass_one_alpha_upper=1.0,
+            pass_one_alpha_lower=-1.0,
+            pass_one_beta_upper=1.0,
+            pass_one_beta_lower=0.0,
+
+            # parameter bounds for the seconds optimization pass
+            pass_two_alpha_upper=2.0,
+            pass_two_alpha_lower=-2.0,
+            pass_two_beta_upper=2.0,
+            pass_two_beta_lower=-0.5)
 
 run.calibrate()
 ```
