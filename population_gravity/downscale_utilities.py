@@ -362,8 +362,21 @@ def suitability_estimator(pop_dist_params):
     neigh_indices = element + pop_dist_params[1]
 
     # population of close points
-    # try:
     pop = pop_dist_params[2][neigh_indices]
+
+    # try:
+    #     pop = pop_dist_params[2][neigh_indices]
+    #
+    # # catch out of bounds indices and label as NaN
+    # except IndexError:
+    #
+    #     pop = np.zeros(shape=(len(neigh_indices)))
+    #
+    #     for idx, i in enumerate(neigh_indices):
+    #         try:
+    #             pop[idx] = pop_dist_params[2][i]
+    #         except IndexError:
+    #             pop[idx] = np.nan
 
     # if 0.0 then inf will be generated which will raise a divide by zero runtime warning for np.power()
     pop = np.where(pop == 0.0, np.nan, pop)
@@ -401,8 +414,6 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_
     :return:                        ?
 
     """
-    # first_index = 502287
-
     # calculate distances between the first point and all other points within the user-defined neighborhood
     cut_off_metres = cut_off_meters + 1
     tree_1 = cKDTree(coordinate_array[first_index:first_index + 1, [0, 1]])
@@ -437,7 +448,7 @@ def dist_matrix_calculator(first_index, cut_off_meters, all_indices, coordinate_
 
 def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
                      dist_matrix, within_indices, ind_diff_col='ind_diff', dist_col='dis'):
-    """TODO: fill in description
+    """Minimize the distance of the population estimate to the observed.
 
     :param z:                       ?
     :param arr_pop_1st:
@@ -518,7 +529,7 @@ def pop_min_function(z, arr_pop_1st, arr_pop_2nd, arr_tot_pop_1st, points_mask,
     
     # final population estimate for each point if negative mode is off
     pop_estimates = suitability_estimates/tot_suitability * pop_change + pop_first_year
-    
+
     if negative_mod:
         while any(pop < 0 for pop in pop_estimates): # To ensure there is no negative population
             

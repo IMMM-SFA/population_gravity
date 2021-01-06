@@ -10,7 +10,6 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import logging
 import os
-import pkg_resources
 import time
 import rasterio
 

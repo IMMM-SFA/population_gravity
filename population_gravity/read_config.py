@@ -162,8 +162,8 @@ class ReadConfig:
     BETA_KEY = 'beta_param'
 
     # definition of acceptable range of values for parameters
-    MAX_PARAM_VALUE = 2.0
-    MIN_PARAM_VALUE = -2.0
+    MAX_PARAM_VALUE = 10.0
+    MIN_PARAM_VALUE = -10.0
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
                  historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
@@ -219,7 +219,6 @@ class ReadConfig:
 
         # Number of time steps
         self.time_step = self.validate_step(time_step, self.TIME_STEP_KEY)
-
 
         self._rural_pop_proj_n = rural_pop_proj_n
         self._urban_pop_proj_n = urban_pop_proj_n
