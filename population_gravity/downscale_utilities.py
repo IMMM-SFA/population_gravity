@@ -38,7 +38,11 @@ def mosaic(raster_list, out_raster, source_metadata):
     """Create a raster mosiac from multiple rasters and save to file.
 
     :param raster_list:             List of full path to rasters with file name and extensions
+    :type raster_list:              list
+
     :param out_raster:              Full path with file name and extension to write the raster to
+    :type out_raster:               str
+
     :param source_metadata:         Metadata rasterio object from the target states init raster
 
     :return:                        Mosaicked rasterio object
@@ -361,22 +365,20 @@ def suitability_estimator(pop_dist_params):
     # construct nearby indices
     neigh_indices = element + pop_dist_params[1]
 
-    # population of close points
-    pop = pop_dist_params[2][neigh_indices]
+    try:
+        # population of close points
+        pop = pop_dist_params[2][neigh_indices]
 
-    # try:
-    #     pop = pop_dist_params[2][neigh_indices]
-    #
-    # # catch out of bounds indices and label as NaN
-    # except IndexError:
-    #
-    #     pop = np.zeros(shape=(len(neigh_indices)))
-    #
-    #     for idx, i in enumerate(neigh_indices):
-    #         try:
-    #             pop[idx] = pop_dist_params[2][i]
-    #         except IndexError:
-    #             pop[idx] = np.nan
+    # catch out of bounds indices and label as NaN
+    except IndexError:
+
+        pop = np.zeros(shape=(len(neigh_indices)))
+
+        for idx, i in enumerate(neigh_indices):
+            try:
+                pop[idx] = pop_dist_params[2][i]
+            except IndexError:
+                pop[idx] = np.nan
 
     # if 0.0 then inf will be generated which will raise a divide by zero runtime warning for np.power()
     pop = np.where(pop == 0.0, np.nan, pop)
