@@ -73,8 +73,8 @@ class TestProjectedOutputs(unittest.TestCase):
         """Test for raster outputs."""
 
         run = Model(grid_coordinates_file=TestProjectedOutputs.GRID_COORD_FILE,
-                    historical_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
-                    historical_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
+                    base_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
+                    base_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
                     historical_suitability_raster=TestProjectedOutputs.HIST_SUITABILITY,
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
@@ -87,14 +87,13 @@ class TestProjectedOutputs(unittest.TestCase):
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
-                    projection_start_year=2020,
-                    projection_end_year=2030,
-                    time_step=10,
+                    projection_year=2020,
                     write_raster=True,
                     write_array1d=False,
                     write_array2d=False,
                     write_csv=False,
-                    write_logfile=False)
+                    write_logfile=False,
+                    write_suitability=False)
 
         run.downscale()
 
@@ -105,8 +104,8 @@ class TestProjectedOutputs(unittest.TestCase):
         """Test for 1D array outputs."""
 
         run = Model(grid_coordinates_file=TestProjectedOutputs.GRID_COORD_FILE,
-                    historical_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
-                    historical_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
+                    base_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
+                    base_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
                     historical_suitability_raster=TestProjectedOutputs.HIST_SUITABILITY,
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
@@ -115,13 +114,11 @@ class TestProjectedOutputs(unittest.TestCase):
                     alpha_rural=0.07503262931816788,
                     beta_urban=1.7752998606737922,
                     beta_rural=1.4241079944951196,
-                    kernel_distance_meters=100000,
+                    kernel_distance_meters=150000,
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
-                    projection_start_year=2020,
-                    projection_end_year=2030,
-                    time_step=10,
+                    projection_year=2020,
                     write_raster=False,
                     write_array1d=True,
                     write_array2d=False,
@@ -138,8 +135,8 @@ class TestProjectedOutputs(unittest.TestCase):
         """Test for 2D array outputs."""
 
         run = Model(grid_coordinates_file=TestProjectedOutputs.GRID_COORD_FILE,
-                    historical_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
-                    historical_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
+                    base_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
+                    base_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
                     historical_suitability_raster=TestProjectedOutputs.HIST_SUITABILITY,
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
@@ -152,9 +149,7 @@ class TestProjectedOutputs(unittest.TestCase):
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
-                    projection_start_year=2020,
-                    projection_end_year=2030,
-                    time_step=10,
+                    projection_year=2020,
                     write_raster=False,
                     write_array1d=False,
                     write_array2d=True,
@@ -170,8 +165,8 @@ class TestProjectedOutputs(unittest.TestCase):
         """Test for CSV outputs."""
 
         run = Model(grid_coordinates_file=TestProjectedOutputs.GRID_COORD_FILE,
-                    historical_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
-                    historical_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
+                    base_rural_pop_raster=TestProjectedOutputs.HIST_RURAL_RASTER,
+                    base_urban_pop_raster=TestProjectedOutputs.HIST_URBAN_RASTER,
                     historical_suitability_raster=TestProjectedOutputs.HIST_SUITABILITY,
                     projected_population_file=TestProjectedOutputs.PROJ_POP_FILE,
                     one_dimension_indices_file=TestProjectedOutputs.ONE_D_IND_FILE,
@@ -184,9 +179,7 @@ class TestProjectedOutputs(unittest.TestCase):
                     scenario=TestProjectedOutputs.SCENARIO,
                     state_name=TestProjectedOutputs.STATE_NAME,
                     historic_base_year=2010,
-                    projection_start_year=2020,
-                    projection_end_year=2030,
-                    time_step=10,
+                    projection_year=2020,
                     write_raster=False,
                     write_array1d=False,
                     write_array2d=False,
@@ -210,12 +203,30 @@ class TestProjectedOutputs(unittest.TestCase):
             run_total_2030 = utils.raster_to_array(TestProjectedOutputs.RUN_TOTAL_2030)
 
         elif file_type == '1d.npy':
-            run_urban_2020 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_URBAN_2020_1NPY), run_object.one_dimension_indices).read(1)
-            run_rural_2020 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_RURAL_2020_1NPY), run_object.one_dimension_indices).read(1)
-            run_total_2020 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_TOTAL_2020_1NPY), run_object.one_dimension_indices).read(1)
-            run_rural_2030 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_RURAL_2030_1NPY), run_object.one_dimension_indices).read(1)
-            run_urban_2030 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_URBAN_2030_1NPY), run_object.one_dimension_indices).read(1)
-            run_total_2030 = utils.array_to_raster_memory(run_object.template_raster, np.load(TestProjectedOutputs.RUN_TOTAL_2030_1NPY), run_object.one_dimension_indices).read(1)
+
+            run_urban_2020 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_URBAN_2020_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
+
+            run_rural_2020 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_RURAL_2020_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
+
+            run_total_2020 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_TOTAL_2020_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
+
+            run_rural_2030 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_RURAL_2030_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
+
+            run_urban_2030 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_URBAN_2030_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
+
+            run_total_2030 = utils.array_to_raster_memory(run_object.template_raster,
+                                                          np.load(TestProjectedOutputs.RUN_TOTAL_2030_1NPY),
+                                                          run_object.one_dimension_indices).read(1)
 
         elif file_type == '2d.npy':
             run_urban_2020 = np.load(TestProjectedOutputs.RUN_URBAN_2020_2NPY)

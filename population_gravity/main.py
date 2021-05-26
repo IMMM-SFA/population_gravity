@@ -40,11 +40,11 @@ class Model(Logger):
                                                 representing suitability depending on topographic and land use and
                                                 land cover characteristics within the target state.
 
-    :param historical_rural_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_rural_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 rural population counts for each 1 km grid cell for the historical
                                                 base time step.
 
-    :param historical_urban_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_urban_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 urban population counts for each 1 km grid cell for the historical
                                                 base time step.
 
@@ -96,7 +96,7 @@ class Model(Logger):
 
     :param historic_base_year:                  int. Four digit historic base year.
 
-    :param projection_start_year:               int. Four digit first year to process for the projection.
+    :param projection_year:               int. Four digit first year to process for the projection.
 
     :param projection_end_year:                 int. Four digit last year to process for the projection.
 
@@ -149,10 +149,10 @@ class Model(Logger):
     """
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
-                 historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
+                 base_rural_pop_raster=None, base_urban_pop_raster=None, projected_population_file=None,
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
-                 projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
+                 projection_year=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
@@ -160,18 +160,15 @@ class Model(Logger):
                  write_suitability=False):
 
         super(Logger, self).__init__(config_file, grid_coordinates_file, historical_suitability_raster,
-                                     historical_rural_pop_raster, historical_urban_pop_raster,
+                                     base_rural_pop_raster, base_urban_pop_raster,
                                      projected_population_file, one_dimension_indices_file, output_directory,
                                      alpha_urban, beta_urban, alpha_rural, beta_rural, scenario, state_name,
-                                     historic_base_year, projection_start_year,  projection_end_year, time_step,
+                                     historic_base_year, projection_year,
                                      rural_pop_proj_n, urban_pop_proj_n, calibration_urban_year_one_raster,
                                      calibration_urban_year_two_raster, calibration_rural_year_one_raster,
                                      calibration_rural_year_two_raster, kernel_distance_meters, write_raster, write_csv,
                                      write_array1d, write_array2d, run_number, write_logfile, compress_csv,
                                      output_total, write_suitability)
-
-        # initialize time step generator
-        self._timestep_generator = self.build_step_generator()
 
     @staticmethod
     def make_dir(pth):
@@ -193,11 +190,12 @@ class Model(Logger):
 
         # log run parameters
         logging.info("Input parameters:")
-        logging.info("\thistorical_urban_pop_raster = {}".format(self.historical_urban_pop_raster))
-        logging.info("\thistorical_rural_pop_raster = {}".format(self.historical_rural_pop_raster))
+        logging.info("\tbase_urban_pop_raster = {}".format(self.base_urban_pop_raster))
+        logging.info("\tbase_rural_pop_raster = {}".format(self.base_rural_pop_raster))
         logging.info("\tone_dimension_indices_file = {}".format(self.one_dimension_indices_file))
 
         # for projection
+        logging.info("\tprojection_year = {}".format(self.projection_year))
         logging.info("\tgrid_coordinates_file = {}".format(self.grid_coordinates_file))
 
         # for either
@@ -211,22 +209,6 @@ class Model(Logger):
         logging.info("\talpha_rural = {}".format(self.alpha_rural))
         logging.info("\tbeta_urban = {}".format(self.beta_urban))
         logging.info("\tbeta_rural = {}".format(self.beta_rural))
-
-    def build_step_generator(self):
-        """Build step generator."""
-
-        for step in self.steps:
-
-            yield ProcessStep(self, step)
-
-    def advance_step(self):
-        """Advance to next time step.
-
-        Python 3 requires the use of `next()` to wrap the generator.
-
-        """
-
-        next(self._timestep_generator)
 
     def calibrate(self):
         """Run the model."""
@@ -258,9 +240,8 @@ class Model(Logger):
 
         logging.info("Starting downscaling.")
 
-        # process all years
-        for _ in self.steps:
-            self.advance_step()
+        # process projected year
+        ProcessStep(self)
 
         logging.info("Downscaling completed in {} minutes.".format((time.time() - td) / 60))
 

@@ -16,7 +16,6 @@ import simplejson
 import rasterio
 import yaml
 
-import numpy as np
 import pandas as pd
 
 import population_gravity.downscale_utilities as utils
@@ -42,11 +41,11 @@ class ReadConfig:
                                                 representing suitability depending on topographic and land use and
                                                 land cover characteristics within the target state.
 
-    :param historical_rural_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_rural_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 rural population counts for each 1 km grid cell for the historical
                                                 base time step.
 
-    :param historical_urban_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_urban_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 urban population counts for each 1 km grid cell for the historical
                                                 base time step.
 
@@ -98,7 +97,7 @@ class ReadConfig:
 
     :param historic_base_year:                  int. Four digit historic base year.
 
-    :param projection_start_year:               int. Four digit first year to process for the projection.
+    :param projection_year:               int. Four digit first year to process for the projection.
 
     :param projection_end_year:                 int. Four digit last year to process for the projection.
 
@@ -157,7 +156,6 @@ class ReadConfig:
     OUT_DIR_KEY = 'output_directory'
     START_STEP_KEY = 'start_step'
     THROUGH_STEP_KEY = 'through_step'
-    TIME_STEP_KEY = 'time_step'
     ALPHA_KEY = 'alpha_param'
     BETA_KEY = 'beta_param'
 
@@ -166,10 +164,10 @@ class ReadConfig:
     MIN_PARAM_VALUE = -10.0
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
-                 historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
+                 base_rural_pop_raster=None, base_urban_pop_raster=None, projected_population_file=None,
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
-                 projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
+                 projection_year=None,  rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
@@ -192,11 +190,8 @@ class ReadConfig:
         #         characteristics within the target state.
         self.historical_suitability_raster = self.validate_file(historical_suitability_raster)
 
-        # Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step.
-        self.historical_rural_pop_raster = self.validate_file(historical_rural_pop_raster)
-
-        # Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step
-        self.historical_urban_pop_raster = self.validate_file(historical_urban_pop_raster)
+        self.base_rural_pop_raster = self.validate_file(base_rural_pop_raster)
+        self.base_urban_pop_raster = self.validate_file(base_urban_pop_raster)
 
         self._projected_population_file = projected_population_file
 
@@ -212,13 +207,7 @@ class ReadConfig:
         self.historic_base_year = self.validate_step(historic_base_year, 'historic_base_year')
 
         # Four digit first year to process for the projection
-        self.projection_start_year = self.validate_step(projection_start_year, 'projection_start_year')
-
-        # Four digit last year to process for the projection
-        self.projection_end_year = self.validate_step(projection_end_year, 'projection_end_year')
-
-        # Number of time steps
-        self.time_step = self.validate_step(time_step, self.TIME_STEP_KEY)
+        self.projection_year = self.validate_step(projection_year, 'projection_year')
 
         self._rural_pop_proj_n = rural_pop_proj_n
         self._urban_pop_proj_n = urban_pop_proj_n
@@ -265,9 +254,6 @@ class ReadConfig:
         # Get a bounding box from the historical raster
         self.bbox = utils.create_bbox(self.template_raster_object)
 
-        # Get all neighboring states including the target state as a list
-        self.neighbors = self.get_state_neighbors(self.state_name)
-
         # Get a current time in a string matching the specified datetime format
         self.date_time_string = datetime.datetime.now().strftime(self.DATETIME_FORMAT)
 
@@ -279,9 +265,6 @@ class ReadConfig:
 
         # Full path with file name and extension to the logfile
         self.logfile = os.path.join(self.output_directory, f'logfile_{self.scenario}_{self.state_name}_{self.date_time_string}.log')
-
-        # Create a list of time steps from the start and through steps by the step interval
-        self.steps = range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
 
     @property
     def alpha_urban(self):
@@ -576,24 +559,6 @@ class ReadConfig:
                 raise TypeError(f"Value '{n}' is not an integer.")
         else:
             return None
-
-    @staticmethod
-    def get_state_neighbors(state_name):
-        """Get all neighboring states and the target state from lookup file as a list"""
-
-        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_150km.csv'))
-
-        # get the actual state name from the near states because they are not lower case like what is being passed
-        state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]
-
-        # extract a list of all neighboring states including the target state
-        state_list = df.loc[df['target_state'] == state_name]['near_state'].to_list()
-
-        # ensure that the target state comes first to prevent any issue with the reverse painter's algorithm for merge
-        state_list.insert(0, state_list.pop(state_list.index(state_find)))
-
-        # make all lower case
-        return [i.lower() for i in state_list]
 
     @staticmethod
     def validate_key(yaml_object, key):

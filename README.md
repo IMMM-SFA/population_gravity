@@ -42,8 +42,8 @@ See examples below for how to pass into the `Model` class
 | `config_file` | string | Full path to configuration YAML file with file name and extension. If not provided by the user, the code will default to the expectation of alternate arguments. |
 | `grid_coordinates_file` | string | Full path with file name and extension to the CSV file containing the coordinates for each 1 km grid cell within the target state. File includes a header with the fields XCoord, YCoord, FID.,Where data types and field descriptions are as follows: (XCoord, float, X coordinate in meters),(YCoord, float, Y coordinate in meters),(FID, int, Unique feature id) |
 | `historical_suitability_raster` | string | Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0 for each 1 km grid cell representing suitability depending on topographic and land use and land cover characteristics within the target state. |
-| `historical_rural_pop_raster` | string | Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step. |
-| `historical_urban_pop_raster` | string | Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step. |
+| `base_rural_pop_raster` | string | Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step. |
+| `base_urban_pop_raster` | string | Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step. |
 | `projected_population_file` | string | Full path with file name and extension to a CSV file containing population projections per year separated into urban and rural categories.,Field descriptions for require fields as follows: (Year, integer, four digit year), (UrbanPop, float, population count for urban), (RuralPop, float, population count for rural), (Scenario, string, scenario as set in the `scenario` variable) |
 | `one_dimension_indices_file` | string | Full path with file name and extension to the text file containing a file structured as a Python list (e.g. [0, 1]) that contains the index of each grid cell when flattened from a 2D array to a 1D array for the target state. |
 | `output_directory` | string | Full path with file name and extension to the output directory where outputs and the log file will be written. |
@@ -54,7 +54,7 @@ See examples below for how to pass into the `Model` class
 | `scenario` | string | String representing the scenario with no spaces. Must match what is in the `projected_population_file` if passing population projections in using a file. |
 | `state_name` | string | Target state name with no spaces separated by an underscore. |
 | `historic_base_year` | integer | Four digit historic base year. |
-| `projection_start_year` | integer | Four digit first year to process for the projection. |
+| `projection_year` | integer | Four digit first year to process for the projection. |
 | `projection_end_year` | integer | Four digit last year to process for the projection. |
 | `time_step` | integer | Number of steps (e.g. number of years between projections) |
 | `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
@@ -88,8 +88,8 @@ Arguments can be passed into the `Model` class using a YAML configuration file a
 ```yaml
 # Example configuration file setup
 grid_coordinates_file: '<Full path with file name and extension to the file>'
-historical_rural_pop_raster: '<Full path with file name and extension to the file>'
-historical_urban_pop_raster: '<Full path with file name and extension to the file>'
+base_rural_pop_raster: '<Full path with file name and extension to the file>'
+base_urban_pop_raster: '<Full path with file name and extension to the file>'
 historical_suitability_raster: '<Full path with file name and extension to the file>'
 projected_population_file: '<Full path with file name and extension to the file>'
 one_dimension_indices_file: '<Full path with file name and extension to the file>'
@@ -102,7 +102,7 @@ kernel_distance_meters: 100000
 scenario: 'SSP2'
 state_name: 'vermont'
 historic_base_year: 2010
-projection_start_year: 2020
+projection_year: 2020
 projection_end_year: 2050
 time_step: 10
 write_raster: True
@@ -139,8 +139,8 @@ run.downscale()
 from population_gravity import Model
 
 run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
-            historical_rural_pop_raster='<Full path with file name and extension to the file>',
-            historical_urban_pop_raster='<Full path with file name and extension to the file>',
+            base_rural_pop_raster='<Full path with file name and extension to the file>',
+            base_urban_pop_raster='<Full path with file name and extension to the file>',
             historical_suitability_raster='<Full path with file name and extension to the file>',
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
@@ -153,7 +153,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
-            projection_start_year=2020,
+            projection_year=2020,
             projection_end_year=2030,
             time_step=10,
             write_raster=True)
@@ -166,8 +166,8 @@ run.downscale()
 from population_gravity import Model
 
 run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
-            historical_rural_pop_raster='<Full path with file name and extension to the file>',
-            historical_urban_pop_raster='<Full path with file name and extension to the file>',
+            base_rural_pop_raster='<Full path with file name and extension to the file>',
+            base_urban_pop_raster='<Full path with file name and extension to the file>',
             historical_suitability_raster='<Full path with file name and extension to the file>',
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
@@ -180,7 +180,7 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             scenario='SSP2', # shared socioeconomic pathway abbreviation
             state_name='vermont',
             historic_base_year=2010,
-            projection_start_year=2020,
+            projection_year=2020,
             projection_end_year=2030,
             time_step=10,
             write_raster=True)
