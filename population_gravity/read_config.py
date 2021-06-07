@@ -167,7 +167,7 @@ class ReadConfig:
                  base_rural_pop_raster=None, base_urban_pop_raster=None, projected_population_file=None,
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
-                 projection_year=None,  rural_pop_proj_n=None,
+                 projection_year=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,

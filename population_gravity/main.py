@@ -96,7 +96,7 @@ class Model(Logger):
 
     :param historic_base_year:                  int. Four digit historic base year.
 
-    :param projection_year:               int. Four digit first year to process for the projection.
+    :param projection_year:                     int. Four digit first year to process for the projection.
 
     :param projection_end_year:                 int. Four digit last year to process for the projection.
 
@@ -193,12 +193,8 @@ class Model(Logger):
         logging.info("\tbase_urban_pop_raster = {}".format(self.base_urban_pop_raster))
         logging.info("\tbase_rural_pop_raster = {}".format(self.base_rural_pop_raster))
         logging.info("\tone_dimension_indices_file = {}".format(self.one_dimension_indices_file))
-
-        # for projection
         logging.info("\tprojection_year = {}".format(self.projection_year))
         logging.info("\tgrid_coordinates_file = {}".format(self.grid_coordinates_file))
-
-        # for either
         logging.info("\thistorical_suitability_raster = {}".format(self.historical_suitability_raster))
         logging.info("\tstate_name = {}".format(self.state_name))
         logging.info("\tscenario = {}".format(self.scenario))
@@ -220,7 +216,6 @@ class Model(Logger):
 
         if self.run_number != '':
             logging.info("\trun_number = {}".format(self.run_number))
-
 
     def calibrate(self):
         """Run the model."""
