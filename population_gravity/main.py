@@ -201,7 +201,6 @@ class Model(Logger):
         # for either
         logging.info("\thistorical_suitability_raster = {}".format(self.historical_suitability_raster))
         logging.info("\tstate_name = {}".format(self.state_name))
-        logging.info("\tprojected_population_file = {}".format(self.projected_population_file))
         logging.info("\tscenario = {}".format(self.scenario))
         logging.info("\toutput_directory = {}".format(self.output_directory))
         logging.info("\tkernel_distance_meters = {}".format(self.kernel_distance_meters))
@@ -209,6 +208,16 @@ class Model(Logger):
         logging.info("\talpha_rural = {}".format(self.alpha_rural))
         logging.info("\tbeta_urban = {}".format(self.beta_urban))
         logging.info("\tbeta_rural = {}".format(self.beta_rural))
+
+        if self.projected_population_file is not None:
+            logging.info("\tprojected_population_file = {}".format(self.projected_population_file))
+
+        if self.urban_pop_proj_n is not None:
+            logging.info("\turban_pop_proj_n = {}".format(self.urban_pop_proj_n))
+
+        if self.rural_pop_proj_n is not None:
+            logging.info("\trural_pop_proj_n = {}".format(self.rural_pop_proj_n))
+
 
     def calibrate(self):
         """Run the model."""
