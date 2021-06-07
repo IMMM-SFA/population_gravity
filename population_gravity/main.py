@@ -218,6 +218,9 @@ class Model(Logger):
         if self.rural_pop_proj_n is not None:
             logging.info("\trural_pop_proj_n = {}".format(self.rural_pop_proj_n))
 
+        if self.run_number != '':
+            logging.info("\trun_number = {}".format(self.run_number))
+
 
     def calibrate(self):
         """Run the model."""
