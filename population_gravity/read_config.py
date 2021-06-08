@@ -10,7 +10,6 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import datetime
 import os
-import pkg_resources
 import simplejson
 
 import rasterio
