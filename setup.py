@@ -25,7 +25,7 @@ setup(
         'xarray~=0.16.2',
         'scipy~=1.5.1',
         'pathos~=0.2.6',
-        'PyYAML~=5.3.1'
+        'PyYAML~=5.4.1'
     ],
     include_package_data=True
 )
