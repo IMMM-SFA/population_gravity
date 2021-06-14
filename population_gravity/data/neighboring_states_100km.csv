@@ -1,274 +1,340 @@
 target_state,near_state
-minnesota,Minnesota
-minnesota,North Dakota
-minnesota,Iowa
-minnesota,South Dakota
-minnesota,Wisconsin
-minnesota,Michigan
-montana,Montana
-montana,North Dakota
-montana,Idaho
-montana,Wyoming
-montana,South Dakota
-north dakota,Minnesota
-north dakota,Montana
-north dakota,North Dakota
-north dakota,South Dakota
-hawaii,Hawaii
-idaho,Montana
-idaho,Idaho
-idaho,Washington
-idaho,Nevada
-idaho,Oregon
-idaho,Utah
-idaho,Wyoming
-washington,Idaho
-washington,Washington
-washington,Oregon
-arizona,Arizona
-arizona,California
-arizona,Colorado
-arizona,Nevada
-arizona,New Mexico
-arizona,Utah
-california,Arizona
-california,California
-california,Nevada
-california,Oregon
-colorado,Arizona
-colorado,Colorado
-colorado,New Mexico
-colorado,Utah
-colorado,Wyoming
-colorado,Kansas
-colorado,Nebraska
-colorado,Oklahoma
-nevada,Idaho
-nevada,Arizona
-nevada,California
-nevada,Nevada
-nevada,Oregon
-nevada,Utah
-new mexico,Arizona
-new mexico,Colorado
-new mexico,New Mexico
-new mexico,Utah
-new mexico,Oklahoma
-new mexico,Texas
-oregon,Idaho
-oregon,Washington
-oregon,California
-oregon,Nevada
-oregon,Oregon
-utah,Idaho
-utah,Arizona
-utah,Colorado
-utah,Nevada
-utah,New Mexico
-utah,Utah
-utah,Wyoming
-wyoming,Montana
-wyoming,Idaho
-wyoming,Colorado
-wyoming,Utah
-wyoming,Wyoming
-wyoming,Nebraska
-wyoming,South Dakota
-arkansas,Arkansas
-arkansas,Missouri
-arkansas,Oklahoma
-arkansas,Louisiana
-arkansas,Texas
-arkansas,Mississippi
-arkansas,Tennessee
-iowa,Minnesota
-iowa,Iowa
-iowa,Missouri
-iowa,Nebraska
-iowa,South Dakota
-iowa,Illinois
-iowa,Wisconsin
-kansas,Colorado
-kansas,Kansas
-kansas,Missouri
-kansas,Nebraska
-kansas,Oklahoma
-missouri,Arkansas
-missouri,Iowa
-missouri,Kansas
-missouri,Missouri
-missouri,Nebraska
-missouri,Oklahoma
-missouri,Illinois
-missouri,Kentucky
-missouri,Tennessee
-nebraska,Colorado
-nebraska,Wyoming
-nebraska,Iowa
-nebraska,Kansas
-nebraska,Missouri
-nebraska,Nebraska
-nebraska,South Dakota
-oklahoma,Colorado
-oklahoma,New Mexico
-oklahoma,Arkansas
-oklahoma,Kansas
-oklahoma,Missouri
-oklahoma,Oklahoma
-oklahoma,Texas
-south dakota,Minnesota
-south dakota,Montana
-south dakota,North Dakota
-south dakota,Wyoming
-south dakota,Iowa
-south dakota,Nebraska
-south dakota,South Dakota
-louisiana,Arkansas
-louisiana,Louisiana
-louisiana,Texas
-louisiana,Mississippi
-texas,New Mexico
-texas,Arkansas
-texas,Oklahoma
-texas,Louisiana
-texas,Texas
-connecticut,Connecticut
-connecticut,Massachusetts
-connecticut,Rhode Island
-connecticut,New York
-massachusetts,Connecticut
-massachusetts,Massachusetts
-massachusetts,New Hampshire
-massachusetts,Rhode Island
-massachusetts,Vermont
-massachusetts,New York
-new hampshire,Massachusetts
-new hampshire,New Hampshire
-new hampshire,Vermont
-new hampshire,Maine
-rhode island,Connecticut
-rhode island,Massachusetts
-rhode island,Rhode Island
-vermont,Massachusetts
-vermont,New Hampshire
-vermont,Vermont
-vermont,New York
-alabama,Alabama
-alabama,Florida
-alabama,Georgia
-alabama,Mississippi
-alabama,Tennessee
-florida,Alabama
-florida,Florida
-florida,Georgia
-georgia,Alabama
-georgia,Florida
-georgia,Georgia
-georgia,South Carolina
-georgia,North Carolina
-georgia,Tennessee
-mississippi,Arkansas
-mississippi,Louisiana
-mississippi,Alabama
-mississippi,Mississippi
-mississippi,Tennessee
-south carolina,Georgia
-south carolina,South Carolina
-south carolina,North Carolina
-illinois,Iowa
-illinois,Missouri
-illinois,Illinois
-illinois,Indiana
-illinois,Kentucky
-illinois,Wisconsin
-illinois,Michigan
-indiana,Illinois
-indiana,Indiana
-indiana,Kentucky
-indiana,Ohio
-indiana,Michigan
-kentucky,Missouri
-kentucky,Illinois
-kentucky,Indiana
-kentucky,Kentucky
-kentucky,Ohio
-kentucky,Tennessee
-kentucky,Virginia
-kentucky,West Virginia
-north carolina,Georgia
-north carolina,South Carolina
-north carolina,North Carolina
-north carolina,Tennessee
-north carolina,Virginia
-ohio,Indiana
-ohio,Kentucky
-ohio,Ohio
-ohio,West Virginia
-ohio,Pennsylvania
-ohio,Michigan
-tennessee,Arkansas
-tennessee,Missouri
-tennessee,Alabama
-tennessee,Georgia
-tennessee,Mississippi
-tennessee,Kentucky
-tennessee,North Carolina
-tennessee,Tennessee
-tennessee,Virginia
-virginia,Kentucky
-virginia,North Carolina
-virginia,Tennessee
-virginia,Virginia
-virginia,West Virginia
-virginia,District of Columbia
-virginia,Maryland
-wisconsin,Minnesota
-wisconsin,Iowa
-wisconsin,Illinois
-wisconsin,Wisconsin
-wisconsin,Michigan
-west virginia,Kentucky
-west virginia,Ohio
-west virginia,Virginia
-west virginia,West Virginia
-west virginia,Maryland
-west virginia,Pennsylvania
-delaware,Delaware
-delaware,Maryland
-delaware,New Jersey
-delaware,Pennsylvania
-district of columbia,Virginia
-district of columbia,District of Columbia
-district of columbia,Maryland
-maryland,Virginia
-maryland,West Virginia
-maryland,Delaware
-maryland,District of Columbia
-maryland,Maryland
-maryland,Pennsylvania
-new jersey,Delaware
-new jersey,New Jersey
-new jersey,New York
-new jersey,Pennsylvania
-new york,Connecticut
-new york,Massachusetts
-new york,Vermont
-new york,New Jersey
-new york,New York
-new york,Pennsylvania
-pennsylvania,Ohio
-pennsylvania,West Virginia
-pennsylvania,Delaware
-pennsylvania,Maryland
-pennsylvania,New Jersey
-pennsylvania,New York
-pennsylvania,Pennsylvania
-maine,New Hampshire
-maine,Maine
-michigan,Minnesota
-michigan,Illinois
-michigan,Indiana
-michigan,Ohio
-michigan,Wisconsin
-michigan,Michigan
-alaska,Alaska
+oregon,oregon
+oregon,idaho
+oregon,california
+oregon,washington
+oregon,nevada
+pennsylvania,pennsylvania
+pennsylvania,ohio
+pennsylvania,district_of_columbia
+pennsylvania,maryland
+pennsylvania,delaware
+pennsylvania,connecticut
+pennsylvania,west_virginia
+pennsylvania,virginia
+pennsylvania,new_york
+pennsylvania,new_jersey
+ohio,pennsylvania
+ohio,ohio
+ohio,kentucky
+ohio,indiana
+ohio,michigan
+ohio,west_virginia
+ohio,new_york
+oklahoma,oklahoma
+oklahoma,missouri
+oklahoma,louisiana
+oklahoma,kansas
+oklahoma,arkansas
+oklahoma,colorado
+oklahoma,texas
+oklahoma,new_mexico
+mississippi,mississippi
+mississippi,louisiana
+mississippi,florida
+mississippi,alabama
+mississippi,arkansas
+mississippi,tennessee
+montana,montana
+montana,north_dakota
+montana,idaho
+montana,wyoming
+montana,washington
+montana,south_dakota
+minnesota,minnesota
+minnesota,nebraska
+minnesota,north_dakota
+minnesota,michigan
+minnesota,iowa
+minnesota,wisconsin
+minnesota,south_dakota
+missouri,oklahoma
+missouri,missouri
+missouri,nebraska
+missouri,kentucky
+missouri,kansas
+missouri,illinois
+missouri,iowa
+missouri,arkansas
+missouri,tennessee
+nebraska,minnesota
+nebraska,missouri
+nebraska,nebraska
+nebraska,kansas
+nebraska,iowa
+nebraska,colorado
+nebraska,wyoming
+nebraska,south_dakota
+new_hampshire,new_hampshire
+new_hampshire,maine
+new_hampshire,massachusetts
+new_hampshire,connecticut
+new_hampshire,rhode_island
+new_hampshire,vermont
+new_hampshire,new_york
+north_carolina,north_carolina
+north_carolina,kentucky
+north_carolina,georgia
+north_carolina,west_virginia
+north_carolina,tennessee
+north_carolina,south_carolina
+north_carolina,virginia
+north_dakota,montana
+north_dakota,minnesota
+north_dakota,north_dakota
+north_dakota,south_dakota
+kentucky,ohio
+kentucky,missouri
+kentucky,north_carolina
+kentucky,kentucky
+kentucky,indiana
+kentucky,illinois
+kentucky,arkansas
+kentucky,west_virginia
+kentucky,tennessee
+kentucky,virginia
+louisiana,oklahoma
+louisiana,mississippi
+louisiana,louisiana
+louisiana,alabama
+louisiana,arkansas
+louisiana,texas
+indiana,ohio
+indiana,kentucky
+indiana,indiana
+indiana,michigan
+indiana,illinois
+indiana,wisconsin
+kansas,oklahoma
+kansas,missouri
+kansas,nebraska
+kansas,kansas
+kansas,iowa
+kansas,arkansas
+kansas,colorado
+kansas,texas
+kansas,new_mexico
+maine,new_hampshire
+maine,maine
+maine,massachusetts
+maine,vermont
+florida,mississippi
+florida,florida
+florida,georgia
+florida,alabama
+michigan,ohio
+michigan,minnesota
+michigan,indiana
+michigan,michigan
+michigan,illinois
+michigan,wisconsin
+georgia,north_carolina
+georgia,florida
+georgia,georgia
+georgia,alabama
+georgia,tennessee
+georgia,south_carolina
+massachusetts,new_hampshire
+massachusetts,maine
+massachusetts,massachusetts
+massachusetts,connecticut
+massachusetts,rhode_island
+massachusetts,vermont
+massachusetts,new_york
+district_of_columbia,pennsylvania
+district_of_columbia,district_of_columbia
+district_of_columbia,maryland
+district_of_columbia,west_virginia
+district_of_columbia,virginia
+maryland,pennsylvania
+maryland,district_of_columbia
+maryland,maryland
+maryland,delaware
+maryland,west_virginia
+maryland,virginia
+maryland,new_jersey
+delaware,pennsylvania
+delaware,maryland
+delaware,delaware
+delaware,virginia
+delaware,new_jersey
+idaho,oregon
+idaho,montana
+idaho,idaho
+idaho,wyoming
+idaho,washington
+idaho,utah
+idaho,nevada
+illinois,missouri
+illinois,kentucky
+illinois,indiana
+illinois,michigan
+illinois,illinois
+illinois,iowa
+illinois,arkansas
+illinois,wisconsin
+illinois,tennessee
+iowa,minnesota
+iowa,missouri
+iowa,nebraska
+iowa,kansas
+iowa,illinois
+iowa,iowa
+iowa,wisconsin
+iowa,south_dakota
+alabama,mississippi
+alabama,louisiana
+alabama,florida
+alabama,georgia
+alabama,alabama
+alabama,tennessee
+arkansas,oklahoma
+arkansas,mississippi
+arkansas,missouri
+arkansas,kentucky
+arkansas,louisiana
+arkansas,kansas
+arkansas,illinois
+arkansas,arkansas
+arkansas,tennessee
+arkansas,texas
+colorado,oklahoma
+colorado,nebraska
+colorado,kansas
+colorado,colorado
+colorado,arizona
+colorado,wyoming
+colorado,texas
+colorado,utah
+colorado,new_mexico
+connecticut,pennsylvania
+connecticut,new_hampshire
+connecticut,massachusetts
+connecticut,connecticut
+connecticut,rhode_island
+connecticut,vermont
+connecticut,new_york
+connecticut,new_jersey
+arizona,colorado
+arizona,arizona
+arizona,california
+arizona,utah
+arizona,nevada
+arizona,new_mexico
+california,oregon
+california,arizona
+california,california
+california,nevada
+west_virginia,pennsylvania
+west_virginia,ohio
+west_virginia,north_carolina
+west_virginia,kentucky
+west_virginia,district_of_columbia
+west_virginia,maryland
+west_virginia,west_virginia
+west_virginia,tennessee
+west_virginia,virginia
+wyoming,montana
+wyoming,nebraska
+wyoming,idaho
+wyoming,colorado
+wyoming,wyoming
+wyoming,south_dakota
+wyoming,utah
+washington,oregon
+washington,montana
+washington,idaho
+washington,washington
+wisconsin,minnesota
+wisconsin,indiana
+wisconsin,michigan
+wisconsin,illinois
+wisconsin,iowa
+wisconsin,wisconsin
+south_dakota,montana
+south_dakota,minnesota
+south_dakota,nebraska
+south_dakota,north_dakota
+south_dakota,iowa
+south_dakota,wyoming
+south_dakota,south_dakota
+tennessee,mississippi
+tennessee,missouri
+tennessee,north_carolina
+tennessee,kentucky
+tennessee,georgia
+tennessee,illinois
+tennessee,alabama
+tennessee,arkansas
+tennessee,west_virginia
+tennessee,tennessee
+tennessee,south_carolina
+tennessee,virginia
+rhode_island,new_hampshire
+rhode_island,massachusetts
+rhode_island,connecticut
+rhode_island,rhode_island
+rhode_island,vermont
+rhode_island,new_york
+south_carolina,north_carolina
+south_carolina,georgia
+south_carolina,tennessee
+south_carolina,south_carolina
+virginia,pennsylvania
+virginia,north_carolina
+virginia,kentucky
+virginia,district_of_columbia
+virginia,maryland
+virginia,delaware
+virginia,west_virginia
+virginia,tennessee
+virginia,virginia
+vermont,new_hampshire
+vermont,maine
+vermont,massachusetts
+vermont,connecticut
+vermont,rhode_island
+vermont,vermont
+vermont,new_york
+texas,oklahoma
+texas,louisiana
+texas,kansas
+texas,arkansas
+texas,colorado
+texas,texas
+texas,new_mexico
+utah,idaho
+utah,colorado
+utah,arizona
+utah,wyoming
+utah,utah
+utah,nevada
+utah,new_mexico
+nevada,oregon
+nevada,idaho
+nevada,arizona
+nevada,california
+nevada,utah
+nevada,nevada
+new_york,pennsylvania
+new_york,ohio
+new_york,new_hampshire
+new_york,massachusetts
+new_york,connecticut
+new_york,rhode_island
+new_york,vermont
+new_york,new_york
+new_york,new_jersey
+new_jersey,pennsylvania
+new_jersey,maryland
+new_jersey,delaware
+new_jersey,connecticut
+new_jersey,new_york
+new_jersey,new_jersey
+new_mexico,oklahoma
+new_mexico,kansas
+new_mexico,colorado
+new_mexico,arizona
+new_mexico,texas
+new_mexico,utah
+new_mexico,new_mexico

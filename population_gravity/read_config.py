@@ -10,13 +10,11 @@ License:  BSD 2-Clause, see LICENSE and DISCLAIMER files
 
 import datetime
 import os
-import pkg_resources
 import simplejson
 
 import rasterio
 import yaml
 
-import numpy as np
 import pandas as pd
 
 import population_gravity.downscale_utilities as utils
@@ -42,11 +40,11 @@ class ReadConfig:
                                                 representing suitability depending on topographic and land use and
                                                 land cover characteristics within the target state.
 
-    :param historical_rural_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_rural_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 rural population counts for each 1 km grid cell for the historical
                                                 base time step.
 
-    :param historical_urban_pop_raster:         string. Full path with file name and extension to a raster containing
+    :param base_urban_pop_raster:         string. Full path with file name and extension to a raster containing
                                                 urban population counts for each 1 km grid cell for the historical
                                                 base time step.
 
@@ -98,7 +96,7 @@ class ReadConfig:
 
     :param historic_base_year:                  int. Four digit historic base year.
 
-    :param projection_start_year:               int. Four digit first year to process for the projection.
+    :param projection_year:               int. Four digit first year to process for the projection.
 
     :param projection_end_year:                 int. Four digit last year to process for the projection.
 
@@ -157,19 +155,18 @@ class ReadConfig:
     OUT_DIR_KEY = 'output_directory'
     START_STEP_KEY = 'start_step'
     THROUGH_STEP_KEY = 'through_step'
-    TIME_STEP_KEY = 'time_step'
     ALPHA_KEY = 'alpha_param'
     BETA_KEY = 'beta_param'
 
     # definition of acceptable range of values for parameters
-    MAX_PARAM_VALUE = 2.0
-    MIN_PARAM_VALUE = -2.0
+    MAX_PARAM_VALUE = 10.0
+    MIN_PARAM_VALUE = -10.0
 
     def __init__(self, config_file=None, grid_coordinates_file=None, historical_suitability_raster=None,
-                 historical_rural_pop_raster=None, historical_urban_pop_raster=None, projected_population_file=None,
+                 base_rural_pop_raster=None, base_urban_pop_raster=None, projected_population_file=None,
                  one_dimension_indices_file=None, output_directory=None, alpha_urban=None, beta_urban=None,
                  alpha_rural=None, beta_rural=None, scenario=None, state_name=None, historic_base_year=None,
-                 projection_start_year=None,  projection_end_year=None, time_step=None, rural_pop_proj_n=None,
+                 projection_year=None, rural_pop_proj_n=None,
                  urban_pop_proj_n=None, calibration_urban_year_one_raster=None, calibration_urban_year_two_raster=None,
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
@@ -183,30 +180,64 @@ class ReadConfig:
         self._alpha_rural = alpha_rural
         self._beta_urban = beta_urban
         self._beta_rural = beta_rural
+        self._kernel_distance_meters = kernel_distance_meters
         self._output_directory = output_directory
-        self._grid_coordinates_file = grid_coordinates_file
-        self._historical_suitability_raster = historical_suitability_raster
-        self._historical_rural_pop_raster = historical_rural_pop_raster
-        self._historical_urban_pop_raster = historical_urban_pop_raster
+
+        self.grid_coordinates_file = self.validate_file(grid_coordinates_file)
+        self.grid_coordinates_array = self.get_grid_coordinates_array()
+
+        # Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
+        #         for each 1 km grid cell representing suitability depending on topographic and land use and land cover
+        #         characteristics within the target state.
+        self.historical_suitability_raster = self.validate_file(historical_suitability_raster)
+
+        self.base_rural_pop_raster = self.validate_file(base_rural_pop_raster)
+        self.base_urban_pop_raster = self.validate_file(base_urban_pop_raster)
+
         self._projected_population_file = projected_population_file
+
         self._one_dimension_indices_file = one_dimension_indices_file
-        self._scenario = scenario
-        self._state_name = state_name
-        self._historic_base_year = historic_base_year
-        self._projection_start_year = projection_start_year
-        self._projection_end_year = projection_end_year
-        self._time_step = time_step
+
+        # Target scenario name
+        self.scenario = scenario.lower()
+
+        # Target state name
+        self.state_name = state_name.lower()
+
+        # Four digit historic base year
+        self.historic_base_year = self.validate_step(historic_base_year, 'historic_base_year')
+
+        # Four digit first year to process for the projection
+        self.projection_year = self.validate_step(projection_year, 'projection_year')
+
         self._rural_pop_proj_n = rural_pop_proj_n
         self._urban_pop_proj_n = urban_pop_proj_n
-        self._kernel_distance_meters = kernel_distance_meters
-        self._write_raster = write_raster
-        self._write_csv = write_csv
-        self._write_array1d = write_array1d
-        self._write_array2d = write_array2d
-        self._run_number = run_number
-        self._write_logfile = write_logfile
-        self._compress_csv = compress_csv
-        self._output_total = output_total
+
+        # Optionally save outputs to a raster
+        self.write_raster = write_raster
+
+        # Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
+        #         Exports values for non-NODATA grid cells as field name `value`
+        self.write_csv = write_csv
+
+        # Optionally save outputs to a 1D array for cells within the target state
+        self.write_array1d = write_array1d
+
+        # Optionally save outputs to a 1D array for cells within the target state
+        self.write_array2d = write_array2d
+
+        # An integer add on for the file name when running sensitivity analysis
+        self.run_number = run_number
+
+        # Optionally write log outputs to a file
+        self.write_logfile = write_logfile
+
+        # Compress CSV to GZIP option
+        self.compress_csv = compress_csv
+
+        # Choice to output total dataset (urban + rural)
+        self.output_total = output_total
+
         self.write_suitability = write_suitability
 
         # specific to calibration run
@@ -226,76 +257,73 @@ class ReadConfig:
         self.brute_n_betas = brute_n_betas
 
         # get a copy of the raster metadata from a states input raster
-        self._template_raster_object, self._metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+        self.template_raster_object, self.metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)
+
+        # import population projection file if exists
+        self.df_projected = self.process_df_projected()
+
+        # Get a bounding box from the historical raster
+        self.bbox = utils.create_bbox(self.template_raster_object)
+
+        # Get a current time in a string matching the specified datetime format
+        self.date_time_string = datetime.datetime.now().strftime(self.DATETIME_FORMAT)
+
+        # Convenience wrapper for the DATETIME_FORMAT class attribute
+        self.datetime_format = self.DATETIME_FORMAT
+
+        # Validate output directory
+        self.output_directory = self.set_output_directory()
+
+        # Full path with file name and extension to the logfile
+        self.logfile = os.path.join(self.output_directory, f'logfile_{self.scenario}_{self.state_name}_{self.date_time_string}.log')
 
     @property
-    def output_total(self):
-        """Choice to output total dataset (urban + rural)."""
+    def alpha_urban(self):
+        """Alpha urban parameter for model."""
 
-        return self._output_total
+        return self.validate_parameter(self._alpha_urban, 'alpha_urban')
 
-    @property
-    def run_number(self):
-        """An integer add on for the file name when running sensitivity analysis."""
+    @alpha_urban.setter
+    def alpha_urban(self, value):
+        """Setter for alpha urban parameter."""
 
-        return self._run_number
-
-    @property
-    def compress_csv(self):
-        """Compress CSV to GZIP option."""
-
-        return self._compress_csv
+        self._alpha_urban = self.validate_parameter(value, 'alpha_urban')
 
     @property
-    def write_logfile(self):
-        """Optionally write log outputs to a file."""
+    def alpha_rural(self):
+        """Alpha rural parameter for model."""
 
-        return self._write_logfile
+        return self.validate_parameter(self._alpha_rural, 'alpha_rural')
 
-    @property
-    def write_raster(self):
-        """Optionally save outputs to a raster."""
+    @alpha_rural.setter
+    def alpha_rural(self, value):
+        """Setter for alpha rural parameter."""
 
-        return self._write_raster
-
-    @property
-    def write_array1d(self):
-        """Optionally save outputs to a 1D array for cells within the target state."""
-
-        return self._write_array1d
+        self._alpha_rural = self.validate_parameter(value, 'alpha_rural')
 
     @property
-    def write_array2d(self):
-        """Optionally save outputs to a 1D array for cells within the target state."""
+    def beta_urban(self):
+        """Beta urban parameter for model."""
 
-        return self._write_array2d
+        return self.validate_parameter(self._beta_urban, 'beta_urban')
 
-    @property
-    def write_csv(self):
-        """Optionally export raster as a CSV file without nodata values;  option set to compress CSV using gzip.
-        Exports values for non-NODATA grid cells as field name `value`.
+    @beta_urban.setter
+    def beta_urban(self, value):
+        """Setter for beta urban parameter."""
 
-        """
-
-        return self._write_csv
+        self._beta_urban = self.validate_parameter(value, 'beta_urban')
 
     @property
-    def historical_urban_pop_raster(self):
-        """Full path with file name and extension to a raster containing urban population counts for each 1 km
-        grid cell for the historical base time step.
+    def beta_rural(self):
+        """Beta rural parameter for model."""
 
-        """
+        return self.validate_parameter(self._beta_rural, 'beta_rural')
 
-        return self.validate_file(self._historical_urban_pop_raster)
+    @beta_rural.setter
+    def beta_rural(self, value):
+        """Setter for beta rural parameter."""
 
-    @property
-    def historical_rural_pop_raster(self):
-        """Full path with file name and extension to a raster containing rural population counts for each 1 km
-        grid cell for the historical base time step.
-
-        """
-
-        return self.validate_file(self._historical_rural_pop_raster)
+        self._beta_rural = self.validate_parameter(value, 'beta_rural')
 
     @property
     def kernel_distance_meters(self):
@@ -309,52 +337,23 @@ class ReadConfig:
 
         self._kernel_distance_meters = value
 
-    @property
-    def bbox(self):
-        """Get a bounding box from the historical raster."""
-
-        return utils.create_bbox(self.template_raster_object)
-
-    @property
-    def neighbors(self):
-        """Get all neighboring states including the target state as a list."""
-
-        return self.get_state_neighbors(self.state_name, os.path.dirname(self.historical_rural_pop_raster))
-
-    @property
-    def metadata(self):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        return self._metadata
-
-    @property
-    def template_raster_object(self):
-        """Get a copy of the raster metadata from a states input raster."""
-
-        return self._template_raster_object
-
-    @property
-    def df_projected(self):
+    def process_df_projected(self):
         """From population projection file if exists."""
         if (self.urban_pop_proj_n is None) and (self.rural_pop_proj_n is None):
-            return pd.read_csv(self.projected_population_file)
+            df = pd.read_csv(self.projected_population_file)
+
+            # make header lower case
+            df.columns = [i.lower() for i in df.columns]
+
+            # make scenario column lower case
+            df['scenario'] = df['scenario'].str.lower()
+
+            return df
+
         else:
             return None
 
-    @property
-    def date_time_string(self):
-        """Get a current time in a string matching the specified datetime format."""
-
-        return datetime.datetime.now().strftime(self.DATETIME_FORMAT)
-
-    @property
-    def datetime_format(self):
-        """Convenience wrapper for the DATETIME_FORMAT class attribute."""
-
-        return self.DATETIME_FORMAT
-
-    @property
-    def output_directory(self):
+    def set_output_directory(self):
         """Validate output directory."""
 
         if self.config is None:
@@ -362,65 +361,6 @@ class ReadConfig:
         else:
             key = self.validate_key(self.config, self.OUT_DIR_KEY)
             return self.validate_directory(key)
-
-    @property
-    def scenario(self):
-        """Target scenario name."""
-
-        return self._scenario
-
-    @property
-    def state_name(self):
-        """Target state name."""
-
-        return self._state_name.lower()
-
-    @property
-    def logfile(self):
-        """Full path with file name and extension to the logfile."""
-
-        return os.path.join(self.output_directory, 'logfile_{}_{}_{}.log'.format(self.scenario,
-                                                                                 self.state_name,
-                                                                                 self.date_time_string))
-    @property
-    def time_step(self):
-        """Number of time steps."""
-
-        return self.validate_step(self._time_step, self.TIME_STEP_KEY)
-
-    @property
-    def projection_start_year(self):
-        """Four digit first year to process for the projection."""
-
-        return self.validate_step(self._projection_start_year, 'projection_start_year')
-
-    @property
-    def projection_end_year(self):
-        """Four digit last year to process for the projection."""
-
-        return self.validate_step(self._projection_end_year, 'projection_end_year')
-
-    @property
-    def historic_base_year(self):
-        """Four digit historic base year."""
-
-        return self.validate_step(self._historic_base_year, 'historic_base_year')
-
-    @property
-    def steps(self):
-        """Create a list of time steps from the start and through steps by the step interval."""
-
-        return range(self.projection_start_year, self.projection_end_year + self.time_step, self.time_step)
-
-    @property
-    def historical_suitability_raster(self):
-        """Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0
-        for each 1 km grid cell representing suitability depending on topographic and land use and land cover
-        characteristics within the target state.
-
-        """
-
-        return self.validate_file(self._historical_suitability_raster)
 
     @property
     def historical_suitability_2darray(self):
@@ -453,17 +393,18 @@ class ReadConfig:
         with open(self.one_dimension_indices_file, 'r') as r:
             return simplejson.load(r)
 
-    @property
-    def grid_coordinates_file(self):
-        """File with grid coordinates and feature ids."""
-
-        return self.validate_file(self._grid_coordinates_file)
-
-    @property
-    def grid_coordinates_array(self):
+    def get_grid_coordinates_array(self):
         """Grid coordinates to array."""
 
-        return np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+        # return np.genfromtxt(self.grid_coordinates_file, delimiter=',', skip_header=1, usecols=(0, 1, 2), dtype=float)
+        df = pd.read_csv(self.grid_coordinates_file)
+        df.sort_values('FID', inplace=True)
+        df.set_index('FID', drop=False, inplace=True)
+        df.index.name = None
+        df = df[['XCoord', 'YCoord', 'FID']].copy()
+
+        return df.values
+
 
     @property
     def urban_pop_proj_n(self):
@@ -523,70 +464,6 @@ class ReadConfig:
             array1d = array2d.flatten()
 
         return array2d, array1d, row_count, col_count, profile
-
-    @property
-    def alpha_urban(self):
-        """Alpha urban parameter for model."""
-
-        # if running calibration
-        if self._alpha_urban is None:
-            return None
-        else:
-            return self.validate_parameter(self._alpha_urban, 'alpha_urban')
-
-    @alpha_urban.setter
-    def alpha_urban(self, value):
-        """Setter for alpha urban parameter."""
-
-        self._alpha_urban = self.validate_parameter(value, 'alpha_urban')
-
-    @property
-    def alpha_rural(self):
-        """Alpha rural parameter for model."""
-
-        # if running calibration
-        if self._alpha_rural is None:
-            return None
-        else:
-            return self.validate_parameter(self._alpha_rural, 'alpha_rural')
-
-    @alpha_rural.setter
-    def alpha_rural(self, value):
-        """Setter for alpha rural parameter."""
-
-        self._alpha_rural = self.validate_parameter(value, 'alpha_rural')
-
-    @property
-    def beta_urban(self):
-        """Beta urban parameter for model."""
-
-        # if running calibration
-        if self._beta_urban is None:
-            return None
-        else:
-            return self.validate_parameter(self._beta_urban, 'beta_urban')
-
-    @beta_urban.setter
-    def beta_urban(self, value):
-        """Setter for beta urban parameter."""
-
-        self._beta_urban = self.validate_parameter(value, 'beta_urban')
-
-    @property
-    def beta_rural(self):
-        """Beta rural parameter for model."""
-
-        # if running calibration
-        if self._beta_rural is None:
-            return None
-        else:
-            return self.validate_parameter(self._beta_rural, 'beta_rural')
-
-    @beta_rural.setter
-    def beta_rural(self, value):
-        """Setter for beta rural parameter."""
-
-        self._beta_rural = self.validate_parameter(value, 'beta_rural')
 
     def validate_parameter(self, param, key):
         """Validate parameter existence and range.
@@ -693,24 +570,6 @@ class ReadConfig:
                 raise TypeError(f"Value '{n}' is not an integer.")
         else:
             return None
-
-    @staticmethod
-    def get_state_neighbors(state_name, indir):
-        """Get all neighboring states and the target state from lookup file as a list"""
-
-        df = pd.read_csv(pkg_resources.resource_filename('population_gravity', 'data/neighboring_states_100km.csv'))
-
-        # get the actual state name from the near states because they are not lower case like what is being passed
-        state_find = df.loc[(df['target_state'] == state_name) & (df['near_state'].str.lower() == state_name)].values[0][-1]
-
-        # extract a list of all neighboring states including the target state
-        state_list = df.loc[df['target_state'] == state_name]['near_state'].to_list()
-
-        # ensure that the target state comes first to prevent any issue with the reverse painter's algorithm for merge
-        state_list.insert(0, state_list.pop(state_list.index(state_find)))
-
-        # make all lower case
-        return [i.lower() for i in state_list]
 
     @staticmethod
     def validate_key(yaml_object, key):

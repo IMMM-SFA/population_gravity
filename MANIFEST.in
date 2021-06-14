@@ -1,3 +1,4 @@
 include population_gravity/tests/data/comp_data/*
 include population_gravity/tests/data/inputs/*
+include population_gravity/data/neighboring_states_150km.csv
 include population_gravity/data/neighboring_states_100km.csv

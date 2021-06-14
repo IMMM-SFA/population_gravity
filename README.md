@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/IMMM-SFA/population_gravity.svg?branch=master)](https://travis-ci.org/IMMM-SFA/population_gravity) 
+[![build](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml/badge.svg)](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/IMMM-SFA/population_gravity/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/population_gravity)
 
 # population_gravity
@@ -9,25 +9,39 @@
 The `population_gravity` model allocates aggregate urban and rural populations for a defined region to grid cells within that region. In the IM3 application, the model is applied to US state-level urban and rural populations, which are allocated to 1 km grid cells within states. Allocation to grid cells is based on the relative suitability of each cell. Suitability is calculated using a gravity-based approach, in which the suitability of a given cell is determined by the population of surrounding cells (100 km radius), their distance away, and two parameters, namely alpha and beta. Alpha and beta are estimated based on historical population data and indicate the importance of returns to scale and distance in determining suitability values of cells, respectively. The model is composed of two components: calibration and projection. The calibration component uses historical urban/rural population grids of each state in 2000 and 2010 and an optimization algorithm to estimate the alpha and beta parameters that minimize the absolute difference between the actual population grid in 2010 and the one derived from the model. The two parameters can be modified to reflect distinctive forms of population development that may be desired in different socio-economic scenarios. Once the parameters are defined, the projection component downscales state-level urban/rural population aggregates of each state from 2020 to 2100 under different scenarios to grid cells within the state.
 
 ## Associated publications
-Zoraghein, H., & O’Neill, B. (2020a). The methodological foundation of a gravity-based model to downscale U.S. state-level populations to high-resolution distributions for integrated human-environment analysis. *Privileged*.
 
-Zoraghein, H., & O’Neill, B. (2020b). U.S. state-level projections of the spatial distribution of population consistent with
-Shared Socioeconomic Pathways. *Privileged*.
+>Zoraghein, H., & O’Neill, B. C. (2020). US State-level Projections of the Spatial Distribution of Population Consistent with Shared Socioeconomic Pathways. Sustainability, 12(8), 3374. https://doi.org/10.3390/su12083374
+
+The input and output data used in this publication can be found here:
+
+>Zoraghein, H., & O'Neill, B. (2020). Data Supplement: U.S. state-level projections of the spatial distribution of population consistent with Shared Socioeconomic Pathways. (Version v0.1.0) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3756179
+
+State-level population projections were described in this publication:
+
+>Jiang, L., B.C. O'Neill, H. Zoraghein, and S. Dahlke. 2020. Population scenarios for U.S. states consistent with Shared Socioeconomic Pathways. Environmental Research Letters, https://doi.org/10.1088/1748-9326/aba5b1.
+
+The data produced in Jiang et al. (2020) can be downloaded from here:
+
+>Jiang, L., Dahlke, S., Zoraghein, H., & O'Neill, B.C. (2020). Population scenarios for U.S. states consistent with Shared Socioeconomic Pathways (Version v0.1.0) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3956412
+
+and the state-level model code used in that publication can be found here:
+
+>Zoraghein, H., R. Nawrotzki, L. Jiang, and S. Dahlke (2020). IMMM-SFA/statepop: v0.1.0 (Version v0.1.0). Zenodo. http://doi.org/10.5281/zenodo.3956703
 
 
 ## Getting Started
 The `population_gravity` package uses only **Python 3.6** and up.
 
 ### Step 1:
-You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `pip` instance that matches your Python3 distribution):
+You can install `population_gravity` from GitHub by running the following from your terminal:
 
-`pip3 install git+https://github.com/IMMM-SFA/spatial_population_downscaling_model.git --user`
+`python -m pip install -e git://github.com/IMMM-SFA/population_gravity.git@main#egg=population_gravity`
 
 ### Step 2:
 Confirm that the module and its dependencies have been installed by running from your prompt:
 
 ```python
-from population_gravity import Model
+import population_gravity
 ```
 
 If no error is returned then you are ready to go!
@@ -42,8 +56,8 @@ See examples below for how to pass into the `Model` class
 | `config_file` | string | Full path to configuration YAML file with file name and extension. If not provided by the user, the code will default to the expectation of alternate arguments. |
 | `grid_coordinates_file` | string | Full path with file name and extension to the CSV file containing the coordinates for each 1 km grid cell within the target state. File includes a header with the fields XCoord, YCoord, FID.,Where data types and field descriptions are as follows: (XCoord, float, X coordinate in meters),(YCoord, float, Y coordinate in meters),(FID, int, Unique feature id) |
 | `historical_suitability_raster` | string | Full path with file name and extension to the suitability raster containing values from 0.0 to 1.0 for each 1 km grid cell representing suitability depending on topographic and land use and land cover characteristics within the target state. |
-| `historical_rural_pop_raster` | string | Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step. |
-| `historical_urban_pop_raster` | string | Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step. |
+| `base_rural_pop_raster` | string | Full path with file name and extension to a raster containing rural population counts for each 1 km grid cell for the historical base time step. |
+| `base_urban_pop_raster` | string | Full path with file name and extension to a raster containing urban population counts for each 1 km grid cell for the historical base time step. |
 | `projected_population_file` | string | Full path with file name and extension to a CSV file containing population projections per year separated into urban and rural categories.,Field descriptions for require fields as follows: (Year, integer, four digit year), (UrbanPop, float, population count for urban), (RuralPop, float, population count for rural), (Scenario, string, scenario as set in the `scenario` variable) |
 | `one_dimension_indices_file` | string | Full path with file name and extension to the text file containing a file structured as a Python list (e.g. [0, 1]) that contains the index of each grid cell when flattened from a 2D array to a 1D array for the target state. |
 | `output_directory` | string | Full path with file name and extension to the output directory where outputs and the log file will be written. |
@@ -54,8 +68,7 @@ See examples below for how to pass into the `Model` class
 | `scenario` | string | String representing the scenario with no spaces. Must match what is in the `projected_population_file` if passing population projections in using a file. |
 | `state_name` | string | Target state name with no spaces separated by an underscore. |
 | `historic_base_year` | integer | Four digit historic base year. |
-| `projection_start_year` | integer | Four digit first year to process for the projection. |
-| `projection_end_year` | integer | Four digit last year to process for the projection. |
+| `projection_year` | integer | Four digit first year to process for the projection. |
 | `time_step` | integer | Number of steps (e.g. number of years between projections) |
 | `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
 | `urban_pop_proj_n` | float | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
@@ -83,7 +96,7 @@ See examples below for how to pass into the `Model` class
 | `pass_two_beta_lower` | float | Parameter bounds for the seconds optimization pass |
 
 ### Variable arguments
-Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
+Users can update variable argument values after model initialization.  The following are variable arguments:
 - `alpha_urban`
 - `beta_urban`
 - `alpha_rural`
@@ -95,57 +108,8 @@ Users can update variable argument values after model initialization; this inclu
 ### YAML configuration file option (e.g., config.yml)
 Arguments can be passed into the `Model` class using a YAML configuration file as well (see **Example 1**):
 
-```yaml
-# Example configuration file setup
-grid_coordinates_file: '<Full path with file name and extension to the file>'
-historical_rural_pop_raster: '<Full path with file name and extension to the file>'
-historical_urban_pop_raster: '<Full path with file name and extension to the file>'
-historical_suitability_raster: '<Full path with file name and extension to the file>'
-projected_population_file: '<Full path with file name and extension to the file>'
-one_dimension_indices_file: '<Full path with file name and extension to the file>'
-output_directory: '<Full path with file name and extension to the file>'
-alpha_urban: 2.0
-alpha_rural: 0.08
-beta_urban: 1.78
-beta_rural: 1.42
-kernel_distance_meters: 100000
-scenario: 'SSP2'
-state_name: 'vermont'
-historic_base_year: 2010
-projection_start_year: 2020
-projection_end_year: 2050
-time_step: 10
-write_raster: True
-output_total: True
-
-# --- start calibration specific entries ---
-calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
-calibration_urban_year_two_raster: '<Full path with file name and extension to the file>'
-calibration_rural_year_one_raster: '<Full path with file name and extension to the file>'
-calibration_rural_year_two_raster: '<Full path with file name and extension to the file>'
-
-# number of samples for alphas and betas over the line space when using brute force for pass one
-brute_n_alphas: 10
-brute_n_betas: 5
-
-# parameter bounds for the first optimization pass
-pass_one_alpha_upper: 1.0
-pass_one_alpha_lower: -1.0
-pass_one_beta_upper: 1.0
-pass_one_beta_lower: 0.0
-
-# parameter bounds for the seconds optimization pass
-pass_two_alpha_upper: 2.0
-pass_two_alpha_lower: -2.0
-pass_two_beta_upper: 2.0
-pass_two_beta_lower: -0.5
-
-# --- end calibration specific entries ---
-
-```
-
 ### Generate calibration parameters
-If the calibration has not yet been conducted, follow **Example 4** to generate calibration parameters for a target state.
+If the calibration has not yet been conducted, follow **Example 2** to generate calibration parameters for a target state.
 
 ### Expected outputs
 Each downscaling run will output a raster for urban, rural, and total population count for each 1 km grid cell for the target state.  These will be written to where the `output_directory` has been assigned.
@@ -154,83 +118,40 @@ Each calibration run will output a CSV file containing the calibration parameter
 
 ## Examples
 
-### Example 1:  Run population downscaling for all years using a configuration file
+### Download the original data
+Download and unzip the inputs and outputs as archived in Zoraghein and O'Neill (2020) from the following Zenodo archive:  [zoraghein-oneill_population_gravity_inputs_outputs.zip](https://zenodo.org/record/3756179/files/zoraghein-oneill_population_gravity_inputs_outputs.zip?download=1)
+
+### Example 1:  Run population downscaling for Vermont using year 2010 as the base year to downscale population projections for 2020.  Write outputs as GeoTiff files.
 ```python
 from population_gravity import Model
 
-run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
+# instantiate model
+run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
+            base_rural_pop_raster='<Full path with file name and extension to the file>',
+            base_urban_pop_raster='<Full path with file name and extension to the file>',
+            historical_suitability_raster='<Full path with file name and extension to the file>',
+            projected_population_file='<Full path with file name and extension to the file>',
+            one_dimension_indices_file='<Full path with file name and extension to the file>',
+            output_directory='<Full path to the desired directory>',
+            alpha_urban=alpha_urban,
+            alpha_rural=alpha_rural,
+            beta_urban=beta_urban,
+            beta_rural=beta_rural,
+            kernel_distance_meters=kernel_distance_meters,
+            scenario=scenario,
+            state_name=target_state,
+            historic_base_year=historical_year,
+            projection_year=projection_year,
+            write_raster=write_raster,
+            write_logfile=write_logfile,
+            output_total=output_total,
+            write_array1d=write_array1d,
+            run_number=sample_id)
 
 run.downscale()
 ```
 
-### Example 2:  Run population downscaling for all years by passing argument values
-```python
-from population_gravity import Model
-
-run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
-            historical_rural_pop_raster='<Full path with file name and extension to the file>',
-            historical_urban_pop_raster='<Full path with file name and extension to the file>',
-            historical_suitability_raster='<Full path with file name and extension to the file>',
-            projected_population_file='<Full path with file name and extension to the file>',
-            one_dimension_indices_file='<Full path with file name and extension to the file>',
-            output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=1.99999999995073,
-            alpha_rural=0.0750326293181678,
-            beta_urban=1.77529986067379,
-            beta_rural=1.42410799449511,
-            kernel_distance_meters=100000,
-            scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='vermont',
-            historic_base_year=2010,
-            projection_start_year=2020,
-            projection_end_year=2030,
-            time_step=10,
-            write_raster=True)
-
-run.downscale()
-```
-
-### Example 3:  Run population downscaling by year by passing argument values; update value in between time step
-```python
-from population_gravity import Model
-
-run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
-            historical_rural_pop_raster='<Full path with file name and extension to the file>',
-            historical_urban_pop_raster='<Full path with file name and extension to the file>',
-            historical_suitability_raster='<Full path with file name and extension to the file>',
-            projected_population_file='<Full path with file name and extension to the file>',
-            one_dimension_indices_file='<Full path with file name and extension to the file>',
-            output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=1.99999999995073,
-            alpha_rural=0.0750326293181678,
-            beta_urban=1.77529986067379,
-            beta_rural=1.42410799449511,
-            kernel_distance_meters=100000,
-            scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='vermont',
-            historic_base_year=2010,
-            projection_start_year=2020,
-            projection_end_year=2030,
-            time_step=10,
-            write_raster=True)
-
-# initialize model
-run.initialize()
-
-# downscale year 0
-run.advance_step()
-
-# modify the calibrated alpha parameter value for urban
-run.alpha_urban = -0.1
-
-# run next step with modified parameters
-run.advance_step()
-
-# close out run
-run.close()
-```
-
-### Example 4:  Calibrate downscaling parameters for a target state via script
+### Example 3:  Calibrate downscaling parameters for a target state via script
 ```python
 from population_gravity import Model
 
@@ -266,140 +187,4 @@ run = Model(grid_coordinates_file='<Full path with file name and extension to th
             pass_two_beta_lower=-0.5)
 
 run.calibrate()
-```
-
-### Example 5: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates
-```python
-
-import population_gravity as pgr
-
-vaild_coordinates_csv = "<path to file>"
-valid_raster_values_csv = "<path to file>"
-out_csv = "<path to file>"
-
-# optionally choose not to write CSV and just return the data frame by `out_csv=None`
-df = pgr.join_coords_to_value(vaild_coordinates_csv, valid_raster_values_csv, out_csv)
-```
-
-### Example 6: Run sensitivity analysis with Latin Hypercube Sampling and Delta Moment-Independent Measure
-```python
-from population_gravity import Lhs
-from population_gravity import BatchModelRun
-from population_gravity import DeltaMomentIndependent
-
-
-# generate latin hypercube sample
-lhs = Lhs(alpha_urban_bounds=[-2.0, 2.0],
-          alpha_rural_bounds=[-2.0, 2.0],
-          beta_urban_bounds=[-2.0, 2.0],
-          beta_rural_bounds=[-2.0, 2.0],
-          kernel_distance_meters_bounds=[90000, 100000],
-          n_samples=1000,
-          problem_dict_outfile='<Full path with file name and extension to the pickle file>',
-          sample_outfile='<Full path with file name and extension to the numpy file>')
-          
-          
-# create batch model run
-x = BatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
-                     historical_rural_pop_raster='<Full path with file name and extension to the file>',
-                     historical_urban_pop_raster='<Full path with file name and extension to the file>',
-                     historical_suitability_raster='<Full path with file name and extension to the file>',
-                     projected_population_file='<Full path with file name and extension to the file>',
-                     one_dimension_indices_file='<Full path with file name and extension to the file>',
-                     output_directory='<Full path with file name and extension to the file>',
-                     alpha_urban=1.99999999995073, # these are default values that will be overridden by samples
-                     alpha_rural=0.0750326293181678,
-                     beta_urban=1.77529986067379,
-                     beta_rural=1.42410799449511,
-                     kernel_distance_meters=100000,
-                     scenario='SSP2', # shared socioeconomic pathway abbreviation
-                     state_name='vermont',
-                     historic_base_year=2010,
-                     projection_start_year=2020,
-                     projection_end_year=2020,
-                     time_step=1,
-                     write_raster=False,
-                     write_csv=False,
-                     compress_csv=True,
-                     write_array1d=True,
-                     write_logfile=False,
-                     output_total=False,
-                     sample=lhs.sample,
-                     problem_dict=lhs.problem_dict)
-
-# generate runs using LHS parameter values
-x.run_batch()
-
-# instantiate delta model
-delta_run = DeltaMomentIndependent(problem_dict=lhs.problem_dict,
-                                   file_directory='<Full path with file name and extension to where the run files are>',
-                                   state_name=x.state_name,
-                                   sample=lhs.sample,
-                                   setting='Urban', # either 'Urban' or 'Rural'
-                                   file_extension='.npy', # file extension matching the output format from run files
-                                   output_file='<Full path with file name and extension to the output CSV file.>')
-
-# run analysis
-output_list = delta_run.run_analysis()
-```
-
-### Example 7: Run sensitivity analysis with Saltelli sampling and Sobol
-```python
-from population_gravity import Saltelli
-from population_gravity import BatchModelRun
-from population_gravity import Sobol
-
-
-# generate latin hypercube sample
-saltelli_sample = Saltelli(alpha_urban_bounds=[-2.0, 2.0],
-                           alpha_rural_bounds=[-2.0, 2.0],
-                           beta_urban_bounds=[-2.0, 2.0],
-                           beta_rural_bounds=[-2.0, 2.0],
-                           kernel_distance_meters_bounds=[90000, 100000],
-                           n_samples=1000,
-                           problem_dict_outfile='<Full path with file name and extension to the pickle file>',
-                           sample_outfile='<Full path with file name and extension to the numpy file>')
-          
-          
-# create batch model run
-x = BatchModelRun(grid_coordinates_file='<Full path with file name and extension to the file>',
-                     historical_rural_pop_raster='<Full path with file name and extension to the file>',
-                     historical_urban_pop_raster='<Full path with file name and extension to the file>',
-                     historical_suitability_raster='<Full path with file name and extension to the file>',
-                     projected_population_file='<Full path with file name and extension to the file>',
-                     one_dimension_indices_file='<Full path with file name and extension to the file>',
-                     output_directory='<Full path with file name and extension to the file>',
-                     alpha_urban=1.99999999995073, # these are default values that will be overridden by samples
-                     alpha_rural=0.0750326293181678,
-                     beta_urban=1.77529986067379,
-                     beta_rural=1.42410799449511,
-                     kernel_distance_meters=100000,
-                     scenario='SSP2', # shared socioeconomic pathway abbreviation
-                     state_name='vermont',
-                     historic_base_year=2010,
-                     projection_start_year=2020,
-                     projection_end_year=2020,
-                     time_step=1,
-                     write_raster=False,
-                     write_csv=False,
-                     compress_csv=True,
-                     write_array1d=True,
-                     write_logfile=False,
-                     output_total=False,
-                     sample=saltelli_sample.sample,
-                     problem_dict=saltelli_sample.problem_dict)
-
-# generate runs using LHS parameter values
-x.run_batch()
-
-# instantiate delta model
-sobol_run = Sobol(problem_dict=saltelli_sample.problem_dict,
-                  file_directory='<Full path with file name and extension to where the run files are>',
-                  state_name=x.state_name,
-                  setting='Urban', # either 'Urban' or 'Rural'
-                  file_extension='.npy', # file extension matching the output format from run files
-                  output_file='<Full path with file name and extension to the output CSV file.>')
-
-# run analysis
-output_list = sobol_run.run_analysis()
 ```

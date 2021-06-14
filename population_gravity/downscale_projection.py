@@ -39,8 +39,8 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
     # Define local variables
     time_one_data = {}  # Dictionary storing the base year population grids
     population_1st = {}  # Dictionary storing the base year population arrays
-    time_one_data['Rural'] = rural_raster  # Rural
-    time_one_data['Urban'] = urban_raster  # Urban
+    time_one_data['rural'] = rural_raster  # Rural
+    time_one_data['urban'] = urban_raster  # Urban
     final_arrays = {}  # Dictionary containing final projected arrays
 
     # Calculate a distance matrix that serves as a template
@@ -51,6 +51,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
         if type(time_one_data[setting]) == str:
             rast_array = utils.raster_to_array(time_one_data[setting]).flatten()
+
         else:
             rast_array = time_one_data[setting].read().flatten()
 
@@ -61,12 +62,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         population_1st[setting] = rast_array
 
     # create an array containing total population values in the first historical year
-    total_population_1st = population_1st["Rural"] + population_1st["Urban"]
+    total_population_1st = population_1st["rural"] + population_1st["urban"]
 
     # number of columns of population grid required to derive linear indices
     ind_diffs = dist_matrix["ind_diff"].values
 
-    # distances between current point and its close points
+    # distances between current point and its close points; converted to km from meters
     ini_dist = dist_matrix["dis"].values / 1000.0
 
     # downscale population projection
@@ -78,19 +79,17 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 
         # load the SSP file to retrieve the aggregated projected population at time 2 for downscaling
         if cfg.df_projected is None:
-            if setting == "Urban":
+            if setting == "urban":
                 pop_t2 = urban_pop_proj_n
             else:
                 pop_t2 = rural_pop_proj_n
 
         else:
 
-            if setting == "Urban":
-                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["Year"] == yr) & (cfg.df_projected["Scenario"] == cfg.scenario),
-                                      "UrbanPop"].values[0]
+            if setting == "urban":
+                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["year"] == yr) & (cfg.df_projected["scenario"] == cfg.scenario), "urbanpop"].values[0]
             else:
-                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["Year"] == yr) & (cfg.df_projected["Scenario"] == cfg.scenario),
-                                      "RuralPop"].values[0]
+                pop_t2 = cfg.df_projected.loc[(cfg.df_projected["year"] == yr) & (cfg.df_projected["scenario"] == cfg.scenario), "ruralpop"].values[0]
 
         # population change between years 1 and 2
         pop_change = pop_t2 - pop_t1
@@ -100,7 +99,7 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         else:
             negative_mod = 0
 
-        if setting == "Urban":
+        if setting == "urban":
             alpha_parameter = alpha_urban
             beta_parameter = -beta_urban  # note negative multiplier
         else:
@@ -183,15 +182,15 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
         write_outputs(cfg, setting, yr, pop_estimates)
 
     # calculate the total population array
-    total_array = final_arrays["Rural"] + final_arrays["Urban"]
+    total_array = final_arrays["rural"] + final_arrays["urban"]
 
     # write the total population outfile if desired
     if cfg.output_total:
-        write_outputs(cfg, 'Total', yr, total_array)
+        write_outputs(cfg, 'total', yr, total_array)
 
     # write outputs in memory and return
-    urban_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Urban'], cfg.one_dimension_indices)
-    rural_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['Rural'], cfg.one_dimension_indices)
+    urban_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['urban'], cfg.one_dimension_indices)
+    rural_output = utils.array_to_raster_memory(cfg.template_raster, final_arrays['rural'], cfg.one_dimension_indices)
 
     return urban_output, rural_output
 
@@ -199,7 +198,12 @@ def pop_projection(cfg, urban_raster, rural_raster, alpha_urban, beta_urban, alp
 def write_suitability(cfg, setting, yr, data):
     """Write suitability data to a 1D numpy array."""
 
-    output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{cfg.run_number}suitability.npy")
+    if type(cfg.run_number) == int:
+        run_num = f"{cfg.run_number}_"
+    else:
+        run_num = ''
+
+    output_array = os.path.join(cfg.output_directory, f"{cfg.state_name}_1km_{cfg.scenario}_{setting}_{yr}_{run_num}suitability.npy")
 
     logging.info(f"Saving {setting} suitability array to:  {output_array}")
     np.save(output_array, data)
@@ -216,6 +220,7 @@ def write_outputs(cfg, setting, yr, data):
     if cfg.write_raster:
         output_raster = construct_filename(cfg, setting, '.tif', yr)
         logging.info(f"Saving {setting} raster to:  {output_raster}")
+
         utils.array_to_raster(cfg.template_raster, data, cfg.one_dimension_indices, output_raster)
 
     # write to array if desired
@@ -246,7 +251,7 @@ def construct_filename(cfg, setting, extension, yr):
     """Construct a full path with file name and extension to an output file.
 
     :param cfg:                             Configuration object
-    :param setting:                         str. Either Urban, Rural, or Total
+    :param setting:                         str. Either urban, rural, or total
     :param extension:                       str. File extension with dot
     :param yr:                              int. Target year
 
