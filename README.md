@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/IMMM-SFA/population_gravity.svg?branch=master)](https://travis-ci.org/IMMM-SFA/population_gravity) 
+[![build](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml/badge.svg)](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/IMMM-SFA/population_gravity/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/population_gravity)
 
 # population_gravity
@@ -9,25 +9,39 @@
 The `population_gravity` model allocates aggregate urban and rural populations for a defined region to grid cells within that region. In the IM3 application, the model is applied to US state-level urban and rural populations, which are allocated to 1 km grid cells within states. Allocation to grid cells is based on the relative suitability of each cell. Suitability is calculated using a gravity-based approach, in which the suitability of a given cell is determined by the population of surrounding cells (100 km radius), their distance away, and two parameters, namely alpha and beta. Alpha and beta are estimated based on historical population data and indicate the importance of returns to scale and distance in determining suitability values of cells, respectively. The model is composed of two components: calibration and projection. The calibration component uses historical urban/rural population grids of each state in 2000 and 2010 and an optimization algorithm to estimate the alpha and beta parameters that minimize the absolute difference between the actual population grid in 2010 and the one derived from the model. The two parameters can be modified to reflect distinctive forms of population development that may be desired in different socio-economic scenarios. Once the parameters are defined, the projection component downscales state-level urban/rural population aggregates of each state from 2020 to 2100 under different scenarios to grid cells within the state.
 
 ## Associated publications
-Zoraghein, H., & O’Neill, B. (2020a). The methodological foundation of a gravity-based model to downscale U.S. state-level populations to high-resolution distributions for integrated human-environment analysis. *Privileged*.
 
-Zoraghein, H., & O’Neill, B. (2020b). U.S. state-level projections of the spatial distribution of population consistent with
-Shared Socioeconomic Pathways. *Privileged*.
+>Zoraghein, H., & O’Neill, B. C. (2020). US State-level Projections of the Spatial Distribution of Population Consistent with Shared Socioeconomic Pathways. Sustainability, 12(8), 3374. https://doi.org/10.3390/su12083374
+
+The input and output data used in this publication can be found here:
+
+>Zoraghein, H., & O'Neill, B. (2020). Data Supplement: U.S. state-level projections of the spatial distribution of population consistent with Shared Socioeconomic Pathways. (Version v0.1.0) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3756179
+
+State-level population projections were described in this publication:
+
+>Jiang, L., B.C. O'Neill, H. Zoraghein, and S. Dahlke. 2020. Population scenarios for U.S. states consistent with Shared Socioeconomic Pathways. Environmental Research Letters, https://doi.org/10.1088/1748-9326/aba5b1.
+
+The data produced in Jiang et al. (2020) can be downloaded from here:
+
+>Jiang, L., Dahlke, S., Zoraghein, H., & O'Neill, B.C. (2020). Population scenarios for U.S. states consistent with Shared Socioeconomic Pathways (Version v0.1.0) [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3956412
+
+and the state-level model code used in that publication can be found here:
+
+>Zoraghein, H., R. Nawrotzki, L. Jiang, and S. Dahlke (2020). IMMM-SFA/statepop: v0.1.0 (Version v0.1.0). Zenodo. http://doi.org/10.5281/zenodo.3956703
 
 
 ## Getting Started
 The `population_gravity` package uses only **Python 3.6** and up.
 
 ### Step 1:
-You can install `population_gravity` by running the following from your cloned directory (NOTE: ensure that you are using the desired `pip` instance that matches your Python3 distribution):
+You can install `population_gravity` from GitHub by running the following from your terminal:
 
-`pip3 install git+https://github.com/IMMM-SFA/spatial_population_downscaling_model.git --user`
+`python -m pip install -e git://github.com/IMMM-SFA/population_gravity.git@main#egg=population_gravity`
 
 ### Step 2:
 Confirm that the module and its dependencies have been installed by running from your prompt:
 
 ```python
-from population_gravity import Model
+import population_gravity
 ```
 
 If no error is returned then you are ready to go!
@@ -55,7 +69,6 @@ See examples below for how to pass into the `Model` class
 | `state_name` | string | Target state name with no spaces separated by an underscore. |
 | `historic_base_year` | integer | Four digit historic base year. |
 | `projection_year` | integer | Four digit first year to process for the projection. |
-| `projection_end_year` | integer | Four digit last year to process for the projection. |
 | `time_step` | integer | Number of steps (e.g. number of years between projections) |
 | `rural_pop_proj_n` | float | Rural population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
 | `urban_pop_proj_n` | float | Urban population projection count for the projected year being calculated. These can be read from the `projected_population_file` instead. |
@@ -73,7 +86,7 @@ See examples below for how to pass into the `Model` class
 | `output_total` | boolean | Choice to output total (urban + rural) dataset; Defualt True |
 
 ### Variable arguments
-Users can update variable argument values after model initialization; this includes updating values between time steps (see **Example 3**).  The following are variable arguments:
+Users can update variable argument values after model initialization.  The following are variable arguments:
 - `alpha_urban`
 - `beta_urban`
 - `alpha_rural`
@@ -85,38 +98,8 @@ Users can update variable argument values after model initialization; this inclu
 ### YAML configuration file option (e.g., config.yml)
 Arguments can be passed into the `Model` class using a YAML configuration file as well (see **Example 1**):
 
-```yaml
-# Example configuration file setup
-grid_coordinates_file: '<Full path with file name and extension to the file>'
-base_rural_pop_raster: '<Full path with file name and extension to the file>'
-base_urban_pop_raster: '<Full path with file name and extension to the file>'
-historical_suitability_raster: '<Full path with file name and extension to the file>'
-projected_population_file: '<Full path with file name and extension to the file>'
-one_dimension_indices_file: '<Full path with file name and extension to the file>'
-output_directory: '<Full path with file name and extension to the file>'
-alpha_urban: 2.0
-alpha_rural: 0.08
-beta_urban: 1.78
-beta_rural: 1.42
-kernel_distance_meters: 100000
-scenario: 'SSP2'
-state_name: 'vermont'
-historic_base_year: 2010
-projection_year: 2020
-projection_end_year: 2050
-time_step: 10
-write_raster: True
-output_total: True
-
-# calibration specific entries
-calibration_urban_year_one_raster: '<Full path with file name and extension to the file>'
-calibration_urban_year_two_raster: '<Full path with file name and extension to the file>'
-calibration_rural_year_one_raster: '<Full path with file name and extension to the file>'
-calibration_rural_year_two_raster: '<Full path with file name and extension to the file>'
-```
-
 ### Generate calibration parameters
-If the calibration has not yet been conducted, follow **Example 4** to generate calibration parameters for a target state.
+If the calibration has not yet been conducted, follow **Example 2** to generate calibration parameters for a target state.
 
 ### Expected outputs
 Each downscaling run will output a raster for urban, rural, and total population count for each 1 km grid cell for the target state.  These will be written to where the `output_directory` has been assigned.
@@ -125,83 +108,40 @@ Each calibration run will output a CSV file containing the calibration parameter
 
 ## Examples
 
-### Example 1:  Run population downscaling for all years using a configuration file
+### Download the original data
+Download and unzip the inputs and outputs as archived in Zoraghein and O'Neill (2020) from the following Zenodo archive:  [zoraghein-oneill_population_gravity_inputs_outputs.zip](https://zenodo.org/record/3756179/files/zoraghein-oneill_population_gravity_inputs_outputs.zip?download=1)
+
+### Example 1:  Run population downscaling for Vermont using year 2010 as the base year to downscale population projections for 2020.  Write outputs as GeoTiff files.
 ```python
 from population_gravity import Model
 
-run = Model(config_file='<Full path with file name and extension to the YAML configuration file (e.g., config.yml)>')
-
-run.downscale()
-```
-
-### Example 2:  Run population downscaling for all years by passing argument values
-```python
-from population_gravity import Model
-
+# instantiate model
 run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
             base_rural_pop_raster='<Full path with file name and extension to the file>',
             base_urban_pop_raster='<Full path with file name and extension to the file>',
             historical_suitability_raster='<Full path with file name and extension to the file>',
             projected_population_file='<Full path with file name and extension to the file>',
             one_dimension_indices_file='<Full path with file name and extension to the file>',
-            output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=1.99999999995073,
-            alpha_rural=0.0750326293181678,
-            beta_urban=1.77529986067379,
-            beta_rural=1.42410799449511,
-            kernel_distance_meters=100000,
-            scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='vermont',
-            historic_base_year=2010,
-            projection_year=2020,
-            projection_end_year=2030,
-            time_step=10,
-            write_raster=True)
+            output_directory='<Full path to the desired directory>',
+            alpha_urban=alpha_urban,
+            alpha_rural=alpha_rural,
+            beta_urban=beta_urban,
+            beta_rural=beta_rural,
+            kernel_distance_meters=kernel_distance_meters,
+            scenario=scenario,
+            state_name=target_state,
+            historic_base_year=historical_year,
+            projection_year=projection_year,
+            write_raster=write_raster,
+            write_logfile=write_logfile,
+            output_total=output_total,
+            write_array1d=write_array1d,
+            run_number=sample_id)
 
 run.downscale()
 ```
 
-### Example 3:  Run population downscaling by year by passing argument values; update value in between time step
-```python
-from population_gravity import Model
-
-run = Model(grid_coordinates_file='<Full path with file name and extension to the file>',
-            base_rural_pop_raster='<Full path with file name and extension to the file>',
-            base_urban_pop_raster='<Full path with file name and extension to the file>',
-            historical_suitability_raster='<Full path with file name and extension to the file>',
-            projected_population_file='<Full path with file name and extension to the file>',
-            one_dimension_indices_file='<Full path with file name and extension to the file>',
-            output_directory='<Full path with file name and extension to the file>',
-            alpha_urban=1.99999999995073,
-            alpha_rural=0.0750326293181678,
-            beta_urban=1.77529986067379,
-            beta_rural=1.42410799449511,
-            kernel_distance_meters=100000,
-            scenario='SSP2', # shared socioeconomic pathway abbreviation
-            state_name='vermont',
-            historic_base_year=2010,
-            projection_year=2020,
-            projection_end_year=2030,
-            time_step=10,
-            write_raster=True)
-
-# initialize model
-run.initialize()
-
-# downscale year 0
-run.advance_step()
-
-# modify the calibrated alpha parameter value for urban
-run.alpha_urban = -0.1
-
-# run next step with modified parameters
-run.advance_step()
-
-# close out run
-run.close()
-```
-
-### Example 4:  Calibrate downscaling parameters for a target state using a configuration file
+### Example 2:  Calibrate downscaling parameters for a target state using a configuration file
 ```python
 from population_gravity import Model
 
@@ -210,7 +150,7 @@ run = Model(config_file='<Full path with file name and extension to the YAML con
 run.calibrate()
 ```
 
-### Example 5: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates
+### Example 3: Join raster values CSV file containing non-NODATA grid cell values to valid X, Y coordinates
 ```python
 
 import population_gravity as pgr
