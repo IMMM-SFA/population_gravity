@@ -171,7 +171,9 @@ class ReadConfig:
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
                  write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True,
-                 write_suitability=False):
+                 write_suitability=False, pass_one_alpha_upper=1.0, pass_one_alpha_lower=-1.0,
+                 pass_one_beta_upper=1.0, pass_one_beta_lower=0.0, pass_two_alpha_upper=2.0, pass_two_alpha_lower=-2.0,
+                 pass_two_beta_upper=2.0, pass_two_beta_lower=-0.5, brute_n_alphas=10, brute_n_betas=5):
 
         self._config_file = config_file
         self._alpha_urban = alpha_urban
@@ -239,10 +241,20 @@ class ReadConfig:
         self.write_suitability = write_suitability
 
         # specific to calibration run
-        self._calibration_urban_year_one_raster = calibration_urban_year_one_raster
-        self._calibration_urban_year_two_raster = calibration_urban_year_two_raster
-        self._calibration_rural_year_one_raster = calibration_rural_year_one_raster
-        self._calibration_rural_year_two_raster = calibration_rural_year_two_raster
+        self.calibration_urban_year_one_raster = calibration_urban_year_one_raster
+        self.calibration_urban_year_two_raster = calibration_urban_year_two_raster
+        self.calibration_rural_year_one_raster = calibration_rural_year_one_raster
+        self.calibration_rural_year_two_raster = calibration_rural_year_two_raster
+        self.pass_one_alpha_upper = pass_one_alpha_upper
+        self.pass_one_alpha_lower = pass_one_alpha_lower
+        self.pass_one_beta_upper = pass_one_beta_upper
+        self.pass_one_beta_lower = pass_one_beta_lower
+        self.pass_two_alpha_upper = pass_two_alpha_upper
+        self.pass_two_alpha_lower = pass_two_alpha_lower
+        self.pass_two_beta_upper = pass_two_beta_upper
+        self.pass_two_beta_lower = pass_two_beta_lower
+        self.brute_n_alphas = brute_n_alphas
+        self.brute_n_betas = brute_n_betas
 
         # get a copy of the raster metadata from a states input raster
         self.template_raster_object, self.metadata = utils.get_raster_with_metadata(self.historical_suitability_raster)

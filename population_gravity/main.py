@@ -157,7 +157,9 @@ class Model(Logger):
                  calibration_rural_year_one_raster=None, calibration_rural_year_two_raster=None,
                  kernel_distance_meters=None, write_raster=True, write_csv=False, write_array1d=False,
                  write_array2d=False, run_number='', write_logfile=True, compress_csv=True, output_total=True,
-                 write_suitability=False):
+                 write_suitability=False, pass_one_alpha_upper=1.0, pass_one_alpha_lower=-1.0,
+                 pass_one_beta_upper=1.0, pass_one_beta_lower=0.0, pass_two_alpha_upper=2.0, pass_two_alpha_lower=-2.0,
+                 pass_two_beta_upper=2.0, pass_two_beta_lower=-0.5, brute_n_alphas=10, brute_n_betas=5):
 
         super(Logger, self).__init__(config_file, grid_coordinates_file, historical_suitability_raster,
                                      base_rural_pop_raster, base_urban_pop_raster,
@@ -168,7 +170,10 @@ class Model(Logger):
                                      calibration_urban_year_two_raster, calibration_rural_year_one_raster,
                                      calibration_rural_year_two_raster, kernel_distance_meters, write_raster, write_csv,
                                      write_array1d, write_array2d, run_number, write_logfile, compress_csv,
-                                     output_total, write_suitability)
+                                     output_total, write_suitability,  pass_one_alpha_upper, pass_one_alpha_lower,
+                                     pass_one_beta_upper, pass_one_beta_lower, pass_two_alpha_upper,
+                                     pass_two_alpha_lower, pass_two_beta_upper, pass_two_beta_lower, brute_n_alphas,
+                                     brute_n_betas)
 
     @staticmethod
     def make_dir(pth):
@@ -177,7 +182,7 @@ class Model(Logger):
         if not os.path.exists(pth):
             os.makedirs(pth)
 
-    def initialize(self):
+    def  initialize(self):
         """Setup model."""
 
         # build output directory first to store logfile and other outputs
@@ -229,7 +234,7 @@ class Model(Logger):
         logging.info("Starting calibration.")
 
         # run calibration
-        calib.calibration(self.config)
+        calib.calibration(self)
 
         # run time for calibration
         logging.info("Calibration completed in {} minutes.".format((time.time() - tc) / 60))
