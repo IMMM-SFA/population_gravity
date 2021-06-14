@@ -1,5 +1,6 @@
 [![build](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml/badge.svg)](https://github.com/IMMM-SFA/population_gravity/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/IMMM-SFA/population_gravity/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/population_gravity)
+[![codecov](https://codecov.io/gh/IMMM-SFA/population_gravity/branch/master/graph/badge.svg)](https://codecov.io/gh/IMMM-SFA/population_gravity) [![DOI](https://zenodo.org/badge/191455756.svg)](https://zenodo.org/badge/latestdoi/191455756)
+
 
 # population_gravity
 
