@@ -19,12 +19,12 @@ setup(
     python_requires='>=3.6.*',
     install_requires=[
         'rasterio>=1.1.5',
-        'simplejson~=3.17.0',
+        'simplejson>=3.17.0',
         'numpy>=1.19.5',
         'pandas>=1.0.5',
-        'xarray~=0.16.2',
+        'xarray>=0.16.2',
         'scipy>=1.5.1',
-        'pathos~=0.2.6',
+        'pathos>=0.2.6',
         'PyYAML~=5.4.1'
     ],
     include_package_data=True
